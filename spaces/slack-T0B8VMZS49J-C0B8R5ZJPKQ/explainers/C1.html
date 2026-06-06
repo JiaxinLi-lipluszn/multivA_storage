@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C1 · 纯注意力架构</h1>
+<p>1/ *C1 的钩子：Transformer 的激进之处不是“多加了 attention”，而是把 RNN/CNN 从序列转导主干里拿掉。*<br><br>> dispensing with recurrence and convolutions entirely<br><br>这就是论文题目 `Attention Is All You Need` 的核心主张。</p>
+<hr>
+<p>2/ *关键直觉：序列位置之间不必沿时间步一步传话。*<br><br>RNN 的依赖路径随序列长度变长；self-attention 让任意两个 token 在同一层里直接建立联系。论文把目标说得很清楚：减少顺序计算，让训练更容易并行。</p>
+<hr>
+<p><em>Figure 1 展示 Transformer 仍是 encoder-decoder，但每层主干由 self-attention、encoder-decoder attention 和前馈层堆叠而成，而不是 RNN/CNN。</em></p>
+
+<hr>
+<p>3/ *机制：它不是“一个 attention 层”，而是一套 attention 驱动的 encoder-decoder。*<br><br>• encoder：每层先做 `multi-head self-attention`，再做 position-wise FFN<br>• decoder：masked self-attention + 对 encoder 输出的 attention + FFN<br>• decoder mask 保证自回归：位置 `i` 只能看见更早输出</p>
+<hr>
+<p>4/ *为什么这能替代循环？因为 attention 直接建模全局依赖。*<br><br>论文的说法是：Transformer 依靠 attention 来 draw global dependencies。<br><br>这意味着长距离依赖不再需要通过 `h_t -> h_{t+1} -> ...` 传递；所有位置可以并行计算注意力权重。</p>
+<hr>
+<p>5/ *常见误解：纯注意力 ≠ 模型里只有 attention。*<br><br>论文明确还用了：<br>• position-wise feed-forward networks<br>• learned embeddings + softmax<br>• positional encoding<br><br>关键限定是：不用 *sequence-aligned RNNs or convolution* 来做序列转导主干。</p>
+<hr>
+<p>6/ *收尾：C1 最准确的版本是这样说：*<br><br>Transformer 是一个 encoder-decoder 序列转导架构；它用 self-attention / multi-head attention 作为跨位置建模核心，完全去掉循环和卷积，并用 positional encoding 补回顺序信息。</p></div></body></html>
