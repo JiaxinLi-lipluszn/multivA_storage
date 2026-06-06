@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C3 · 训练可并行化</h1>
+<p>*C3 钩子：Transformer 的训练优势，不只是“注意力更强”，还在于“同一个样本内部更能并行”。*<br><br>RNN 的位置 `t` 要等 `t-1`；Transformer 不沿序列位置递归计算隐藏状态，所以一层里的许多位置可以同时算。</p>
+<hr>
+<p>*关键直觉：RNN 像接力，Transformer 像全班同时举手。*<br><br>RNN: `h_t = f(h_{t-1}, x_t)`，第 `t` 个隐藏状态依赖前一个隐藏状态。<br><br>Transformer: 每个位置通过 self-attention 直接看其它位置；这些位置的计算可以打包成矩阵操作一起做。</p>
+<hr>
+<p>*论文里的核心证据很直接：瓶颈来自“序列位置 = 计算时间步”。*<br><br>> This inherently sequential nature precludes parallelization within training examples<br><br>作者说的是：循环模型在单个训练样本内部没法把不同位置完全摊开并行，长序列时尤其关键，因为显存又限制了跨样本 batching。</p>
+<hr>
+<p><em>图 2 显示注意力和多头注意力可以作为并行的矩阵/多头计算来执行，而不是按位置递归推进。</em></p>
+
+<hr>
+<p>*机制证据：表 1 把差异压成一行复杂度。*<br><br>• Self-Attention 的最少 sequential operations: `O(1)`<br>• Recurrent layer 的最少 sequential operations: `O(n)`<br><br>也就是说，序列长度 `n` 增长时，RNN 的位置链条变长；Transformer 的一层 self-attention 不需要沿位置逐步走完。</p>
+<hr>
+<p>*常见误解：这不是说 Transformer “完全没有顺序”。*<br><br>它没有 recurrence/convolution，所以必须额外注入位置信息：<br><br>> Since our model contains no recurrence and no convolution... we must inject some information about the relative or absolute position of the tokens<br><br>所以并行化来自“不递归算 hidden state”，不是来自“忽略词序”。</p>
+<hr>
+<p>*收尾：C3 的准确版本。*<br><br>Transformer 把序列建模从“按位置一步步更新状态”改成“每层内用 attention 同时建立位置间依赖”。因此训练时，尤其在长序列上，它比 RNN 更适合 GPU/TPU 的大规模矩阵并行。<br><br>> The Transformer allows for significantly more parallelization</p></div></body></html>
