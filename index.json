@@ -1,6 +1,6 @@
 {
   "counter": 6,
-  "session": "1706.03762",
+  "session": "*FOXA2 Is Required for Enhancer Priming during Pancreatic Differentiation 今天我们一起讨论这个*",
   "messages": {
     "1780767193.016189": "C2"
   },
@@ -10,17 +10,20 @@
     {
       "thread_ts": "1780766352.390599",
       "claim_id": "C1",
-      "last_ts": "1780766524.726809"
+      "last_ts": "1780766524.726809",
+      "next_probe_at": 1780769900.08197
     },
     {
       "thread_ts": "1780766945.942289",
       "claim_id": "C1",
-      "last_ts": "1780767193.016189"
+      "last_ts": "1780767193.016189",
+      "next_probe_at": 1780769900.08197
     },
     {
       "thread_ts": "1780767571.842269",
       "claim_id": "C1",
-      "last_ts": "1780767571.842269"
+      "last_ts": "1780767571.842269",
+      "next_probe_at": 1780769900.08197
     },
     {
       "thread_ts": "1780767967.968449",
