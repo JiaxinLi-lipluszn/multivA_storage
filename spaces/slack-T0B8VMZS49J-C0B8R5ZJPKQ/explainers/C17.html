@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C17 · 跨任务泛化</h1>
+<p>*C17 钩子：Transformer 的野心不只是翻译。*<br><br>这篇论文最容易被记住的是 WMT 翻译 SOTA，但作者还在摘要里主动加了一句：同一个架构也能迁移到 *英语成分句法分析*。也就是说，主张不是“attention 对翻译有效”，而是“attention-only 的序列转导框架有跨任务泛化能力”。</p>
+<hr>
+<p>*关键直觉：把任务看成 sequence transduction。*<br><br>Transformer 不是为某个语言对硬编码的模型；它是一个 encoder-decoder 框架：输入符号序列先变成连续表示，decoder 再一步步生成输出序列。<br><br>> Here, the encoder maps an input sequence of symbol representations (x1, ..., xn) to a sequence of continuous representations z = (z1, ..., zn). Given z, the decoder then generates an output sequence (y1, ..., ym) of symbols one element at a time.</p>
+<hr>
+<p><em>Fig.1 说明 Transformer 是通用的 encoder-decoder 序列转导架构，而不是专门为某个翻译方向写死的模型。</em></p>
+
+<hr>
+<p>*证据点：作者明确测试了翻译以外的任务。*<br><br>摘要里的表述很直接：<br><br>> We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing both with large and limited training data.<br><br>这里有两个层次：<br>• `other tasks`：不是只在机器翻译上成立<br>• `large and limited training data`：不是只靠大数据撑起来，也测试了低资源/有限数据设置</p>
+<hr>
+<p>*机制上为什么这件事合理？*<br><br>句法分析需要处理长距离依赖、层级结构和全句关系。Transformer 的 self-attention 让每个位置可以直接看全句其它位置，不需要像 RNN 那样按时间步串行传递信息。<br><br>> Attention mechanisms ... allow modeling of dependencies without regard to their distance in the input or output sequences.<br><br>所以它有理由不只服务于“源语言到目标语言”，也能服务于“句子到句法结构”。</p>
+<hr>
+<p>*一个常见误解：这不是说 Transformer 已经证明能解决所有 NLP 任务。*<br><br>这条证据更窄：作者展示的是 *英语成分句法分析* 这个额外任务，而且摘要只给出结论，没有在这段截取正文里给具体 parsing 指标。<br><br>值得追问：完整论文里 parsing 实验的设置是什么？输出格式是什么？和当时专门的 parser 比，强在哪里、弱在哪里？</p>
+<hr>
+<p>*收尾：C17 的真正意义。*<br><br>Transformer 的贡献不只是“翻译分数更高”，而是把一个 attention-only 的 encoder-decoder 架构推成了更通用的序列建模工具。成分句法分析实验是论文里跨任务泛化的早期证据：同一架构，换任务，仍然能工作。</p></div></body></html>
