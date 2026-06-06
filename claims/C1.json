@@ -30,5 +30,14 @@
       "load_bearing": "side",
       "status": "open"
     }
+  ],
+  "understandings": [
+    {
+      "by": "LiGaZn",
+      "text": "发言者想引入 Huangfu lab 关于 FOXA2 primed enhancer 的相关论文，并与本文比较以理解机制背景。",
+      "permalink": "https://multivaworkspace.slack.com/archives/C0B8SGYLK50/p1780782927584749?thread_ts=1780782329.998639&cid=C0B8SGYLK50",
+      "ts": "1780782927.584749",
+      "load_bearing": "side"
+    }
   ]
 }
