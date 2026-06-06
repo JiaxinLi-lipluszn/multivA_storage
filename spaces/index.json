@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "spaces": {
+    "slack:T0B8VMZS49J:C0B8R5ZJPKQ": {
+      "space_id": "slack:T0B8VMZS49J:C0B8R5ZJPKQ",
+      "slug": "slack-T0B8VMZS49J-C0B8R5ZJPKQ",
+      "path": "spaces/slack-T0B8VMZS49J-C0B8R5ZJPKQ",
+      "space_type": "seminar",
+      "channel": "C0B8R5ZJPKQ",
+      "team": "T0B8VMZS49J",
+      "created_at": "2026-06-06T23:17:36.457252+00:00",
+      "updated_at": "2026-06-06T23:17:36.457292+00:00"
+    }
+  }
+}
