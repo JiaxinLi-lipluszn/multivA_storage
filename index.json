@@ -1,5 +1,14 @@
 {
   "counter": 6,
   "session": "1706.03762",
-  "messages": {}
+  "messages": {},
+  "channel": "C0B8U0J74E5",
+  "active_paper": "1706.03762",
+  "facilitations": [
+    {
+      "thread_ts": "1780766352.390599",
+      "claim_id": "C1",
+      "last_ts": "1780766352.390599"
+    }
+  ]
 }
