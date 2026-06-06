@@ -4,16 +4,16 @@
   "id": "B0B8NPABH7X",
   "source": "slack",
   "first_seen_at": "2026-06-06T23:20:31.719025+00:00",
-  "last_seen_at": "2026-06-06T23:42:05.994603+00:00",
+  "last_seen_at": "2026-06-06T23:43:37.339521+00:00",
   "consent": {
     "share_personal_knowledge_to_org": false
   },
   "shared_knowledge": [],
   "observed_in_spaces": {
     "slack:T0B8VMZS49J:C0B8R5ZJPKQ": {
-      "count": 408,
+      "count": 461,
       "first_seen_at": "2026-06-06T23:20:31.719046+00:00",
-      "last_seen_at": "2026-06-06T23:42:05.994623+00:00"
+      "last_seen_at": "2026-06-06T23:43:37.339535+00:00"
     }
   }
 }

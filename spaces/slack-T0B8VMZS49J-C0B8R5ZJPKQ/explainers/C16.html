@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C16 · 训练效率主张</h1>
+<p>*C16 钩子：Transformer 的惊人点不只是 BLEU 高，而是训练周转快。*<br><br>它的效率主张可以先记成一句话：`base` 级模型在 8 块 P100 上约 12 小时就能训练出强机器翻译结果；更大的 `big` 模型也只要约 3.5 天。</p>
+<hr>
+<p>*关键直觉：把“沿时间一步步算”的瓶颈拿掉。*<br><br>RNN 的问题不是不能建模序列，而是训练时很多计算天然要按位置串行推进。Transformer 改成 self-attention 后，每个位置可以同时和其他位置建立关系，所以更适合 GPU 并行。</p>
+<hr>
+<p>> The Transformer allows for significantly more parallelization and can reach a new state of the art in translation quality after being trained for as little as twelve hours on eight P100 GPUs.<br><br>这句话是 C16 的核心证据：作者把“更容易并行化”和“12 小时 / 8 P100 / SOTA 级质量”直接连在一起。</p>
+<hr>
+<p><em>Transformer 的 encoder/decoder 都由 attention 和前馈层堆叠，去掉了按 token 顺序递推的 RNN 主干。</em></p>
+
+<hr>
+<p>*效果不是牺牲质量换速度。*<br><br>摘要里给了机器翻译结果：<br>> Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task...<br><br>所以这里的“效率”不是只说训练更快，而是说在更短训练时间里达到当时很强的翻译质量。</p>
+<hr>
+<p>*big 模型的 3.5 天，是更大规模下的成本参照。*<br><br>> On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs...<br><br>也就是说，作者强调的是：即使做大模型，训练成本仍是当时强模型文献成本的一小部分。</p>
+<hr>
+<p>*常见误解：12 小时不是“所有 Transformer 都只要 12 小时”。*<br><br>它依赖任务、数据、模型大小、硬件和实现。更准确的读法是：在这篇论文的 WMT 设置和 8 块 P100 条件下，Transformer 展示了一个新的性价比曲线：更强并行性 + 强 BLEU + 明显更短训练周期。</p></div></body></html>
