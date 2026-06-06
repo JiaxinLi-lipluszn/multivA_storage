@@ -1,0 +1,3 @@
+# Local Slack I/O debug logs; may include ephemeral/private messages.
+transcripts/
+**/transcripts/
