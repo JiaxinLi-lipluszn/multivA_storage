@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C12 · 正弦位置编码选择</h1>
+<p>*C12 钩子：为什么 Transformer 选正弦/余弦位置编码？*<br><br>Transformer 把 RNN 和 CNN 都拿掉了，所以 token 顺序不会自动进入模型。位置编码的任务就是：把“第几个词”变成一个可被 attention 使用的向量信号。</p>
+<hr>
+<p>> Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens in the sequence.<br><br>关键点：位置编码不是装饰，而是在“纯 attention”架构里补上顺序信息的入口。</p>
+<hr>
+<p>作者采用的是固定的三角函数位置编码：<br><br>> P E(pos,2i) = sin(pos/10000^{2i/dmodel})<br>> P E(pos,2i+1) = cos(pos/10000^{2i/dmodel})<br><br>也就是：每个位置 `pos` 会被映射成一组不同频率的 `sin/cos` 值；不同维度看的是不同“波长”的位置变化。</p>
+<hr>
+<p><em>同一个固定偏移 k 会在不同频率的 sin/cos 维度上形成稳定的相位关系，这就是“相对位置可能更容易学”的直觉。</em></p>
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="360" viewBox="0 0 720 360"><rect width="720" height="360" fill="#ffffff"/><line x1="70" y1="285" x2="660" y2="285" stroke="#333" stroke-width="2"/><line x1="90" y1="45" x2="90" y2="300" stroke="#333" stroke-width="2"/><path d="M90 120 C130 55 170 55 210 120 S290 185 330 120 S410 55 450 120 S530 185 570 120 S650 55 690 120" fill="none" stroke="#2563eb" stroke-width="4"/><path d="M90 225 C170 165 250 165 330 225 S490 285 570 225 S730 165 810 225" fill="none" stroke="#dc2626" stroke-width="4"/><line x1="250" y1="45" x2="250" y2="300" stroke="#111" stroke-width="2" stroke-dasharray="6 6"/><line x1="370" y1="45" x2="370" y2="300" stroke="#111" stroke-width="2" stroke-dasharray="6 6"/><line x1="250" y1="315" x2="370" y2="315" stroke="#111" stroke-width="2" marker-end="url(#arrow)"/><text x="244" y="335" font-family="Arial" font-size="18" fill="#111">pos</text><text x="344" y="335" font-family="Arial" font-size="18" fill="#111">pos+k</text><text x="296" y="310" font-family="Arial" font-size="18" fill="#111">k</text><text x="515" y="80" font-family="Arial" font-size="18" fill="#2563eb">PE(pos, 2i)</text><text x="515" y="255" font-family="Arial" font-size="18" fill="#dc2626">PE(pos, 2i+1)</text><defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#111"/></marker></defs></svg>
+<hr>
+<p>*作者的设计假设*可以这样读：<br><br>• 如果 `pos` 和 `pos+k` 的编码之间存在规则结构，attention/前馈层就可能更容易学到“看前一个词”“看相隔 k 的词”这类相对位置模式。<br>• 因为编码不是为训练集最大长度专门学出来的参数，而是公式生成的，所以作者也期待它可能外推到训练时没见过的更长序列。</p>
+<hr>
+<p>*常见误解：正弦位置编码不是论文的核心实验结论。*<br><br>更准确地说，它是一个工程选择 + 可解释的归纳偏置：<br><br>> There are many choices of positional encodings, learned and fixed [9].<br><br>所以 C12 里的“更容易学习相对位置、可能泛化到更长序列”，重点是作者选择它的动机，不是这段文字单独证明了它一定优于 learned positional embedding。</p>
+<hr>
+<p>*收尾一句话：*<br><br>Transformer 需要位置编码，是因为 self-attention 本身不带序列顺序；正弦/余弦方案的漂亮之处在于，它用固定频率结构把“绝对位置”编码成模型可组合、可比较的信号，从而给“相对距离”和“长度外推”留下了学习空间。</p></div></body></html>
