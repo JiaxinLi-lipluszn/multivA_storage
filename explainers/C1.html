@@ -1,23 +1,28 @@
 <!doctype html><html><head><meta charset="utf-8"><style>
 *{box-sizing:border-box}
 body{margin:0;background:#fff}
-.card{width:900px;padding:44px 52px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
-.card h1{font-size:34px;margin:0 0 18px;line-height:1.25}
-.card h2{font-size:27px;margin:0 0 16px;line-height:1.3}
-.card p{font-size:22px;line-height:1.65;margin:0 0 14px}
-.card li{font-size:21px;line-height:1.6;margin:6px 0}
-.card svg{max-width:100%;height:auto;display:block;margin:16px 0}
-.card hr{border:0;border-top:1px solid #e5e7eb;margin:28px 0}
-.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:4px 10px;font-size:16px;margin:2px}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
 </style></head><body><div class="card"><h1>C1 · TET 缺失阻断 β 细胞规格化</h1>
-<h2>C1：TET 缺失阻断 β 细胞规格化</h2><p>在 hESC 胰腺分化系统里，TET1/2/3 三敲除不是小扰动，而是造成严重的 β 细胞规格化缺陷。</p><svg viewBox='0 0 520 120' role='img' aria-label='hESC 到 β 细胞分化被 TET 缺失阻断' style='width:100%;max-width:520px'><rect x='20' y='38' width='90' height='44' rx='8' fill='#e8f2ff'/><text x='65' y='66' text-anchor='middle' font-size='18'>hESC</text><path d='M120 60 H205' stroke='#555' stroke-width='4' marker-end='url(#a)'/><rect x='220' y='38' width='125' height='44' rx='8' fill='#eef7e8'/><text x='282' y='66' text-anchor='middle' font-size='18'>胰腺谱系</text><path d='M355 60 H445' stroke='#d14' stroke-width='4' stroke-dasharray='8 6'/><text x='400' y='35' text-anchor='middle' font-size='16' fill='#d14'>TET 缺失</text><rect x='455' y='38' width='45' height='44' rx='8' fill='#ffe8e8'/><text x='478' y='66' text-anchor='middle' font-size='18'>β?</text><defs><marker id='a' markerWidth='8' markerHeight='8' refX='7' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8 Z' fill='#555'/></marker></defs></svg>
+<h2>TET 不是旁观者</h2><p><strong>C1：</strong>在 hESC 胰腺分化系统里，TET 缺失会卡住 β 细胞规格化；TET1 失活也会损害功能性 β 细胞生成。</p><blockquote>“TET1/TET2/TET3 triple knock-out cells display severe defects in pancreatic beta-cell specification.”</blockquote>
 <hr>
-<h2>他们问的是规格化</h2><p>系统从 hESC 一步步推向胰腺内分泌命运；如果 TET 缺失，问题出现在细胞能否进入并建立 β 细胞身份。</p><ul><li>模型：人胚胎干细胞分化体系</li><li>扰动：TET1/TET2/TET3 三敲除，另看 TET1 失活</li><li>读出：β 细胞规格化与功能性 β 细胞生成</li></ul>
+<h2>问题不是“细胞不能分化”这么泛</h2><p>摘要指向的是：TET 影响 β 细胞身份建立所需的表观遗传状态，尤其是去甲基化、染色质活性，以及 FOXA2 相关重塑。</p><svg viewBox='0 0 420 90' role='img' aria-label='因果链示意' style='width:100%;height:auto'><circle cx='55' cy='45' r='22' fill='#4F8A8B'/><path d='M90 45 H155' stroke='#555' stroke-width='5' stroke-linecap='round'/><path d='M155 45 l-12 -8 v16 z' fill='#555'/><circle cx='205' cy='45' r='22' fill='#F2B705'/><path d='M240 45 H305' stroke='#555' stroke-width='5' stroke-linecap='round'/><path d='M305 45 l-12 -8 v16 z' fill='#555'/><circle cx='355' cy='45' r='22' fill='#6AA84F'/></svg><ul><li>左：TET 作用</li><li>中：染色质 / 甲基化状态</li><li>右：β 细胞身份推进</li></ul>
 <hr>
-<h2>TET1/2/3 TKO：β 规格化严重受损</h2><p>摘要里的核心结果很直接：三种 TET 双加氧酶同时缺失时，β 细胞规格化出现 severe defects。</p><svg viewBox='0 0 460 150' role='img' aria-label='WT 与 TET 三敲除 β 细胞规格化对比' style='width:100%;max-width:460px'><line x1='70' y1='120' x2='410' y2='120' stroke='#444' stroke-width='2'/><rect x='115' y='35' width='80' height='85' fill='#4b8bbe'/><rect x='275' y='92' width='80' height='28' fill='#d95f5f'/><text x='155' y='138' text-anchor='middle' font-size='16'>WT</text><text x='315' y='138' text-anchor='middle' font-size='16'>TET TKO</text><text x='155' y='28' text-anchor='middle' font-size='15'>β 规格化</text><text x='315' y='85' text-anchor='middle' font-size='15' fill='#b33'>严重下降</text></svg>
+<h2>最直接的表型</h2><p>作者用 hESC 分化系统做 TET1/2/3 三敲除，摘要给出的结论很硬：β 细胞规格化出现严重缺陷。</p><blockquote>“triple knock-out cells display severe defects in pancreatic beta-cell specification.”</blockquote><p>所以 C1 的前半句，来自三敲除分化表型。</p>
 <hr>
-<h2>缺 TET 后，关键区域变得不活跃</h2><p>全基因组整合分析发现：TET 缺失相关的 hyper-DMRs 伴随染色质活性降低，并显著富集 FOXA2 相关信号。</p><svg viewBox='0 0 520 150' role='img' aria-label='TET 缺失导致高甲基化、低染色质活性、FOXA2 结合改变' style='width:100%;max-width:520px'><rect x='18' y='48' width='105' height='46' rx='8' fill='#ffe9d6'/><text x='70' y='77' text-anchor='middle' font-size='16'>TET 缺失</text><path d='M130 71 H205' stroke='#555' stroke-width='3' marker-end='url(#b)'/><rect x='215' y='48' width='115' height='46' rx='8' fill='#f6e5ff'/><text x='272' y='77' text-anchor='middle' font-size='16'>hyper-DMR</text><path d='M338 71 H410' stroke='#555' stroke-width='3' marker-end='url(#b)'/><rect x='420' y='26' width='82' height='38' rx='7' fill='#e8f2ff'/><text x='461' y='51' text-anchor='middle' font-size='15'>活性↓</text><rect x='420' y='83' width='82' height='38' rx='7' fill='#e8f7ec'/><text x='461' y='108' text-anchor='middle' font-size='15'>FOXA2</text><defs><marker id='b' markerWidth='8' markerHeight='8' refX='7' refY='4' orient='auto'><path d='M0,0 L8,4 L0,8 Z' fill='#555'/></marker></defs></svg>
+<h2>缺 TET 后，FOXA2 相关染色质重塑异常</h2><p>整合全基因组分析发现：细胞类型特异的 hyper-DMRs 伴随染色质活性下降，并显著富集 FOXA2。</p><blockquote>“hyper-DMRs displaying reduced chromatin activity and remarkable enrichment of FOXA2”</blockquote><p>这把“去甲基化缺陷”连接到胰腺内胚层关键 pioneer factor。</p>
 <hr>
-<h2>救援实验让故事更细</h2><p>在 TET 缺失细胞中，全长 TET1 能有效救回 β 细胞分化，并恢复 PAX4 低甲基化；但单独的 TET1 催化结构域不行。</p><ul><li>说明 TET1 的作用不应只简化成一个催化按钮。</li><li>摘要还提示：TET1 与 FOXA2 在内胚层中间态存在物理互作。</li></ul>
+<h2>不是只看到甲基化变化</h2><p>摘要进一步说，TET depletion 在胰腺祖细胞阶段显著改变 FOXA2 binding；FOXA2 结合下降的基因位点，活性染色质修饰较低，并富集 bHLH motifs。</p><blockquote>“TET depletion leads to significant changes in FOXA2 binding at pancreatic progenitor stage.”</blockquote><svg viewBox='0 0 420 100' role='img' aria-label='结合下降示意' style='width:100%;height:auto'><rect x='35' y='35' width='150' height='18' rx='9' fill='#9AD0C2'/><circle cx='75' cy='44' r='13' fill='#2F6F73'/><circle cx='120' cy='44' r='13' fill='#2F6F73'/><rect x='235' y='35' width='150' height='18' rx='9' fill='#D6D6D6'/><circle cx='275' cy='44' r='13' fill='#B23A48'/><path d='M200 44 H220' stroke='#555' stroke-width='4'/><path d='M220 44 l-9 -6 v12 z' fill='#555'/><path d='M260 75 h55' stroke='#B23A48' stroke-width='5' stroke-linecap='round' stroke-dasharray='10 8'/></svg>
 <hr>
-<h2>这条主张成立，但要说清边界</h2><p>支持最强的是：在这个 hESC 胰腺分化系统里，TET 家族缺失会严重破坏 β 细胞规格化；TET1 失活也会损害功能性 β 细胞生成。</p><p>更机制化的版本是：TET1 可能通过维持低甲基化、活跃染色质和 FOXA2 相关重塑，帮助建立 β 细胞身份。</p></div></body></html>
+<h2>不等于“催化结构域一补就好”</h2><p>救援实验反而提醒我们：全长 TET1 能有效 rescue β 细胞分化，但 TET1 catalytic domain 不能。</p><blockquote>“full-length TET1 but not the TET1-catalytic-domain … effectively rescues beta-cell differentiation”</blockquote><p>值得追问：TET1 的非催化部分，是否通过 FOXA2 互作参与定位或复合体组装？</p>
+<hr>
+<h2>这条主张可以这样表述</h2><p><strong>基于摘要：</strong>TET 缺失会严重阻断 hESC 胰腺分化中的 β 细胞规格化；TET1 对功能性 β 细胞生成是必要的，并可能通过 FOXA2 相关染色质重塑与 PAX4 去甲基化来建立 β 细胞身份。</p><blockquote>“defective generation of functional beta-cells upon TET1-inactivation”</blockquote></div></body></html>
