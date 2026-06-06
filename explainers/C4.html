@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>C4 图文讲解：全长 TET1 而非催化结构域可救援分化缺陷</title>
+  <style>
+    :root {
+      --bg: #f7f8f6;
+      --paper: #ffffff;
+      --ink: #1f2933;
+      --muted: #5f6b76;
+      --line: #d9e0dc;
+      --green: #2f855a;
+      --green-soft: #e6f3ec;
+      --blue: #2b6cb0;
+      --blue-soft: #e7f0fb;
+      --red: #b83232;
+      --red-soft: #fdeaea;
+      --amber: #b7791f;
+      --amber-soft: #fff4d8;
+      --violet: #6b46c1;
+      --violet-soft: #eee8ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 22px 48px;
+    }
+
+    header {
+      padding: 28px 0 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: .02em;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 9px;
+      border: 1px solid #bdd4f1;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 900px;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1.16;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      max-width: 880px;
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: 1.05fr .95fr;
+      gap: 24px;
+      margin-top: 26px;
+    }
+
+    section, aside {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(31, 41, 51, .05);
+    }
+
+    .panel {
+      padding: 24px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    h3 {
+      margin: 18px 0 8px;
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
+    p {
+      margin: 0 0 13px;
+    }
+
+    .claim {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: start;
+      padding: 18px;
+      background: #f8fbff;
+      border: 1px solid #d7e6f7;
+      border-radius: 8px;
+    }
+
+    .claim-mark {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--blue);
+      color: white;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .claim strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .metric {
+      min-height: 116px;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fbfcfb;
+    }
+
+    .metric .label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .metric .value {
+      margin-top: 8px;
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
+
+    .metric.good { background: var(--green-soft); border-color: #bfdfcc; }
+    .metric.bad { background: var(--red-soft); border-color: #f2c1c1; }
+    .metric.neutral { background: var(--amber-soft); border-color: #eed08c; }
+
+    .svg-wrap {
+      padding: 18px;
+      overflow-x: auto;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      min-width: 620px;
+      height: auto;
+    }
+
+    .notes {
+      display: grid;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .note {
+      padding: 15px 16px;
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      background: #fbfcfb;
+    }
+
+    .note.good { background: var(--green-soft); border-color: #bddfc9; }
+    .note.warn { background: var(--amber-soft); border-color: #ead08c; }
+    .note.ask { background: var(--violet-soft); border-color: #d8ccfb; }
+
+    .note b {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 860px) {
+      main { grid-template-columns: 1fr; }
+      .mini-grid { grid-template-columns: 1fr; }
+      .page { padding: 24px 16px 36px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="kicker"><span class="tag">C4</span> 论文研讨班图文讲解</div>
+      <h1>全长 TET1 能救援 β 细胞分化缺陷，单独催化结构域不能</h1>
+      <p class="subtitle">
+        这条主张强调：TET1 在胰腺 β 细胞分化中的作用，不只是“有一个能氧化 5mC 的催化片段”这么简单；全长蛋白的定位、互作和染色质环境参与也很关键。
+      </p>
+    </header>
+
+    <main>
+      <section class="panel">
+        <div class="claim">
+          <div class="claim-mark">C4</div>
+          <div>
+            <strong>主张说什么？</strong>
+            在 TET 缺陷细胞中，导入全长 TET1 可以有效救援 β 细胞分化，并恢复 PAX4 位点的低甲基化；但只导入 TET1 催化结构域，不能实现同样救援。
+          </div>
+        </div>
+
+        <h2 style="margin-top:24px;">为什么这支持机制判断？</h2>
+        <p>
+          如果分化缺陷只是因为细胞缺少“去甲基化酶活性”，那么一个保留催化功能的 TET1 催化结构域理论上也应当有较强救援效果。结果却显示，只有全长 TET1 能救援，说明问题很可能不只是催化反应本身。
+        </p>
+        <p>
+          论文摘要同时提到：TET 缺失会影响 FOXA2 相关染色质区域，且 TET1 与 FOXA2 在内胚层谱系中存在物理互作。因此，全长 TET1 可能通过非催化结构域帮助蛋白被带到正确基因组位置，或帮助形成适合 β 细胞命运建立的染色质状态。
+        </p>
+
+        <div class="mini-grid">
+          <div class="metric bad">
+            <div class="label">TET 缺陷</div>
+            <div class="value">β 细胞分化严重受损</div>
+          </div>
+          <div class="metric good">
+            <div class="label">导入全长 TET1</div>
+            <div class="value">分化救援 + PAX4 低甲基化恢复</div>
+          </div>
+          <div class="metric neutral">
+            <div class="label">只导入催化结构域</div>
+            <div class="value">不能充分救援</div>
+          </div>
+        </div>
+
+        <div class="notes">
+          <div class="note good">
+            <b>关键直觉</b>
+            全长 TET1 像“带导航和工具的维修队”：催化结构域是工具，但非催化部分可能负责识别伙伴、到达正确染色质区域，并与 FOXA2 等因子协作。
+          </div>
+          <div class="note warn">
+            <b>常见误解</b>
+            “催化结构域不能救援”不等于“催化活性不重要”。更准确的理解是：催化活性可能必要，但单独存在不充分；它需要全长 TET1 的定位或互作能力配合。
+          </div>
+          <div class="note ask">
+            <b>值得追问</b>
+            哪一段非催化结构域负责与 FOXA2 或染色质结合？如果把催化结构域人工 tether 到 PAX4/FOXA2 相关位点，能否恢复救援？
+          </div>
+        </div>
+      </section>
+
+      <aside>
+        <div class="svg-wrap">
+          <svg viewBox="0 0 760 560" role="img" aria-label="全长 TET1 与催化结构域救援效果对比图">
+            <defs>
+              <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+                <path d="M0,0 L9,3 L0,6 Z" fill="#5f6b76"></path>
+              </marker>
+              <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1f2933" flood-opacity="0.12"></feDropShadow>
+              </filter>
+            </defs>
+
+            <rect x="0" y="0" width="760" height="560" rx="16" fill="#ffffff"></rect>
+            <text x="36" y="42" font-size="22" font-weight="800" fill="#1f2933">救援实验的逻辑</text>
+            <text x="36" y="70" font-size="14" fill="#5f6b76">同一类 TET 缺陷背景下，比较两种 TET1 构建体能否恢复分化表型。</text>
+
+            <rect x="38" y="104" width="684" height="76" rx="12" fill="#fdeaea" stroke="#f2c1c1"></rect>
+            <text x="68" y="137" font-size="16" font-weight="800" fill="#b83232">起点：TET1/2/3 缺陷细胞</text>
+            <text x="68" y="162" font-size="14" fill="#5f6b76">PAX4 等关键区域高甲基化倾向，FOXA2 相关染色质活性下降，β 细胞分化受阻。</text>
+
+            <line x1="380" y1="180" x2="380" y2="222" stroke="#5f6b76" stroke-width="2" marker-end="url(#arrow)"></line>
+
+            <rect x="50" y="228" width="300" height="124" rx="12" fill="#e6f3ec" stroke="#bfdfcc" filter="url(#shadow)"></rect>
+            <text x="76" y="258" font-size="16" font-weight="800" fill="#2f855a">方案 A：导入全长 TET1</text>
+
+            <rect x="78" y="280" width="220" height="34" rx="17" fill="#ffffff" stroke="#2f855a"></rect>
+            <rect x="88" y="288" width="74" height="18" rx="9" fill="#bee3cf"></rect>
+            <rect x="170" y="288" width="54" height="18" rx="9" fill="#d8ccfb"></rect>
+            <rect x="232" y="288" width="54" height="18" rx="9" fill="#9bd0f5"></rect>
+            <text x="89" y="331" font-size="13" fill="#5f6b76">非催化区 + 互作/定位能力 + 催化区</text>
+
+            <rect x="410" y="228" width="300" height="124" rx="12" fill="#fff4d8" stroke="#ead08c" filter="url(#shadow)"></rect>
+            <text x="436" y="258" font-size="16" font-weight="800" fill="#b7791f">方案 B：只导入催化结构域</text>
+
+            <rect x="468" y="280" width="124" height="34" rx="17" fill="#ffffff" stroke="#b7791f"></rect>
+            <rect x="504" y="288" width="54" height="18" rx="9" fill="#9bd0f5"></rect>
+            <text x="453" y="331" font-size="13" fill="#5f6b76">有催化工具，但缺少全长上下文</text>
+
+            <line x1="200" y1="352" x2="200" y2="398" stroke="#5f6b76" stroke-width="2" marker-end="url(#arrow)"></line>
+            <line x1="560" y1="352" x2="560" y2="398" stroke="#5f6b76" stroke-width="2" marker-end="url(#arrow)"></line>
+
+            <rect x="50" y="402" width="300" height="100" rx="12" fill="#e6f3ec" stroke="#bfdfcc"></rect>
+            <text x="76" y="435" font-size="16" font-weight="800" fill="#2f855a">观察结果：有效救援</text>
+            <text x="76" y="462" font-size="14" fill="#1f2933">β 细胞分化恢复</text>
+            <text x="76" y="486" font-size="14" fill="#1f2933">PAX4 低甲基化恢复</text>
+
+            <rect x="410" y="402" width="300" height="100" rx="12" fill="#fdeaea" stroke="#f2c1c1"></rect>
+            <text x="436" y="435" font-size="16" font-weight="800" fill="#b83232">观察结果：不能充分救援</text>
+            <text x="436" y="462" font-size="14" fill="#1f2933">分化缺陷仍然存在</text>
+            <text x="436" y="486" font-size="14" fill="#1f2933">PAX4 甲基化状态未被有效恢复</text>
+
+            <path d="M350 452 C378 452, 382 452, 410 452" stroke="#5f6b76" stroke-width="2" stroke-dasharray="5 5"></path>
+            <text x="319" y="535" font-size="14" font-weight="800" fill="#1f2933">结论：全长结构提供了催化结构域之外的必要功能</text>
+          </svg>
+        </div>
+
+        <div class="panel" style="padding-top:0;">
+          <h2>一句话带走</h2>
+          <p>
+            这不是简单的“补回一个酶活性”实验，而是在问：TET1 是否需要以全长蛋白的形式进入 FOXA2 相关染色质网络，才能把 PAX4 等 β 细胞命运相关位点调整到正确的低甲基化状态。
+          </p>
+
+          <div class="legend">
+            <span><i class="dot" style="background:#2f855a"></i>救援成功</span>
+            <span><i class="dot" style="background:#b7791f"></i>部分构件</span>
+            <span><i class="dot" style="background:#b83232"></i>缺陷保留</span>
+          </div>
+
+          <div class="footer">
+            证据依据为题目和摘要信息：TET 缺陷导致 β 细胞分化缺陷；全长 TET1 而非 TET1 催化结构域可救援分化并恢复 PAX4 低甲基化。
+          </div>
+        </div>
+      </aside>
+    </main>
+  </div>
+</body>
+</html>
