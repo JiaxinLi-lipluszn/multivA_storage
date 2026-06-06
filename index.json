@@ -57,5 +57,45 @@
       "title": "TET1 dioxygenase is required for FOXA2-associated chromatin remodeling in pancreatic beta-cell differentiation",
       "url": "https://www.biorxiv.org/content/10.1101/2020.05.20.107532v2"
     }
-  ]
+  ],
+  "posts": [
+    {
+      "ts": "1780782322.766059",
+      "claim_id": "C1",
+      "last_ts": "1780782322.766059"
+    },
+    {
+      "ts": "1780782324.536389",
+      "claim_id": "C1",
+      "last_ts": "1780782324.536389"
+    },
+    {
+      "ts": "1780782325.507899",
+      "claim_id": "C1",
+      "last_ts": "1780782325.507899"
+    },
+    {
+      "ts": "1780782327.067759",
+      "claim_id": "C1",
+      "last_ts": "1780782327.067759"
+    },
+    {
+      "ts": "1780782328.047939",
+      "claim_id": "C1",
+      "last_ts": "1780782328.047939"
+    },
+    {
+      "ts": "1780782329.024089",
+      "claim_id": "C1",
+      "last_ts": "1780782329.024089"
+    },
+    {
+      "ts": "1780782329.998639",
+      "claim_id": "C1",
+      "last_ts": "1780782329.998639"
+    }
+  ],
+  "probe_at": {
+    "C1": 1780782930.8208508
+  }
 }
