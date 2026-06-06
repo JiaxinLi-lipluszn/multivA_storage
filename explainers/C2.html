@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>C2 图文讲解：TET 缺失、hyper-DMRs 与 FOXA2</title>
+  <style>
+    :root {
+      --bg: #f7f6f1;
+      --ink: #22252a;
+      --muted: #5f6670;
+      --line: #d9d5ca;
+      --panel: #ffffff;
+      --green: #2f7d63;
+      --teal: #0f8a9d;
+      --amber: #b7791f;
+      --red: #b9493f;
+      --blue: #3f6ea8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+
+    .page {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 36px 22px 48px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 22px;
+      margin-bottom: 26px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--green);
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: 30px;
+      line-height: 1.25;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      max-width: 820px;
+      color: var(--muted);
+      font-size: 16px;
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      box-shadow: 0 1px 2px rgba(30, 30, 30, 0.04);
+    }
+
+    .section + .section {
+      margin-top: 18px;
+    }
+
+    h2 {
+      font-size: 20px;
+      line-height: 1.35;
+      margin: 0 0 12px;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    .claim {
+      border-left: 5px solid var(--green);
+      background: #eef6f2;
+      padding: 16px 18px;
+      border-radius: 8px;
+      margin-top: 18px;
+      font-size: 17px;
+    }
+
+    .claim strong {
+      color: #1f654f;
+    }
+
+    .keypoints {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .point {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fffdfa;
+    }
+
+    .point b {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ink);
+    }
+
+    .point span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .figure {
+      background: #fffefa;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .caption {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 10px;
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .evidence {
+      display: grid;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .evidence-row {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 12px;
+      align-items: start;
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+
+    .tag {
+      display: inline-block;
+      width: fit-content;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      background: var(--teal);
+      white-space: nowrap;
+    }
+
+    .tag.amber {
+      background: var(--amber);
+    }
+
+    .tag.red {
+      background: var(--red);
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .takeaway {
+      background: #f4f1e8;
+      border: 1px solid #d8cdae;
+      border-radius: 8px;
+      padding: 16px;
+    }
+
+    .takeaway b {
+      color: #6e4a12;
+    }
+
+    footer {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 820px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 25px;
+      }
+
+      .page {
+        padding: 26px 16px 38px;
+      }
+
+      .evidence-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <div class="eyebrow"><span class="dot"></span>论文研讨班图文讲解 · C2</div>
+      <h1>TET 缺失会产生 FOXA2 富集的高甲基化区域</h1>
+      <p class="subtitle">
+        论文主张：在胰腺 β 细胞分化过程中，TET1/2/3 缺失不是随机提高全基因组甲基化，而是形成细胞类型特异性的 hyper-DMRs。这些区域染色质活性下降，并显著富集胰腺内胚层关键 pioneer 因子 FOXA2。
+      </p>
+      <div class="claim">
+        <strong>一句话理解：</strong>TET 像是在分化途中帮助某些调控区域保持“可打开”的去甲基化状态；TET 缺失后，这些本该活跃的 FOXA2 相关区域变得高甲基化、染色质活性降低，从而影响胰腺谱系程序。
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="section">
+        <h2>图示：从正常分化到 TET 缺失</h2>
+        <div class="figure">
+          <svg viewBox="0 0 900 520" role="img" aria-label="TET 缺失导致 FOXA2 相关调控区高甲基化与染色质活性下降的示意图">
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#3f6ea8"></path>
+              </marker>
+              <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+                <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.14"></feDropShadow>
+              </filter>
+            </defs>
+
+            <rect x="0" y="0" width="900" height="520" rx="18" fill="#fffefa"></rect>
+
+            <text x="64" y="56" font-size="24" font-weight="800" fill="#22252a">同一类 FOXA2 相关调控区域，在两种状态下的差异</text>
+            <text x="64" y="86" font-size="15" fill="#5f6670">黑线代表 DNA 调控区；红色小圆代表甲基化；彩色小旗代表活性染色质标记；FOXA2 是结合在该区域的 pioneer 因子。</text>
+
+            <rect x="58" y="124" width="350" height="300" rx="12" fill="#eef6f2" stroke="#bad8cb" filter="url(#shadow)"></rect>
+            <text x="84" y="162" font-size="21" font-weight="800" fill="#1f654f">正常 TET 功能</text>
+            <text x="84" y="190" font-size="15" fill="#47645a">去甲基化维持调控区可及性</text>
+
+            <line x1="102" y1="280" x2="362" y2="280" stroke="#22252a" stroke-width="5" stroke-linecap="round"></line>
+            <circle cx="142" cy="280" r="8" fill="#e9a3a0" stroke="#b9493f" stroke-width="2"></circle>
+            <circle cx="250" cy="280" r="8" fill="#e9a3a0" stroke="#b9493f" stroke-width="2" opacity="0.35"></circle>
+            <circle cx="318" cy="280" r="8" fill="#e9a3a0" stroke="#b9493f" stroke-width="2" opacity="0.35"></circle>
+
+            <rect x="153" y="236" width="34" height="20" rx="3" fill="#2f7d63"></rect>
+            <path d="M170 256 L170 280" stroke="#2f7d63" stroke-width="4"></path>
+            <rect x="224" y="230" width="34" height="20" rx="3" fill="#0f8a9d"></rect>
+            <path d="M241 250 L241 280" stroke="#0f8a9d" stroke-width="4"></path>
+            <rect x="292" y="236" width="34" height="20" rx="3" fill="#b7791f"></rect>
+            <path d="M309 256 L309 280" stroke="#b7791f" stroke-width="4"></path>
+
+            <ellipse cx="228" cy="212" rx="64" ry="30" fill="#3f6ea8"></ellipse>
+            <text x="198" y="219" font-size="17" font-weight="800" fill="#fff">FOXA2</text>
+            <path d="M228 242 C228 258 228 266 228 278" stroke="#3f6ea8" stroke-width="4" marker-end="url(#arrow)"></path>
+
+            <text x="96" y="344" font-size="16" fill="#22252a" font-weight="700">结果</text>
+            <text x="96" y="374" font-size="15" fill="#3c4945">低甲基化倾向</text>
+            <text x="96" y="400" font-size="15" fill="#3c4945">活性染色质标记较高</text>
+            <text x="96" y="426" font-size="15" fill="#3c4945">支持胰腺内胚层调控程序</text>
+
+            <path d="M426 276 C462 276 480 276 516 276" stroke="#3f6ea8" stroke-width="5" fill="none" marker-end="url(#arrow)"></path>
+            <text x="438" y="250" font-size="15" font-weight="800" fill="#3f6ea8">TET 缺失</text>
+
+            <rect x="538" y="124" width="304" height="300" rx="12" fill="#fff3f1" stroke="#e4b8b3" filter="url(#shadow)"></rect>
+            <text x="564" y="162" font-size="21" font-weight="800" fill="#8f322b">TET1/2/3 缺失</text>
+            <text x="564" y="190" font-size="15" fill="#7a5651">形成细胞类型特异性 hyper-DMRs</text>
+
+            <line x1="580" y1="280" x2="806" y2="280" stroke="#22252a" stroke-width="5" stroke-linecap="round"></line>
+            <circle cx="602" cy="280" r="8" fill="#b9493f"></circle>
+            <circle cx="632" cy="280" r="8" fill="#b9493f"></circle>
+            <circle cx="662" cy="280" r="8" fill="#b9493f"></circle>
+            <circle cx="692" cy="280" r="8" fill="#b9493f"></circle>
+            <circle cx="722" cy="280" r="8" fill="#b9493f"></circle>
+            <circle cx="752" cy="280" r="8" fill="#b9493f"></circle>
+            <circle cx="782" cy="280" r="8" fill="#b9493f"></circle>
+
+            <rect x="613" y="238" width="30" height="18" rx="3" fill="#2f7d63" opacity="0.35"></rect>
+            <path d="M628 256 L628 280" stroke="#2f7d63" stroke-width="3" opacity="0.35"></path>
+            <rect x="686" y="232" width="30" height="18" rx="3" fill="#0f8a9d" opacity="0.35"></rect>
+            <path d="M701 250 L701 280" stroke="#0f8a9d" stroke-width="3" opacity="0.35"></path>
+
+            <ellipse cx="700" cy="213" rx="64" ry="30" fill="#3f6ea8" opacity="0.9"></ellipse>
+            <text x="670" y="220" font-size="17" font-weight="800" fill="#fff">FOXA2</text>
+            <path d="M700 242 C700 257 700 266 700 278" stroke="#3f6ea8" stroke-width="4" marker-end="url(#arrow)"></path>
+
+            <text x="572" y="344" font-size="16" fill="#22252a" font-weight="700">结果</text>
+            <text x="572" y="374" font-size="15" fill="#493b39">DNA 甲基化升高</text>
+            <text x="572" y="400" font-size="15" fill="#493b39">染色质活性下降</text>
+            <text x="572" y="426" font-size="15" fill="#493b39">FOXA2 相关调控受扰动</text>
+
+            <rect x="96" y="464" width="20" height="12" rx="2" fill="#2f7d63"></rect>
+            <text x="124" y="475" font-size="13" fill="#5f6670">活性染色质标记</text>
+            <circle cx="270" cy="470" r="7" fill="#b9493f"></circle>
+            <text x="287" y="475" font-size="13" fill="#5f6670">甲基化位点</text>
+            <ellipse cx="438" cy="470" rx="30" ry="14" fill="#3f6ea8"></ellipse>
+            <text x="480" y="475" font-size="13" fill="#5f6670">FOXA2 结合</text>
+          </svg>
+          <div class="caption">
+            这张图强调的是机制直觉，不是实验原图：TET 缺失后的关键变化是“FOXA2 富集区域变成 hyper-DMR，并伴随活性下降”。
+          </div>
+        </div>
+      </section>
+
+      <aside>
+        <section class="section">
+          <h2>这条主张说什么</h2>
+          <p>
+            C2 的核心不是简单说“TET 缺失导致 DNA 甲基化增加”，而是说增加发生在一批有发育语境的调控区域：它们是细胞类型特异性的 hyper-DMRs，并且与胰腺内胚层 pioneer 因子 FOXA2 显著相关。
+          </p>
+          <p>
+            因此，TET 的作用被放在“谱系决定中的调控元件状态”里理解，而不是只当作一个全局去甲基化酶。
+          </p>
+        </section>
+
+        <section class="section">
+          <h2>关键直觉</h2>
+          <div class="keypoints">
+            <div class="point">
+              <b>TET 缺失</b>
+              <span>去甲基化能力下降，某些本应低甲基化的调控区域积累甲基化。</span>
+            </div>
+            <div class="point">
+              <b>hyper-DMRs</b>
+              <span>这些是相对正常细胞更高甲基化的差异甲基化区域，且具有细胞类型特异性。</span>
+            </div>
+            <div class="point">
+              <b>FOXA2 富集</b>
+              <span>说明受影响区域不是随机片段，而是与胰腺内胚层发育关键因子相关。</span>
+            </div>
+            <div class="point">
+              <b>染色质活性下降</b>
+              <span>高甲基化与活性标记降低同向出现，提示这些调控元件更难进入活跃状态。</span>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+
+    <section class="section">
+      <h2>为什么这条主张成立</h2>
+      <div class="evidence">
+        <div class="evidence-row">
+          <span class="tag">甲基化</span>
+          <div>
+            摘要称整合全基因组分析识别出“unique cell-type-specific hypermethylated regions”。这支持第一层结论：TET 缺失产生特定细胞阶段或细胞类型相关的 hyper-DMRs。
+          </div>
+        </div>
+        <div class="evidence-row">
+          <span class="tag amber">染色质</span>
+          <div>
+            这些 hyper-DMRs “displaying reduced chromatin activity”。也就是说，甲基化升高不是孤立现象，而是伴随调控区域活性降低。
+          </div>
+        </div>
+        <div class="evidence-row">
+          <span class="tag red">FOXA2</span>
+          <div>
+            摘要进一步指出这些区域对 FOXA2 有显著富集。FOXA2 是胰腺内胚层 specification 所需的 pioneer transcription factor，因此这个富集把 TET 缺失和胰腺谱系调控联系起来。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>怎样读这个结论</h2>
+      <p>
+        一个合理的阅读顺序是：TET 缺失改变 DNA 甲基化状态，受影响的区域集中在与发育调控相关的元件上；这些元件活性降低，同时与 FOXA2 这样的 pioneer 因子相关。于是，论文把 β 细胞分化缺陷解释为“表观遗传状态没有正确配合关键转录因子建立胰腺身份”。
+      </p>
+      <p>
+        这并不要求每一个 FOXA2 位点都同样受影响，也不等于 FOXA2 完全不能结合。摘要还提到，在 pancreatic progenitor stage，TET depletion 会显著改变 FOXA2 binding，其中 FOXA2 binding 下降的基因座具有较低活性染色质修饰，并富集 bHLH motifs。这提示影响可能是位点选择性的。
+      </p>
+    </section>
+
+    <section class="section">
+      <div class="takeaway">
+        <h2>常见误解或值得追问的点</h2>
+        <p>
+          <b>误解：</b>“FOXA2 富集”不等于“TET 只作用于 FOXA2”，也不等于“FOXA2 结合一定全部下降”。它更准确地表示：TET 缺失后出现的高甲基化区域，在统计上显著重叠或富集 FOXA2 相关调控位点。
+        </p>
+        <p>
+          <b>值得追问：</b>这些 hyper-DMRs 是直接由 TET1 与 FOXA2 协同定位造成的，还是 β 细胞分化失败后的间接结果？论文摘要中的 TET1 与 FOXA2 物理互作、全长 TET1 rescue、以及 FOXA2 binding 改变，为直接机制提供线索，但精确因果链仍需要看具体实验设计与时序证据。
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      基于给定摘要制作。因全文图表未提供，这里将主张压缩为概念图与证据链，适合论文研讨班快速讲解。
+    </footer>
+  </main>
+</body>
+</html>
