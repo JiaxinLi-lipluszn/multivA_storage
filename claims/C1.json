@@ -12,5 +12,15 @@
   },
   "contributions": [],
   "depends_on": [],
-  "paper": "1706.03762"
+  "paper": "1706.03762",
+  "confusions": [
+    {
+      "by": "U0B8Q1X1SF8",
+      "text": "发言者在确认 Transformer 去掉循环和卷积后是否依靠 positional embedding 补充位置信息，并表示自己对 RNN 实现细节记不清。",
+      "permalink": "https://multivaworkspace.slack.com/archives/C0B8U0J74E5/p1780766524726809?thread_ts=1780766352.390599&cid=C0B8U0J74E5",
+      "ts": "1780766524.726809",
+      "load_bearing": "core",
+      "status": "open"
+    }
+  ]
 }
