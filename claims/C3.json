@@ -1,0 +1,15 @@
+{
+  "id": "C3",
+  "title": "位置编码足以提供顺序信息",
+  "statement": "在没有递归和卷积的前提下，把固定的正弦/余弦位置编码加到词向量上，足以让模型利用序列顺序并学习相对位置信息。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

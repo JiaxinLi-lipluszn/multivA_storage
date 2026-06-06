@@ -1,0 +1,15 @@
+{
+  "id": "C1",
+  "title": "纯注意力架构可行",
+  "statement": "Transformer 可以完全不使用循环或卷积，只依赖自注意力和前馈层，就能作为有效的编码器-解码器序列转换模型工作。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

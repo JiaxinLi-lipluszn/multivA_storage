@@ -1,0 +1,15 @@
+{
+  "id": "C2",
+  "title": "自注意力更适合长序列",
+  "statement": "相较于 RNN 和卷积层，自注意力能以更少的顺序计算步骤连接任意两个位置，并显著改善并行化与长距离依赖建模，因此是替代传统序列模型的关键机制。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}
