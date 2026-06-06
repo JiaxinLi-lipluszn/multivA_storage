@@ -10,7 +10,16 @@
     "permalink": "",
     "ts": ""
   },
-  "contributions": [],
+  "contributions": [
+    {
+      "kind": "support",
+      "by": "U0B8Q1X1SF8",
+      "text": "该贡献将自注意力相对 RNN 的优势表述为：RNN 依赖顺序隐状态传递来汇总上下文，而自注意力能让位置之间更直接地访问全局信息。",
+      "permalink": "https://multivaworkspace.slack.com/archives/C0B8U0J74E5/p1780767193016189?thread_ts=1780766945.942289&cid=C0B8U0J74E5",
+      "ts": "1780767193.016189",
+      "load_bearing": "core"
+    }
+  ],
   "depends_on": [],
   "paper": "1706.03762"
 }
