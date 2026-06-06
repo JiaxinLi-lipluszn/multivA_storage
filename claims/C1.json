@@ -12,5 +12,15 @@
     "ts": ""
   },
   "contributions": [],
-  "depends_on": []
+  "depends_on": [],
+  "confusions": [
+    {
+      "by": "LiGaZn",
+      "text": "发言者在询问 hyper-DMRs 这一术语的含义。",
+      "permalink": "https://multivaworkspace.slack.com/archives/C0B8SGYLK50/p1780781609140699?thread_ts=1780781338.826839&cid=C0B8SGYLK50",
+      "ts": "1780781609.140699",
+      "load_bearing": "side",
+      "status": "open"
+    }
+  ]
 }
