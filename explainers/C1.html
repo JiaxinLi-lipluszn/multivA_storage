@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>C1 图文讲解：TET 缺失阻断 β 细胞规格化</title>
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --paper: #ffffff;
+      --ink: #17202a;
+      --muted: #5f6b7a;
+      --line: #d9dee7;
+      --blue: #2f6f9f;
+      --teal: #2d8f7b;
+      --red: #b94a48;
+      --amber: #b7791f;
+      --green: #287d4f;
+      --soft-blue: #eaf4f8;
+      --soft-red: #fdeeee;
+      --soft-green: #eaf7ef;
+      --soft-amber: #fff6df;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    header {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 28px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--blue);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: clamp(26px, 4vw, 42px);
+      line-height: 1.18;
+      margin: 0 0 12px;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      max-width: 860px;
+      margin: 0;
+      font-size: 17px;
+    }
+
+    .claim {
+      margin-top: 20px;
+      padding: 16px 18px;
+      background: var(--soft-blue);
+      border-left: 5px solid var(--blue);
+      border-radius: 6px;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    section, aside {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    h2 {
+      font-size: 21px;
+      line-height: 1.3;
+      margin: 0 0 12px;
+    }
+
+    h3 {
+      font-size: 16px;
+      margin: 18px 0 8px;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 20px;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: #eef1f5;
+      color: #3d4a59;
+      font-size: 13px;
+      font-weight: 700;
+      margin-right: 6px;
+      white-space: nowrap;
+    }
+
+    .evidence-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .evidence {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 13px 14px;
+      background: #fbfcfd;
+    }
+
+    .evidence strong {
+      color: var(--blue);
+    }
+
+    .note {
+      background: var(--soft-amber);
+      border-left: 5px solid var(--amber);
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-top: 12px;
+    }
+
+    .misread {
+      background: var(--soft-red);
+      border-left: 5px solid var(--red);
+      border-radius: 6px;
+      padding: 14px 16px;
+    }
+
+    .takeaway {
+      background: var(--soft-green);
+      border-left: 5px solid var(--green);
+      border-radius: 6px;
+      padding: 14px 16px;
+      font-weight: 700;
+    }
+
+    .svg-wrap {
+      width: 100%;
+      overflow-x: auto;
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      min-width: 760px;
+      height: auto;
+    }
+
+    .caption {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+      margin-top: 10px;
+    }
+
+    .mini-table th,
+    .mini-table td {
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      padding: 10px 8px;
+      vertical-align: top;
+    }
+
+    .mini-table th {
+      color: #344054;
+      background: #f4f6f8;
+    }
+
+    footer {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 4px 2px;
+    }
+
+    @media (max-width: 820px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      header, section, aside {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="eyebrow">论文研讨班 · 主张 C1</div>
+      <h1>TET 缺失会阻断胰腺 β 细胞规格化</h1>
+      <p class="subtitle">
+        基于 hESC 胰腺分化系统，论文认为 TET1/TET2/TET3 的缺失会让细胞难以进入 β 细胞命运；单独让 TET1 失活，也会损害功能性 β 细胞的生成。
+      </p>
+      <div class="claim">
+        核心主张：TET 不是可有可无的表观遗传背景因子，而是 β 细胞身份建立所需的关键调控环节。
+      </div>
+    </header>
+
+    <section>
+      <h2>这条主张说什么？</h2>
+      <p>
+        在正常分化中，人胚胎干细胞会依次经过内胚层、胰腺祖细胞、内分泌祖细胞，最终生成具有 β 细胞特征和功能的细胞。论文中的观察是：当 TET1、TET2、TET3 都被敲除时，这条路线在 β 细胞规格化阶段严重受阻；而 TET1 失活本身也足以削弱功能性 β 细胞的产生。
+      </p>
+      <p>
+        这里的“规格化”不是简单说细胞长得慢，而是说它们没有顺利启动和稳定 β 细胞身份相关的调控程序。
+      </p>
+    </section>
+
+    <section>
+      <h2>直观机制图</h2>
+      <div class="svg-wrap" aria-label="TET 缺失阻断 beta 细胞规格化机制示意图">
+        <svg viewBox="0 0 980 520" role="img">
+          <defs>
+            <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+              <path d="M0,0 L8,3 L0,6 Z" fill="#394150"></path>
+            </marker>
+            <marker id="redArrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+              <path d="M0,0 L8,3 L0,6 Z" fill="#b94a48"></path>
+            </marker>
+            <style>
+              .box { fill: #ffffff; stroke: #cfd6df; stroke-width: 2; rx: 10; }
+              .box-blue { fill: #eaf4f8; stroke: #2f6f9f; stroke-width: 2; rx: 10; }
+              .box-green { fill: #eaf7ef; stroke: #287d4f; stroke-width: 2; rx: 10; }
+              .box-red { fill: #fdeeee; stroke: #b94a48; stroke-width: 2; rx: 10; }
+              .box-amber { fill: #fff6df; stroke: #b7791f; stroke-width: 2; rx: 10; }
+              .txt { font: 16px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #17202a; }
+              .small { font: 13px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #5f6b7a; }
+              .title { font: 700 17px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #17202a; }
+              .label { font: 700 14px -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; fill: #344054; }
+              .arrow { stroke: #394150; stroke-width: 2.4; fill: none; marker-end: url(#arrow); }
+              .redline { stroke: #b94a48; stroke-width: 2.6; fill: none; marker-end: url(#redArrow); }
+              .dash { stroke-dasharray: 6 5; }
+            </style>
+          </defs>
+
+          <rect x="24" y="24" width="932" height="472" fill="#fbfcfd" stroke="#d9dee7" stroke-width="2" rx="14"></rect>
+
+          <text x="60" y="62" class="title">正常分化路线</text>
+          <rect x="60" y="88" width="150" height="78" class="box-blue"></rect>
+          <text x="86" y="120" class="label">hESC</text>
+          <text x="82" y="143" class="small">起始细胞</text>
+
+          <line x1="210" y1="127" x2="268" y2="127" class="arrow"></line>
+          <rect x="270" y="88" width="170" height="78" class="box-blue"></rect>
+          <text x="300" y="119" class="label">内胚层中间态</text>
+          <text x="296" y="143" class="small">TET1 与 FOXA2 相遇</text>
+
+          <line x1="440" y1="127" x2="498" y2="127" class="arrow"></line>
+          <rect x="500" y="88" width="170" height="78" class="box-green"></rect>
+          <text x="528" y="119" class="label">胰腺祖细胞</text>
+          <text x="523" y="143" class="small">FOXA2 结合调控元件</text>
+
+          <line x1="670" y1="127" x2="728" y2="127" class="arrow"></line>
+          <rect x="730" y="88" width="166" height="78" class="box-green"></rect>
+          <text x="761" y="119" class="label">β 细胞规格化</text>
+          <text x="759" y="143" class="small">身份程序被启动</text>
+
+          <rect x="176" y="210" width="290" height="100" class="box-amber"></rect>
+          <text x="202" y="242" class="label">TET 的关键作用</text>
+          <text x="202" y="268" class="txt">降低特定调控区域甲基化</text>
+          <text x="202" y="292" class="small">让染色质更活跃、更容易被转录因子使用</text>
+
+          <line x1="356" y1="210" x2="356" y2="167" class="arrow"></line>
+
+          <rect x="524" y="210" width="300" height="100" class="box"></rect>
+          <text x="550" y="242" class="label">FOXA2 作为先锋转录因子</text>
+          <text x="550" y="268" class="txt">帮助胰腺内胚层程序展开</text>
+          <text x="550" y="292" class="small">论文观察到相关区域富集 FOXA2 信号</text>
+
+          <line x1="626" y1="210" x2="602" y2="167" class="arrow"></line>
+
+          <line x1="72" y1="356" x2="908" y2="356" stroke="#d9dee7" stroke-width="2"></line>
+          <text x="60" y="392" class="title">TET 缺失时</text>
+
+          <rect x="176" y="414" width="210" height="58" class="box-red"></rect>
+          <text x="204" y="448" class="label">TET1/2/3 三敲除</text>
+
+          <line x1="386" y1="443" x2="478" y2="443" class="redline"></line>
+          <rect x="480" y="414" width="230" height="58" class="box-red"></rect>
+          <text x="510" y="440" class="label">高甲基化区域增加</text>
+          <text x="512" y="462" class="small">染色质活性下降</text>
+
+          <line x1="710" y1="443" x2="792" y2="443" class="redline"></line>
+          <rect x="794" y="414" width="120" height="58" class="box-red"></rect>
+          <text x="817" y="440" class="label">β 细胞</text>
+          <text x="811" y="462" class="small">生成受损</text>
+
+          <path d="M595 414 C595 360, 585 286, 585 168" class="redline dash"></path>
+          <text x="612" y="352" class="small">FOXA2 结合发生改变</text>
+        </svg>
+      </div>
+      <p class="caption">
+        图中强调的是证据链的方向：TET 缺失与特定区域高甲基化、染色质活性降低、FOXA2 结合改变和 β 细胞生成缺陷同时出现，支持 TET 参与 β 细胞身份建立。
+      </p>
+    </section>
+
+    <div class="grid">
+      <section>
+        <h2>为什么成立？</h2>
+        <div class="evidence-list">
+          <div class="evidence">
+            <strong>1. 遗传扰动足够强。</strong>
+            TET1/TET2/TET3 三敲除细胞在 hESC 胰腺分化系统中表现出严重的 β 细胞规格化缺陷，说明 TET 家族整体对这一路径很重要。
+          </div>
+          <div class="evidence">
+            <strong>2. 表观遗传变化有方向。</strong>
+            全基因组分析发现细胞类型特异的高甲基化区域，并伴随染色质活性降低。这符合“TET 缺失后去甲基化不足，调控元件不易被激活”的模型。
+          </div>
+          <div class="evidence">
+            <strong>3. 变化指向胰腺关键因子。</strong>
+            这些异常区域显著富集 FOXA2。FOXA2 是胰腺内胚层规格化中的先锋转录因子，因此这不是随机的甲基化噪音。
+          </div>
+          <div class="evidence">
+            <strong>4. 救援实验强化因果性。</strong>
+            在 TET 缺失细胞中导入全长 TET1 可以有效救回 β 细胞分化，并恢复 PAX4 低甲基化；但单独导入 TET1 催化结构域不能达到同样效果。
+          </div>
+        </div>
+      </section>
+
+      <aside>
+        <h2>关键直觉</h2>
+        <p>
+          β 细胞命运不是只靠几个转录因子“按开关”。细胞还需要把正确的基因组区域变成可访问、可响应的状态。
+        </p>
+        <p>
+          TET 的作用可以理解为：在特定发育阶段，帮助清除或降低某些调控区域的 DNA 甲基化，使这些区域更容易获得活跃染色质标记，并允许 FOXA2 等因子正确结合。
+        </p>
+        <div class="takeaway">
+          简化记忆：TET 帮 β 细胞命运相关调控元件“解锁”；没有 TET，FOXA2 相关程序就难以顺利展开。
+        </div>
+      </aside>
+    </div>
+
+    <section>
+      <h2>把证据和结论对应起来</h2>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>观察</th>
+            <th>支持的意思</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>TET 三敲除导致严重 β 细胞规格化缺陷</td>
+            <td>TET 家族对 β 细胞命运建立是必要条件之一</td>
+          </tr>
+          <tr>
+            <td>高甲基化区域伴随染色质活性下降</td>
+            <td>缺陷可能来自调控元件无法正常激活，而非单纯细胞数量变化</td>
+          </tr>
+          <tr>
+            <td>异常区域富集 FOXA2，且 FOXA2 结合发生改变</td>
+            <td>TET 缺失影响胰腺发育核心转录网络</td>
+          </tr>
+          <tr>
+            <td>全长 TET1 能救援，催化结构域单独不足</td>
+            <td>TET1 可能需要完整蛋白结构来定位、互作或组织局部调控环境</td>
+          </tr>
+          <tr>
+            <td>TET1 失活损害功能性 β 细胞生成</td>
+            <td>不仅是早期标记表达问题，也涉及最终功能细胞的形成</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>常见误解与值得追问</h2>
+      <div class="misread">
+        <p><span class="tag">常见误解</span>“TET 缺失就是让所有基因都随机甲基化，所以 β 细胞坏掉只是泛化毒性。”</p>
+        <p>
+          更准确的理解是：论文强调的是细胞类型特异的高甲基化区域、染色质活性降低，以及这些区域与 FOXA2 调控网络的联系。因此主张不是“全基因组混乱导致任何分化都失败”，而是“TET 缺失打断了 β 细胞规格化所需的特定表观遗传-转录因子协同”。
+        </p>
+      </div>
+      <div class="note">
+        <p><span class="tag">值得追问</span>全长 TET1 能救援而催化结构域单独不能救援，说明什么？</p>
+        <p>
+          这提示 TET1 可能不只是一个游离的去甲基化酶。它也许需要非催化区域来接触 FOXA2、定位到正确基因组位点，或招募其他染色质调控组分。后续需要区分：缺陷主要来自酶活性不足，还是来自 TET1-FOXA2 互作和定位功能受损。
+        </p>
+      </div>
+    </section>
+
+    <footer>
+      基于题目所给摘要内容整理；用于研讨班中解释主张 C1 的逻辑链，而非替代全文数据解读。
+    </footer>
+  </main>
+</body>
+</html>

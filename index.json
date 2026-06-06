@@ -4,8 +4,17 @@
   "messages": {},
   "channel": "C0B8SGYLK50",
   "active_paper": "biorxiv_10.1101_2020.05.20.107532",
-  "facilitations": [],
-  "presented": [],
+  "facilitations": [
+    {
+      "thread_ts": "1780776062.458189",
+      "claim_id": "C1",
+      "last_ts": "1780776062.458189",
+      "next_probe_at": 1780776663.4646049
+    }
+  ],
+  "presented": [
+    "C1"
+  ],
   "next_rollout_at": 0,
   "papers": [
     {
