@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>C3 图文讲解：TET 调控胰腺祖细胞阶段的 FOXA2 结合</title>
+  <style>
+    :root {
+      --bg: #f7f8f5;
+      --ink: #1f2933;
+      --muted: #5f6b73;
+      --line: #cfd8dc;
+      --panel: #ffffff;
+      --green: #2f7d62;
+      --blue: #2d6cdf;
+      --red: #c4473d;
+      --amber: #c98a18;
+      --soft-green: #e4f2ec;
+      --soft-blue: #e8f0ff;
+      --soft-red: #fae8e6;
+      --soft-amber: #fff2d6;
+    }
+
+    * {
+      box-sizing: border-box;
+      letter-spacing: 0;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.65;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 22px 56px;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 22px;
+      margin-bottom: 26px;
+    }
+
+    .eyebrow {
+      color: var(--green);
+      font-weight: 700;
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 4vw, 44px);
+      line-height: 1.16;
+      margin: 0 0 14px;
+      max-width: 880px;
+    }
+
+    .subtitle {
+      margin: 0;
+      max-width: 860px;
+      color: var(--muted);
+      font-size: 17px;
+    }
+
+    .claim {
+      margin: 26px 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 6px solid var(--green);
+      border-radius: 8px;
+      padding: 20px 22px;
+    }
+
+    .claim strong {
+      color: var(--green);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+    }
+
+    h2 {
+      font-size: 21px;
+      margin: 0 0 12px;
+      line-height: 1.3;
+    }
+
+    h3 {
+      font-size: 17px;
+      margin: 18px 0 8px;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    ul {
+      margin: 8px 0 0;
+      padding-left: 1.25em;
+    }
+
+    li {
+      margin: 7px 0;
+    }
+
+    .tag-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .tag.green { background: var(--soft-green); color: #205f49; border-color: #badccc; }
+    .tag.blue { background: var(--soft-blue); color: #2251a8; border-color: #bed0fa; }
+    .tag.red { background: var(--soft-red); color: #963027; border-color: #efc4bf; }
+    .tag.amber { background: var(--soft-amber); color: #81580f; border-color: #efd39a; }
+
+    .svg-wrap {
+      background: #fbfcfa;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px;
+      overflow-x: auto;
+    }
+
+    svg {
+      display: block;
+      width: 100%;
+      min-width: 640px;
+      height: auto;
+    }
+
+    .evidence {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .mini {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      background: #fbfcfa;
+    }
+
+    .mini b {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ink);
+    }
+
+    .mini span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .note {
+      background: #fffdf7;
+      border: 1px solid #ead9ab;
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-top: 22px;
+    }
+
+    .note b {
+      color: #7a540d;
+    }
+
+    footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 820px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .evidence {
+        grid-template-columns: 1fr;
+      }
+
+      .page {
+        padding: 24px 14px 42px;
+      }
+
+      .section, .claim {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <p class="eyebrow">论文研讨班图文讲解 · Claim C3</p>
+      <h1>TET 缺失会重塑胰腺祖细胞阶段的 FOXA2 结合景观</h1>
+      <p class="subtitle">
+        这条主张关注的不是最终 β 细胞已经失败之后的结果，而是更早的“胰腺祖细胞”阶段：
+        TET 活性缺失时，FOXA2 在基因组上的占位发生显著变化，尤其是一些 FOXA2 结合降低的位点同时呈现更低的活性染色质信号，并富集 bHLH motif。
+      </p>
+    </header>
+
+    <section class="claim">
+      <p>
+        <strong>一句话：</strong>
+        TET 不只是“去甲基化酶”，在胰腺祖细胞形成时，它还影响 FOXA2 这个 pioneer factor 能否稳定占据某些调控位点。
+        当 TET 缺失时，一部分 FOXA2 位点变得不那么“开放/活跃”，FOXA2 结合下降，并且这些受影响位点带有 bHLH 转录因子家族可能参与的序列特征。
+      </p>
+      <div class="tag-row">
+        <span class="tag green">TET 缺失</span>
+        <span class="tag blue">FOXA2 结合改变</span>
+        <span class="tag red">活性染色质修饰降低</span>
+        <span class="tag amber">bHLH motif 富集</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>核心图示：同一发育阶段，TET 有无导致不同的 FOXA2 占位状态</h2>
+      <div class="svg-wrap" role="img" aria-label="TET 正常与 TET 缺失条件下 FOXA2 结合和染色质状态对比图">
+        <svg viewBox="0 0 980 520" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#5f6b73"/>
+            </marker>
+            <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+              <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.12"/>
+            </filter>
+          </defs>
+
+          <rect x="0" y="0" width="980" height="520" fill="#fbfcfa"/>
+
+          <text x="490" y="42" text-anchor="middle" font-size="24" font-weight="700" fill="#1f2933">
+            胰腺祖细胞阶段：TET 状态改变 FOXA2 的基因组结合
+          </text>
+
+          <rect x="70" y="78" width="360" height="372" rx="8" fill="#ffffff" stroke="#cfd8dc" filter="url(#shadow)"/>
+          <rect x="550" y="78" width="360" height="372" rx="8" fill="#ffffff" stroke="#cfd8dc" filter="url(#shadow)"/>
+
+          <text x="250" y="115" text-anchor="middle" font-size="20" font-weight="700" fill="#2f7d62">TET 正常</text>
+          <text x="730" y="115" text-anchor="middle" font-size="20" font-weight="700" fill="#c4473d">TET 缺失</text>
+
+          <line x1="120" y1="255" x2="380" y2="255" stroke="#78909c" stroke-width="8" stroke-linecap="round"/>
+          <line x1="120" y1="255" x2="380" y2="255" stroke="#2d6cdf" stroke-width="2" stroke-dasharray="12 10"/>
+
+          <line x1="600" y1="255" x2="860" y2="255" stroke="#b0bec5" stroke-width="8" stroke-linecap="round"/>
+          <line x1="600" y1="255" x2="860" y2="255" stroke="#90a4ae" stroke-width="2" stroke-dasharray="12 10"/>
+
+          <ellipse cx="215" cy="218" rx="46" ry="27" fill="#e8f0ff" stroke="#2d6cdf" stroke-width="2"/>
+          <text x="215" y="224" text-anchor="middle" font-size="17" font-weight="700" fill="#2251a8">FOXA2</text>
+
+          <ellipse cx="700" cy="226" rx="36" ry="21" fill="#f4f7f8" stroke="#90a4ae" stroke-width="2"/>
+          <text x="700" y="232" text-anchor="middle" font-size="14" font-weight="700" fill="#607d8b">FOXA2</text>
+          <text x="770" y="232" font-size="16" fill="#c4473d">结合下降</text>
+
+          <rect x="150" y="294" width="58" height="20" rx="4" fill="#e4f2ec" stroke="#2f7d62"/>
+          <rect x="222" y="294" width="58" height="20" rx="4" fill="#e4f2ec" stroke="#2f7d62"/>
+          <rect x="294" y="294" width="58" height="20" rx="4" fill="#e4f2ec" stroke="#2f7d62"/>
+          <text x="250" y="340" text-anchor="middle" font-size="16" fill="#2f7d62">活性染色质修饰较高</text>
+
+          <rect x="630" y="294" width="58" height="20" rx="4" fill="#fae8e6" stroke="#c4473d"/>
+          <rect x="702" y="294" width="58" height="20" rx="4" fill="#fae8e6" stroke="#c4473d"/>
+          <rect x="774" y="294" width="58" height="20" rx="4" fill="#fae8e6" stroke="#c4473d"/>
+          <line x1="630" y1="304" x2="832" y2="304" stroke="#c4473d" stroke-width="3"/>
+          <text x="730" y="340" text-anchor="middle" font-size="16" fill="#c4473d">活性染色质修饰降低</text>
+
+          <text x="250" y="390" text-anchor="middle" font-size="15" fill="#5f6b73">FOXA2 更容易维持在关键调控位点</text>
+          <text x="730" y="390" text-anchor="middle" font-size="15" fill="#5f6b73">受影响位点富集 bHLH motif</text>
+
+          <path d="M 430 255 C 470 255, 510 255, 550 255" stroke="#5f6b73" stroke-width="2.5" fill="none" marker-end="url(#arrow)"/>
+          <text x="490" y="235" text-anchor="middle" font-size="15" fill="#5f6b73">去除 TET</text>
+
+          <rect x="610" y="150" width="240" height="36" rx="6" fill="#fff2d6" stroke="#c98a18"/>
+          <text x="730" y="174" text-anchor="middle" font-size="15" font-weight="700" fill="#81580f">bHLH motif 富集</text>
+
+          <circle cx="155" cy="218" r="8" fill="#2f7d62"/>
+          <text x="155" y="190" text-anchor="middle" font-size="13" fill="#2f7d62">TET</text>
+
+          <circle cx="640" cy="218" r="8" fill="#c4473d"/>
+          <line x1="632" y1="210" x2="648" y2="226" stroke="#ffffff" stroke-width="3"/>
+          <line x1="648" y1="210" x2="632" y2="226" stroke="#ffffff" stroke-width="3"/>
+          <text x="640" y="190" text-anchor="middle" font-size="13" fill="#c4473d">TET KO</text>
+
+          <rect x="170" y="466" width="640" height="34" rx="6" fill="#f7f8f5" stroke="#cfd8dc"/>
+          <text x="490" y="489" text-anchor="middle" font-size="15" fill="#1f2933">
+            读图重点：FOXA2 结合下降不是孤立事件，而是伴随局部染色质活性降低和序列 motif 特征改变。
+          </text>
+        </svg>
+      </div>
+    </section>
+
+    <div class="grid" style="margin-top:22px;">
+      <section class="section">
+        <h2>这条主张具体说什么</h2>
+        <p>
+          论文使用 hESC 向胰腺 β 细胞分化的体系，比较 TET 正常与 TET1/2/3 缺失条件下的中间发育阶段。
+          在胰腺祖细胞阶段，TET 缺失会让 FOXA2 的基因组结合图谱发生显著改变。
+        </p>
+        <p>
+          更关键的是，FOXA2 结合降低的那些位点并非随机位点：它们通常活性染色质修饰较低，并且富集 bHLH motif。
+          这提示 TET 可能帮助维持一类适合 FOXA2 占位的调控环境。
+        </p>
+
+        <h3>关键直觉</h3>
+        <p>
+          可以把 FOXA2 想成能进入并塑造发育调控区的“先导因子”，而 TET 提供的是一种更合适的表观遗传背景。
+          当 TET 缺失时，一些原本应被 FOXA2 稳定访问的区域变得不够活跃，FOXA2 的占位随之下降。
+        </p>
+      </section>
+
+      <section class="section">
+        <h2>为什么这支持 C3</h2>
+        <div class="evidence">
+          <div class="mini">
+            <b>1. 阶段特异</b>
+            <span>变化发生在胰腺祖细胞阶段，而不是只在终末 β 细胞阶段才观察到。</span>
+          </div>
+          <div class="mini">
+            <b>2. 结合改变</b>
+            <span>TET 缺失后，FOXA2 的基因组结合显著变化，说明 TET 影响其占位景观。</span>
+          </div>
+          <div class="mini">
+            <b>3. 位点有特征</b>
+            <span>FOXA2 降低位点伴随低活性染色质修饰，并富集 bHLH motif，提示不是随机丢失。</span>
+          </div>
+        </div>
+
+        <div class="note">
+          <p>
+            <b>常见误解：</b>
+            “FOXA2 结合降低”不等于“FOXA2 蛋白一定变少”。
+            这条主张强调的是 FOXA2 在基因组上的结合位置和强度发生改变。
+          </p>
+          <p>
+            <b>值得追问：</b>
+            bHLH motif 富集说明这些受影响位点带有 bHLH 因子可识别的序列特征，
+            但它本身还不能证明具体哪个 bHLH 因子直接导致 FOXA2 结合下降；这需要进一步实验验证。
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      讲解基于题目提供的论文摘要信息整理；重点是帮助理解 C3 的逻辑链，而非替代原文中的完整实验细节。
+    </footer>
+  </main>
+</body>
+</html>
