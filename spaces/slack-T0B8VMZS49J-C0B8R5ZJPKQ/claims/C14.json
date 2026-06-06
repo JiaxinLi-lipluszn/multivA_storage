@@ -1,0 +1,17 @@
+{
+  "id": "C14",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "基础模型成本效果",
+  "statement": "Transformer base 在 WMT 2014 英译德任务上超过此前已发表模型和集成模型，同时训练成本显著更低。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

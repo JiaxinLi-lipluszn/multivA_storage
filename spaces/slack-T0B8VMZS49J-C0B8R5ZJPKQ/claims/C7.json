@@ -1,0 +1,17 @@
+{
+  "id": "C7",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "点积注意力效率优势",
+  "statement": "缩放点积注意力在理论复杂度相近的情况下，比加性注意力更适合用高效矩阵乘法实现，因此实践中更快、更省空间。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

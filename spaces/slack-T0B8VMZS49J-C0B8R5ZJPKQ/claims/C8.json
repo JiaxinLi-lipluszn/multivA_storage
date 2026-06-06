@@ -1,0 +1,17 @@
+{
+  "id": "C8",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "多头注意力作用",
+  "statement": "多头注意力通过在不同学习到的子空间中并行执行注意力，使模型能够同时关注不同位置和不同表示子空间的信息。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

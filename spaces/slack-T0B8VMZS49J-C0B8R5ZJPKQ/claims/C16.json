@@ -1,0 +1,17 @@
+{
+  "id": "C16",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "训练效率主张",
+  "statement": "Transformer base 可在 8 块 P100 GPU 上约 12 小时训练完成并达到强机器翻译效果，而 big 模型约 3.5 天训练完成。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

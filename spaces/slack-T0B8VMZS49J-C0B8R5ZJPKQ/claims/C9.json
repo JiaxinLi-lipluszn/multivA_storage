@@ -1,0 +1,17 @@
+{
+  "id": "C9",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "多头缓解单头平均问题",
+  "statement": "相比单个注意力头，多头注意力能缓解注意力加权平均导致的有效分辨率下降。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

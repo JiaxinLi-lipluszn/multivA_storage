@@ -1,0 +1,17 @@
+{
+  "id": "C17",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "跨任务泛化",
+  "statement": "Transformer 不仅适用于机器翻译，也能成功应用于英语成分句法分析，包括大数据和有限数据设置。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

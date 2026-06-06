@@ -1,0 +1,17 @@
+{
+  "id": "C5",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "自注意力复杂度优势有条件成立",
+  "statement": "当序列长度 n 小于表示维度 d 时，自注意力层的计算复杂度相对于循环层更有优势，而这正是常见机器翻译表示中的典型情况。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

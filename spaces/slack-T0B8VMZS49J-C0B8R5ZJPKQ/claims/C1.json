@@ -1,0 +1,17 @@
+{
+  "id": "C1",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "纯注意力架构",
+  "statement": "Transformer 是一个不使用循环网络或卷积网络、仅依赖注意力机制的序列转导架构。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

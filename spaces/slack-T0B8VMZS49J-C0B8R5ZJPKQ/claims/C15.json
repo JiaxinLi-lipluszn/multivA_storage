@@ -1,0 +1,17 @@
+{
+  "id": "C15",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "法语翻译结果",
+  "statement": "Transformer big 在 WMT 2014 英译法任务上达到论文报告的单模型最高水平 BLEU，并且训练成本低于此前最强模型。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

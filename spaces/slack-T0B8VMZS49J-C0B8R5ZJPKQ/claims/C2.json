@@ -1,0 +1,17 @@
+{
+  "id": "C2",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "编码器解码器可由注意力堆栈实现",
+  "statement": "由多头自注意力层和逐位置前馈网络堆叠而成的编码器-解码器结构足以完成机器翻译等序列到序列任务。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C3",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "训练可并行化",
+  "statement": "由于 Transformer 不按序列位置递归计算隐藏状态，它在单个训练样本内部可以比循环模型进行显著更多的并行计算。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C12",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "正弦位置编码选择",
+  "statement": "正弦和余弦位置编码被选择，是因为作者假设它能让模型更容易学习相对位置关系，并可能泛化到训练时未见过的更长序列。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

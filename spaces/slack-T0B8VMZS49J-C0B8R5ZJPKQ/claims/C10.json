@@ -1,0 +1,17 @@
+{
+  "id": "C10",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "解码器因果掩码",
+  "statement": "解码器自注意力必须屏蔽当前位置之后的目标词，以保证第 i 个位置的预测只依赖已知的较早输出。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

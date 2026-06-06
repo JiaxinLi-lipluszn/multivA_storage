@@ -1,0 +1,17 @@
+{
+  "id": "C11",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "位置编码必要性",
+  "statement": "由于模型没有循环或卷积结构，必须向输入嵌入中加入位置编码，模型才能利用 token 的顺序信息。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

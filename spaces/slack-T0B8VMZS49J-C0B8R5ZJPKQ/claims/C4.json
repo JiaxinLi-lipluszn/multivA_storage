@@ -1,0 +1,17 @@
+{
+  "id": "C4",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "自注意力缩短依赖路径",
+  "statement": "自注意力层使任意两个序列位置之间的信息交互只需常数级路径长度，而不是像循环或卷积结构那样随距离增长。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}
