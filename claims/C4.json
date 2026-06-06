@@ -1,0 +1,16 @@
+{
+  "id": "C4",
+  "paper": "biorxiv_10.1101_2020.05.20.107532",
+  "title": "全长 TET1 而非催化结构域可救援分化缺陷",
+  "statement": "在 TET 缺陷细胞中，导入全长 TET1 能有效救援 β 细胞分化并恢复 PAX4 低甲基化，而单独导入 TET1 催化结构域不能实现这种救援。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

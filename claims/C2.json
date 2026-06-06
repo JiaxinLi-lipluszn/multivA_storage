@@ -1,0 +1,16 @@
+{
+  "id": "C2",
+  "paper": "biorxiv_10.1101_2020.05.20.107532",
+  "title": "TET 缺失产生 FOXA2 富集的高甲基化区域",
+  "statement": "TET 缺失会产生细胞类型特异性的 hyper-DMRs，这些区域伴随染色质活性下降，并显著富集胰腺内胚层关键 pioneer 因子 FOXA2。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

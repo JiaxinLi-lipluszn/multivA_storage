@@ -1,0 +1,16 @@
+{
+  "id": "C6",
+  "paper": "biorxiv_10.1101_2020.05.20.107532",
+  "title": "TET1 与 FOXA2 物理互作解释染色质重塑机制",
+  "statement": "TET1 在内胚层谱系中间阶段与 FOXA2 发生物理互作，这一互作为 TET 双加氧酶与 pioneer transcription factor 协同调控胰腺规格化中的染色质重塑提供机制解释。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

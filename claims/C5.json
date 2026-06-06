@@ -1,0 +1,16 @@
+{
+  "id": "C5",
+  "paper": "biorxiv_10.1101_2020.05.20.107532",
+  "title": "TET1 依赖的去甲基化建立 β 细胞身份",
+  "statement": "TET1 介导的 DNA 去甲基化，特别是包括 PAX4 等 β 细胞相关位点的低甲基化，是建立 β 细胞身份所必需的。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

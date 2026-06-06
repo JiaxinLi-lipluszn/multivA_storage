@@ -1,0 +1,16 @@
+{
+  "id": "C1",
+  "paper": "biorxiv_10.1101_2020.05.20.107532",
+  "title": "TET 缺失阻断 β 细胞规格化",
+  "statement": "在 hESC 胰腺分化系统中，TET1/TET2/TET3 三敲除会造成严重的胰腺 β 细胞规格化缺陷，TET1 失活也会损害功能性 β 细胞的生成。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

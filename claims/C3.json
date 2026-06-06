@@ -1,0 +1,16 @@
+{
+  "id": "C3",
+  "paper": "biorxiv_10.1101_2020.05.20.107532",
+  "title": "TET 调控胰腺祖细胞阶段的 FOXA2 结合",
+  "statement": "在胰腺祖细胞阶段，TET 缺失会显著改变 FOXA2 的基因组结合；FOXA2 结合降低的基因位点具有较低的活性染色质修饰，并富集 bHLH motif。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}
