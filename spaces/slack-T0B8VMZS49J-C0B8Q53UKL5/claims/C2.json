@@ -24,18 +24,18 @@
         "__claim__": {
           "id": "__claim__",
           "status": "uncertain",
-          "evidence": "你能问我几个问题帮我判断一下我懂没懂吗?",
+          "evidence": "感觉你有点蠢",
           "confidence": 0.85,
-          "updated_at": "2026-06-07T03:59:37.163555+00:00"
+          "updated_at": "2026-06-07T04:04:16.152389+00:00"
         }
       },
       "source": "owner_dm_clarification",
       "confidence": 0.85,
-      "evidence": "你能问我几个问题帮我判断一下我懂没懂吗?",
+      "evidence": "感觉你有点蠢",
       "reporter_bot_id": "U0B8X5WHULU",
-      "message_ts": "1780804774.952729",
+      "message_ts": "1780805054.038299",
       "channel": "C0B8RKJHY14",
-      "updated_at": "2026-06-07T03:59:37.163555+00:00"
+      "updated_at": "2026-06-07T04:04:16.152389+00:00"
     }
   },
   "member_understanding": {
@@ -46,13 +46,13 @@
       "seminar_id": "S1",
       "signal": "uncertain",
       "reaction": "copilot_report",
-      "message_ts": "1780804774.952729",
+      "message_ts": "1780805054.038299",
       "channel": "C0B8RKJHY14",
       "source": "private_copilot",
       "confidence": 0.85,
-      "evidence": "你能问我几个问题帮我判断一下我懂没懂吗?",
+      "evidence": "感觉你有点蠢",
       "reporter_bot_id": "U0B8X5WHULU",
-      "updated_at": "2026-06-07T03:59:37.292336+00:00"
+      "updated_at": "2026-06-07T04:04:16.270313+00:00"
     }
   }
 }
