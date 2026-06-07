@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C15 · 英法翻译达到单模型强结果</h1>
+<p>*C15 钩子：*Transformer 不只是把英德刷高了；在 *WMT 2014 English-to-French* 上，论文报告的 `Transformer big` 单模型也打到了 *41.8 BLEU*，并被作者称为新的单模型最佳结果。</p>
+<hr>
+<p>关键点在于：这里强调的是 *single-model*。<br><br>也就是说，这个结果不是靠多个模型 ensemble 堆出来的，而是在一个大号 Transformer 模型上，直接达到当时很强的英法翻译表现。</p>
+<hr>
+<p>> On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs<br><br>证据很集中：任务是 `WMT 2014 English-to-French`，指标是 `BLEU`，数值是 `41.8`，限定语是 `new single-model state-of-the-art`。</p>
+<hr>
+<p><em>Figure 1 说明这个结果背后的模型是完整 encoder-decoder Transformer，而不是在 RNN/CNN 上加一点 attention。</em></p>
+
+<hr>
+<p>这条结果和论文主叙事是连在一起的：Transformer 取消 recurrence/convolution 后，仍然能在大规模机器翻译基准上达到强质量。<br><br>> based solely on attention mechanisms, dispensing with recurrence and convolutions entirely</p>
+<hr>
+<p>常见误解：不要把这句话读成“Transformer 在所有翻译设置上都已经全面最强”。<br><br>更准确的读法是：在论文报告的 *WMT 2014 English-to-French* 设置下，`Transformer big` 的 *单模型* BLEU 为 `41.8`，作者据此主张新的单模型 SOTA。</p>
+<hr>
+<p>收尾：C15 的分量在于它不是一个孤立数字，而是在证明同一件事：attention-only 架构不仅训练更并行，也能在主流 MT benchmark 上拿到当时有竞争力、甚至单模型最佳的质量。</p></div></body></html>
