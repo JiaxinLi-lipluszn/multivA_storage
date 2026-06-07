@@ -1,0 +1,31 @@
+{
+  "schema_version": 2,
+  "space_id": "slack:T0B8VMZS49J:C0B8R9N140N",
+  "space_type": "seminar",
+  "created_at": "2026-06-07T00:29:59.759638+00:00",
+  "counter": 0,
+  "session": "1706.03762",
+  "active_seminar_id": "S1",
+  "seminars": [
+    {
+      "id": "S1",
+      "title": "1706.03762",
+      "status": "active",
+      "started_at": "2026-06-07T00:30:08.700023+00:00",
+      "ended_at": "",
+      "previous_seminar_id": ""
+    }
+  ],
+  "messages": {},
+  "channel": "C0B8R9N140N",
+  "dialogue_seen": [
+    "1780792197.129539"
+  ],
+  "active_paper": "",
+  "presented": [],
+  "next_rollout_at": 0,
+  "facilitations": [],
+  "posts": [],
+  "probe_at": {},
+  "probe_meta": {}
+}
