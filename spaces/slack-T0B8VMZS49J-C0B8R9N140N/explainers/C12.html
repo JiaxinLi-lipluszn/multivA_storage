@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C12 · 自注意力路径更短</h1>
+<p>*C12: 自注意力把“远距离依赖”的路程压短了。*<br><br>在 RNN 里，位置 `i` 的信息要传到很远的 `j`，通常要沿时间步一格格走；在 Transformer 的 self-attention 层里，`i` 和 `j` 可以在同一层里直接发生关系。<br><br>> In the Transformer this is reduced to a constant number of operations</p>
+<hr>
+<p>关键直觉：*序列距离不再等于计算路径长度*。<br><br>self-attention 不是“从左到右传话”，而是每个位置都拿自己的 `query` 去看同一序列里所有位置的 `key/value`。所以第 3 个词和第 300 个词之间，不需要经过 297 个中间 hidden states。</p>
+<hr>
+<p><em>Scaled dot-product attention 的核心是让每个 query 同时和所有 keys 比较，因此远近位置都能在一次 attention 中相连。</em></p>
+
+<hr>
+<p>论文把这个优势直接量化在 Table 1：<br><br>> Self-Attention: Maximum Path Length O(1)<br>> Recurrent: Maximum Path Length O(n)<br>> Convolutional: Maximum Path Length O(log_k(n))<br><br>这里的 `Maximum Path Length` 可以理解成：两个任意位置的信息要互相影响，最坏要经过多少层/步计算。self-attention 是常数级。</p>
+<hr>
+<p>为什么这重要？论文的说法是，路径越长，远距离依赖越难学。<br><br>> This makes it more difficult to learn dependencies between distant positions<br><br>所以 C12 不是单纯说“attention 看得远”，而是说：*远距离依赖在计算图里的通信路径更短*。这会影响优化、梯度传播和依赖建模。</p>
+<hr>
+<p>一个容易误解的点：`O(1)` 路径长度不等于“免费”。<br><br>self-attention 的每层复杂度是 `O(n^2 · d)`，因为所有位置两两打分；RNN 是 `O(n · d^2)`，路径长但不是二次 token-token 交互。<br><br>所以这条主张讲的是 *信息路径长度*，不是说 self-attention 在所有维度上都更便宜。</p>
+<hr>
+<p>收尾：Transformer 的一个核心设计胜负手是，把“远处 token 要经过很多步才能相互影响”改成“任意两个位置一层内可直接交互”。<br><br>这也是为什么论文在介绍 Transformer 时反复强调：它不是只换了一个 attention 模块，而是用 self-attention 取代了序列对齐的 recurrence/convolution。</p></div></body></html>
