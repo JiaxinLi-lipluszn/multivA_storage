@@ -1,0 +1,30 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C1 · 纯注意力可做序列转导</h1>
+<p>*C1：纯注意力也能做序列转导。*<br>这篇的钩子不是“又加了一个 attention 模块”，而是更激进：把 RNN/CNN 从 encoder-decoder 主干里拿掉。<br>> based solely on attention mechanisms, dispensing with recurrence and convolutions entirely</p>
+<hr>
+<p><em>图 1 直接展示了 Transformer 的主干：encoder 和 decoder 都由 self-attention、encoder-decoder attention、前馈层堆叠而成，没有循环层。</em></p>
+
+<hr>
+<p>*关键直觉：不要按时间步一个个算，而是让位置彼此直接看见。*<br>RNN 的隐藏状态必须沿着 `t-1 -> t` 传；Transformer 让每个位置通过 self-attention 直接和其他位置建立依赖。<br>> The fundamental constraint of sequential computation, however, remains.</p>
+<hr>
+<p><em>图 2 说明核心算子：scaled dot-product attention 把 Q/K/V 做成矩阵运算，multi-head attention 并行看不同位置和表示子空间。</em></p>
+
+<hr>
+<p>*机制上的证据：self-attention 把远距离依赖的路径缩短到常数级。*<br>论文表 1 的对比很关键：<br>• `Self-Attention`: sequential operations `O(1)`, maximum path length `O(1)`<br>• `Recurrent`: sequential operations `O(n)`, maximum path length `O(n)`<br>这就是为什么它更适合并行训练。</p>
+<hr>
+<p>*任务证据：机器翻译不是玩具实验。*<br>论文报告 Transformer 在 WMT 2014 翻译上达到强结果：<br>> 28.4 BLEU on the WMT 2014 English-to-German translation task<br>> 41.8 after training for 3.5 days on eight GPUs<br>所以 C1 的实证含义是：不用循环网络，也能在标准序列转导任务上做到 SOTA 级别。</p>
+<hr>
+<p>*一个常见误解：没有 recurrence 不等于没有顺序信息。*<br>Transformer 仍然需要把位置注入模型，只是不靠循环状态来编码顺序。<br>> Since our model contains no recurrence and no convolution, ... we must inject some information about the relative or absolute position of the tokens<br>收尾：这篇真正改变的是序列建模的默认假设——顺序转导不必绑定“逐步递归计算”。</p></div></body></html>
