@@ -40,5 +40,16 @@
       "label": "为什么容易误读？ 因为正文一开始会先定义 OS 的大范围： It can be used (i) for timed intercourse or insemination 但这只是术语背景，不等于本指南要覆盖这些场景",
       "prompt": "学生能否用自己的话解释: 为什么容易误读？ 因为正文一开始会先定义 OS 的大范围： It can be used (i) for timed intercourse or insemination 但这只是术语背景，不等于本指南要覆盖这些场景"
     }
+  ],
+  "confusions": [
+    {
+      "by": "Shenni Liang",
+      "actor_id": "U0B8U55L6TG",
+      "text": "成员表示该概括目前看起来有些令人困惑。",
+      "permalink": "https://multivaworkspace.slack.com/archives/C0B8Y2KKJ3B/p1780876604279849?thread_ts=1780867860.451319&cid=C0B8Y2KKJ3B",
+      "ts": "1780876604.279849",
+      "load_bearing": "core",
+      "status": "open"
+    }
   ]
 }
