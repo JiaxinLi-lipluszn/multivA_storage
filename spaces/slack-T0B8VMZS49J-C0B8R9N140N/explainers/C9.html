@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C9 · 多头机制抵消单头平均缺陷</h1>
+<p>*C9 钩子：Transformer 的捷径也有代价。*<br>自注意力把任意两个位置的路径长度压到常数级，但每个位置最后拿到的是对很多位置的加权平均。<br><br>> In the Transformer this is reduced to a constant number of operations, albeit at the cost of reduced effective resolution due to averaging attention-weighted positions, an effect we counteract with Multi-Head Attention as described in section 3.2.</p>
+<hr>
+<p>*关键直觉：单头注意力像一次性混音。*<br>一个 query 看全句，给每个 value 一个权重，然后把它们加权求和成一个输出向量。<br><br>> The output is computed as a weighted sum of the values<br><br>如果同一个位置同时需要“主语一致”“长程依赖”“局部搭配”等不同线索，单头的一个平均结果容易把这些线索混在一起。</p>
+<hr>
+<p><em>Figure 2 直接展示了差别：单个注意力层变成多个并行 head，各自注意后再 concat 和投影。</em></p>
+
+<hr>
+<p>*机制：多头不是重复看同一件事，而是先把空间切成多个视角。*<br>论文做法是把 `Q/K/V` 用不同的 learned linear projections 投到多个子空间，每个 head 独立做 attention，最后拼接。<br><br>> Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions. With a single attention head, averaging inhibits this.</p>
+<hr>
+<p>*为什么这能缓解“分辨率下降”？*<br>单头：一个权重分布 + 一个加权平均，多个相关位置会被压进同一个输出。<br><br>多头：多个权重分布 + 多个 value 子空间。某个 head 可以偏向句法位置，另一个 head 可以偏向语义依赖；它们先分开平均，再合并。</p>
+<hr>
+<p>*常见误解：多头不是简单堆更多算力。*<br>论文特意把每个 head 的维度降下来：`h = 8`，每个 head 用 `d_k = d_v = d_model / h = 64`。<br><br>> Due to the reduced dimension of each head, the total computational cost is similar to that of single-head attention with full dimensionality.</p>
+<hr>
+<p>*收尾：C9 的准确说法。*<br>多头注意力不是消除 averaging，而是把“只能平均一次”的瓶颈拆成“在多个表示子空间、多个位置模式上分别平均”。<br><br>所以它抵消的是单头注意力的一个结构性缺陷：全局可达性带来的压缩混合，会降低有效分辨率；multi-head 给模型更多并行的解析通道。</p></div></body></html>
