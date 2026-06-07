@@ -1,0 +1,30 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C2 · 堆叠自注意力足以建模输入表示</h1>
+<p>*C2 的核心主张*: Transformer 编码器不靠 RNN/CNN 逐步扫序列，而是用一叠 `self-attention + position-wise FFN`，直接把输入 token 序列变成连续表示 `z`。<br>> The encoder maps an input sequence ... to a sequence of continuous representations z = (z1, ..., zn).</p>
+<hr>
+<p><em>Figure 1 直接展示了编码器左半边：多头自注意力层和逐位置前馈层按层堆叠，形成输入表示。</em></p>
+
+<hr>
+<p>*关键直觉*: 每个位置不是只看邻居或前一个 hidden state，而是可以在同一层里看整个输入序列。<br>> Each position in the encoder can attend to all positions in the previous layer of the encoder.<br>所以 `z_i` 不是第 i 个词的孤立向量，而是“第 i 个位置从全句里汇总出的表示”。</p>
+<hr>
+<p><em>Figure 2 说明 multi-head attention 如何并行地从不同表示子空间、不同位置抽取信息，缓解单头平均带来的信息压缩。</em></p>
+
+<hr>
+<p>*机制上为什么够用*: 一层做两件事：<br>• `multi-head self-attention`: 让各位置全局交换信息<br>• `position-wise FFN`: 对每个位置做同构的非线性变换<br>然后堆叠 `N = 6` 层，反复执行“全局混合 → 逐位置变换”。<br>> The encoder is composed of a stack of N = 6 identical layers.</p>
+<hr>
+<p>*常见误解*: “没有 RNN/CNN 就没有顺序信息。”<br>论文其实单独加了 positional encoding，因为纯 attention 本身不自带顺序偏置。<br>> Since our model contains no recurrence and no convolution ... we must inject some information about ... position.<br>所以 C2 不是“顺序不重要”，而是“顺序信息可以作为输入特征注入，不必靠递归或卷积结构承载”。</p>
+<hr>
+<p>*收尾*: C2 的分量很清楚：输入 embedding 加位置编码后，经过多层 `self-attention + FFN`，得到连续表示 `z`；decoder 再用 `z` 生成输出。<br>这就是标题里 “Attention Is All You Need” 在编码器侧的具体含义：注意力不只是辅助对齐模块，而是可以成为表示建模的主体结构。</p></div></body></html>
