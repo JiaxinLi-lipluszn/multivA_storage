@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C4 · 位置编码补偿无序结构</h1>
+<p>*C4 钩子：Transformer 不是“天然懂顺序”的。*<br><br>它把循环和卷积都拿掉了，所以 attention 本身主要是在比较 token 表示之间的关系；如果不给它位置信号，模型没有内置的“第几个词”概念。</p>
+<hr>
+<p>*关键直觉：同一个词，出现在不同位置，词嵌入还是同一个。*<br><br>`bank` 在第 2 个位置和第 20 个位置，token embedding 本身不会变。RNN 用时间步带顺序，CNN 用局部窗口带顺序；Transformer 需要额外把位置坐标塞进去。</p>
+<hr>
+<p><em>图1里 Positional Encoding 被加在 encoder/decoder 输入嵌入的底部，说明顺序信息是在进入注意力层前注入的。</em></p>
+
+<hr>
+<p>*论文机制：位置编码和词嵌入直接相加。*<br><br>> “we add ‘positional encodings’ to the input embeddings”<br><br>原因是二者维度相同：`d_model = 512`。所以每个输入位置实际进入模型的是：<br><br>`token embedding + positional encoding`</p>
+<hr>
+<p>*它用的不是一个位置编号，而是一组正弦/余弦坐标。*<br><br>论文给出：<br>`PE(pos, 2i) = sin(pos / 10000^(2i/d_model))`<br>`PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))`<br><br>意思是：每个位置被编码成一个 512 维向量，不同维度对应不同频率的波。</p>
+<hr>
+<p>*常见误解：位置编码不是替代 attention，而是让 attention 有顺序可用。*<br><br>Self-attention 负责“谁和谁相关”；positional encoding 负责告诉它“这些 token 在序列中的相对/绝对位置”。没有后者，模型很难区分 `A before B` 和 `B before A` 这种顺序差异。</p>
+<hr>
+<p>*收尾：C4 的核心是补偿。*<br><br>Transformer 的并行性来自去掉 recurrence/convolution；代价是结构本身不再携带序列顺序。位置编码就是这笔账的补偿：把顺序信息加回输入，让纯 attention 架构仍能处理序列。</p></div></body></html>
