@@ -5,7 +5,7 @@
   "display_name": "LiGaZn",
   "source": "slack",
   "first_seen_at": "2026-06-06T23:17:36.735460+00:00",
-  "last_seen_at": "2026-06-07T17:16:12.715610+00:00",
+  "last_seen_at": "2026-06-07T21:22:30.930389+00:00",
   "consent": {
     "share_personal_knowledge_to_org": false
   },
@@ -22,9 +22,9 @@
       "last_seen_at": "2026-06-07T01:48:37.138379+00:00"
     },
     "slack:T0B8VMZS49J:C0B8Q53UKL5": {
-      "count": 46,
+      "count": 48,
       "first_seen_at": "2026-06-07T01:31:19.723246+00:00",
-      "last_seen_at": "2026-06-07T16:48:29.532802+00:00"
+      "last_seen_at": "2026-06-07T21:22:30.930413+00:00"
     },
     "slack:T0B8VMZS49J:C0B8RKJHY14": {
       "count": 15,
@@ -40,6 +40,11 @@
       "count": 7,
       "first_seen_at": "2026-06-07T16:31:03.762592+00:00",
       "last_seen_at": "2026-06-07T17:16:12.715633+00:00"
+    },
+    "slack:T0B8VMZS49J:C0B8Y2KKJ3B": {
+      "count": 13,
+      "first_seen_at": "2026-06-07T21:04:20.780842+00:00",
+      "last_seen_at": "2026-06-07T21:14:56.896946+00:00"
     }
   },
   "understanding_by_space": {
@@ -66,13 +71,13 @@
         "seminar_id": "S1",
         "signal": "uncertain",
         "reaction": "copilot_report",
-        "message_ts": "1780850907.208589",
+        "message_ts": "1780867347.545609",
         "channel": "C0B8RKJHY14",
         "source": "private_copilot",
         "confidence": 0.8,
-        "evidence": "Answered SeminarBot learning status request 1780850841.176929.",
+        "evidence": "Answered SeminarBot learning status request 1780867344.346049.",
         "reporter_bot_id": "U0B8X5WHULU",
-        "updated_at": "2026-06-07T16:48:29.553925+00:00"
+        "updated_at": "2026-06-07T21:22:30.959999+00:00"
       },
       "C2": {
         "user_id": "U0B8Q1X1SF8",

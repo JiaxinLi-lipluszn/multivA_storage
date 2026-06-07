@@ -60,6 +60,16 @@
       "team": "T0B8VMZS49J",
       "created_at": "2026-06-07T16:31:03.435288+00:00",
       "updated_at": "2026-06-07T16:31:03.435336+00:00"
+    },
+    "slack:T0B8VMZS49J:C0B8Y2KKJ3B": {
+      "space_id": "slack:T0B8VMZS49J:C0B8Y2KKJ3B",
+      "slug": "slack-T0B8VMZS49J-C0B8Y2KKJ3B",
+      "path": "spaces/slack-T0B8VMZS49J-C0B8Y2KKJ3B",
+      "space_type": "seminar",
+      "channel": "C0B8Y2KKJ3B",
+      "team": "T0B8VMZS49J",
+      "created_at": "2026-06-07T21:04:20.735497+00:00",
+      "updated_at": "2026-06-07T21:04:20.735519+00:00"
     }
   }
 }
