@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C11 · 正弦位置编码可泛化长度</h1>
+<p>*C11 钩子：Transformer 为什么敢处理“更长的位置”？*<br><br>它没有 RNN、没有卷积，所以顺序信息不能靠递归步数或卷积窗口自然带进来。<br><br>> Since our model contains no recurrence and no convolution, ... we must inject some information about the relative or absolute position of the tokens in the sequence.</p>
+<hr>
+<p><em>Fig1 里 Positional Encoding 是加在 encoder/decoder 底部的 token embedding 上，而不是一个单独的序列模型。</em></p>
+
+<hr>
+<p>*关键直觉：位置被写成一组不同频率的波*<br><br>每个位置 `pos` 不是一个整数标签，而是一串 sin/cos 数值；不同维度对应不同频率。<br><br>> In this work, we use sine and cosine functions of different frequencies:</p>
+<hr>
+<p>*机制：同一个位置有很多“尺度”的读数*<br><br>论文给出的形式是：<br><br>> PE(pos, 2i) = sin(pos / 10000^(2i/dmodel))<br>> PE(pos, 2i+1) = cos(pos / 10000^(2i/dmodel))<br><br>所以模型看到的不是“第 37 个 token”这个离散 ID，而是第 37 位在许多波长上的相位组合。</p>
+<hr>
+<p>*为什么这和长度外推有关？*<br><br>如果位置编码是 learned embedding，训练没见过的位置可能根本没有学到向量；但 sin/cos 是一个确定函数，`pos=1000`、`pos=10000` 也能直接算出来。<br><br>这就是“可能允许外推到更长序列”的核心：不是保证模型一定会懂更长上下文，而是位置表示本身不会在训练长度外断掉。</p>
+<hr>
+<p>*常见误解：正弦位置编码 ≠ 自动长上下文能力*<br><br>它解决的是“如何给未见过的位置一个可计算的编码”。但模型是否真的能利用更长依赖，还受注意力模式、训练分布、任务长度、上下文窗口和优化影响。<br><br>换句话说：这是一个有利的归纳偏置，不是长度泛化定理。</p>
+<hr>
+<p>*收尾一句*<br><br>C11 的强版本不该说“Transformer 必然能外推长度”；更准确是：sin/cos 位置编码把位置变成连续、可延展的函数表示，因此相比固定 learned position table，更自然地支持训练长度外的位置输入。</p></div></body></html>
