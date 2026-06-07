@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C8 · 多头注意力作用</h1>
+<p>*C8 钩子：多头注意力不是“多算几次 attention”这么简单。*<br><br>它的核心作用是：让同一个 token 在同一层里，同时从不同角度看序列。<br><br>• 有的 head 可以偏向位置关系<br>• 有的 head 可以偏向语法/语义关系<br>• 有的 head 可以在不同表示子空间里取信息</p>
+<hr>
+<p>*关键直觉：一个头像一支手电，多头像同时开几支不同滤镜的手电。*<br><br>单头 attention 会把所有相关位置的信息加权平均到一个结果里；如果不同关系混在一起，平均会损失分辨率。<br><br>论文在背景里先点出这个问题：<br>> reduced effective resolution due to averaging attention-weighted positions, an effect we counteract with Multi-Head Attention</p>
+<hr>
+<p><em>Figure 2 直接展示了 Multi-Head Attention：多个 attention 层并行运行，最后拼接并投影成输出。</em></p>
+
+<hr>
+<p>*机制：每个 head 先把 `Q/K/V` 投影到自己学习到的子空间。*<br><br>论文不是让 8 个头看完全相同的表示，而是给每个头不同的线性投影：<br>> linearly project the queries, keys and values h times with different, learned linear projections<br><br>然后每个 head 各自做 scaled dot-product attention，得到的结果再 `Concat`，最后乘 `W^O` 合成输出。</p>
+<hr>
+<p>*关键证据句：论文明确把“不同位置”和“不同表示子空间”连在一起。*<br><br>> Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions.<br><br>这正是 C8 的主张：多头让模型可以同时关注不同位置，也同时在不同表示子空间里抽取信息。</p>
+<hr>
+<p>*常见误解：多头不是免费增加模型容量，也不是简单投票。*<br><br>论文里的标准设置是 `h = 8`，但每个 head 的维度降到 `d_model / h`：<br>> For each of these we use dk = dv = dmodel/h = 64.<br>> Due to the reduced dimension of each head, the total computational cost is similar to that of single-head attention with full dimensionality.<br><br>所以重点不是“计算量乘 8”，而是把同等量级的计算拆成多个可学习视角。</p>
+<hr>
+<p>*收尾：Multi-head attention 的贡献可以这样记。*<br><br>单头 attention 问：当前位置该从哪些 token 取信息？<br><br>多头 attention 进一步问：当前位置能不能同时用几套不同的表示坐标系，从不同 token 取不同类型的信息？<br><br>这就是 Transformer 能在每层里并行建模多种依赖关系的关键部件。</p></div></body></html>
