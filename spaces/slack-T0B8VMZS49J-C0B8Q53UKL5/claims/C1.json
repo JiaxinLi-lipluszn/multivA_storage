@@ -23,5 +23,46 @@
       "load_bearing": "side",
       "status": "open"
     }
-  ]
+  ],
+  "member_concept_progress": {
+    "U0B8Q1X1SF8": {
+      "user_id": "U0B8Q1X1SF8",
+      "display_name": "LiGaZn",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "concepts": {
+        "__claim__": {
+          "id": "__claim__",
+          "status": "unknown",
+          "evidence": "No observed owner signal yet.",
+          "confidence": 0.0,
+          "updated_at": "2026-06-07T03:50:04.873582+00:00"
+        }
+      },
+      "source": "copilot_learning_status_request",
+      "confidence": 0.0,
+      "evidence": "Answered SeminarBot learning status request 1780804200.249099.",
+      "reporter_bot_id": "U0B8X5WHULU",
+      "message_ts": "1780804202.037639",
+      "channel": "C0B8RKJHY14",
+      "updated_at": "2026-06-07T03:50:04.873582+00:00"
+    }
+  },
+  "member_understanding": {
+    "U0B8Q1X1SF8": {
+      "user_id": "U0B8Q1X1SF8",
+      "display_name": "LiGaZn",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "signal": "uncertain",
+      "reaction": "copilot_report",
+      "message_ts": "1780804202.037639",
+      "channel": "C0B8RKJHY14",
+      "source": "private_copilot",
+      "confidence": 0.0,
+      "evidence": "Answered SeminarBot learning status request 1780804200.249099.",
+      "reporter_bot_id": "U0B8X5WHULU",
+      "updated_at": "2026-06-07T03:50:05.010510+00:00"
+    }
+  }
 }
