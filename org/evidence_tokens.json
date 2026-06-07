@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "tokens": {
+    "HE_9wYJ2sx7ItNUYpoEb5-wX2fu2jPPf": {
+      "schema_version": 1,
+      "token": "HE_9wYJ2sx7ItNUYpoEb5-wX2fu2jPPf",
+      "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+      "seminar_id": "S1",
+      "paper_id": "1706.03762",
+      "paper_title": "1706.03762",
+      "claim_id": "C3",
+      "page": 5,
+      "label": "p.5 原文测试",
+      "excerpt": "Decoder self-attention can be masked so each position attends only to earlier positions.",
+      "bbox": {},
+      "created_by": "codex-test",
+      "created_at": "2026-06-07T15:10:53.258951+00:00",
+      "expires_at": "2026-06-14T15:10:53.192318+00:00"
+    },
+    "ZvRPhvu2OeUjGmG9eN1bOZbWCMYHf8hx": {
+      "schema_version": 1,
+      "token": "ZvRPhvu2OeUjGmG9eN1bOZbWCMYHf8hx",
+      "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+      "seminar_id": "S1",
+      "paper_id": "1706.03762",
+      "paper_title": "1706.03762",
+      "claim_id": "C3",
+      "page": 5,
+      "label": "p.5 手机测试",
+      "excerpt": "Decoder self-attention can be masked so each position attends only to earlier positions.",
+      "bbox": {},
+      "created_by": "codex-mobile-test",
+      "created_at": "2026-06-07T15:15:13.887378+00:00",
+      "expires_at": "2026-06-14T15:15:13.821716+00:00"
+    },
+    "8xTVdoUHMRniDFGwzg9jnvVcK7FQRxBK": {
+      "schema_version": 1,
+      "token": "8xTVdoUHMRniDFGwzg9jnvVcK7FQRxBK",
+      "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+      "seminar_id": "S1",
+      "paper_id": "1706.03762",
+      "paper_title": "1706.03762",
+      "claim_id": "C3",
+      "page": 3,
+      "label": "p.3 高亮测试",
+      "excerpt": "predictions for position i can depend only on the known outputs at positions less than i.",
+      "bbox": {
+        "x0": 106.0,
+        "y0": 655.36,
+        "x1": 458.65,
+        "y1": 668.55,
+        "unit": "pdf_points"
+      },
+      "created_by": "codex-highlight-test",
+      "created_at": "2026-06-07T15:19:26.849595+00:00",
+      "expires_at": "2026-06-14T15:19:26.767977+00:00"
+    },
+    "3VMnKdhg6PCBYNrgjb0UQOqpRYU7etJ9": {
+      "schema_version": 1,
+      "token": "3VMnKdhg6PCBYNrgjb0UQOqpRYU7etJ9",
+      "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+      "seminar_id": "S1",
+      "paper_id": "1706.03762",
+      "paper_title": "1706.03762",
+      "claim_id": "C3",
+      "page": 3,
+      "label": "p.3 原文",
+      "excerpt": "predictions for position i can depend only on the known outputs at positions less than i.",
+      "bbox": {
+        "x0": 106.0,
+        "y0": 655.36,
+        "x1": 458.65,
+        "y1": 668.55,
+        "unit": "pdf_points"
+      },
+      "created_by": "U0B8Q1X1SF8",
+      "created_at": "2026-06-07T15:33:56.986431+00:00",
+      "expires_at": "2026-09-05T15:33:56.909905+00:00"
+    }
+  },
+  "updated_at": "2026-06-07T15:33:56.996695+00:00"
+}
