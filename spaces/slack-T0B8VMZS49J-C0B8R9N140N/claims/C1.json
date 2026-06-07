@@ -13,5 +13,14 @@
     "ts": ""
   },
   "contributions": [],
-  "depends_on": []
+  "depends_on": [],
+  "understandings": [
+    {
+      "by": "LiGaZn",
+      "text": "发言者把论文中摆脱循环状态更新的纯注意力转导主张，联想到 GPT 中自回归式 next state/next token prediction 的回归。",
+      "permalink": "https://multivaworkspace.slack.com/archives/C0B8R9N140N/p1780793044260229?thread_ts=1780792289.489429&cid=C0B8R9N140N",
+      "ts": "1780793044.260229",
+      "load_bearing": "side"
+    }
+  ]
 }
