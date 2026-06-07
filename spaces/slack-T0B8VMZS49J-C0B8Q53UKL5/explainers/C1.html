@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C1 · 纯注意力可替代循环与卷积</h1>
+<p>*C1 钩子：把 RNN/CNN 从序列转导里拿掉，真的可以吗？*<br><br>Transformer 的大胆点不是“加了注意力”，而是：编码器和解码器都不再用循环或卷积来混合序列信息。<br><br>> We propose a new simple network architecture, the Transformer, based solely on attention mechanisms, dispensing with recurrence and convolutions entirely.</p>
+<hr>
+<p><em>Transformer 仍是 encoder-decoder，但序列混合主要由多头注意力承担，而不是 RNN/CNN。</em></p>
+
+<hr>
+<p>*关键直觉：注意力把“远距离依赖”变成直接可见。*<br><br>RNN 要一步步传，卷积要靠层数扩大感受野；self-attention 让任意两个位置在一层里就能互相看见。<br><br>> In the Transformer this is reduced to a constant number of operations</p>
+<hr>
+<p>*机制：三种注意力分工完成编码与解码。*<br><br>• encoder self-attention：输入序列内部各位置互看<br>• decoder masked self-attention：输出前缀内部互看，但不能偷看未来<br>• encoder-decoder attention：decoder 每个位置看 encoder 的所有输入位置<br><br>> Each position in the encoder can attend to all positions in the previous layer of the encoder.</p>
+<hr>
+<p>*实验证据：这不是只讲结构优雅。*<br><br>论文在机器翻译上给出质量和训练效率证据：<br><br>> Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task<br>> On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8 after training for 3.5 days on eight GPUs</p>
+<hr>
+<p>*常见误解：这里的“纯注意力”不是说模型里只有 attention 一个算子。*<br><br>Transformer 还有 embedding、position-wise FFN、residual、layer norm、softmax；真正被替代的是用于序列建模的 `sequence-aligned RNNs` 和 `convolution`。<br><br>> The Transformer follows this overall architecture using stacked self-attention and point-wise, fully connected layers for both the encoder and decoder</p>
+<hr>
+<p>*收尾：主张成立，但有一个关键补丁。*<br><br>去掉循环和卷积后，模型本身不知道 token 顺序，所以必须额外注入位置编码。<br><br>> Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens in the sequence.<br><br>所以 C1 的准确版本是：*不用 RNN/CNN 也能做序列转导；序列关系由 self-attention + 位置编码 + decoder mask 来组织。*</p></div></body></html>

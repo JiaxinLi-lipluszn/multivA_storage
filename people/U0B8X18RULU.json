@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "kind": "human",
+  "id": "U0B8X18RULU",
+  "display_name": "Tom F",
+  "source": "slack",
+  "first_seen_at": "2026-06-07T01:46:22.696356+00:00",
+  "last_seen_at": "2026-06-07T01:46:22.696373+00:00",
+  "consent": {
+    "share_personal_knowledge_to_org": false
+  },
+  "shared_knowledge": [],
+  "observed_in_spaces": {
+    "slack:T0B8VMZS49J:C0B8Q53UKL5": {
+      "count": 1,
+      "first_seen_at": "2026-06-07T01:46:22.696376+00:00",
+      "last_seen_at": "2026-06-07T01:46:22.696378+00:00"
+    }
+  }
+}
