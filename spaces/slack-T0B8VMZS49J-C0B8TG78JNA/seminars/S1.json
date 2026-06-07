@@ -8,6 +8,24 @@
   "ended_at": "",
   "previous_seminar_id": "",
   "related_seminar_ids": [],
-  "papers": [],
-  "claims": []
+  "papers": [
+    "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6"
+  ],
+  "claims": [
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C6",
+    "C7",
+    "C8",
+    "C9",
+    "C10",
+    "C11",
+    "C12",
+    "C13",
+    "C14"
+  ],
+  "updated_at": "2026-06-07T16:42:47.612881+00:00"
 }

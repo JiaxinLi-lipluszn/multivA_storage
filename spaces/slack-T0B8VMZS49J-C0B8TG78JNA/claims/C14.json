@@ -1,0 +1,17 @@
+{
+  "id": "C14",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "个人订阅原型不能共享服务化",
+  "statement": "README 明确把本机 `codex exec` 用法限定为个人、单账户、本机原型，不应部署成多人共享账户服务；正式服务化应把 brain.py 的 `_run` 换成 API key 调用。",
+  "type": "core",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

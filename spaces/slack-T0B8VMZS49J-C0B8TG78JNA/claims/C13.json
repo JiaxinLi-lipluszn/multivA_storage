@@ -1,0 +1,17 @@
+{
+  "id": "C13",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "运行态与发布态分离",
+  "statement": "launchd 部署会把代码和 `.env` 同步到 Application Support 的 runtime copy，并保留运行态 `canon/` 和 Cognee 状态；代码或环境变更后需要重新 install 才会进入后台 job。",
+  "type": "method",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

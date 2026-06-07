@@ -1,0 +1,17 @@
+{
+  "id": "C6",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "贡献必须被分诊后入库",
+  "statement": "成员在 Slack 中对 bot 的质疑或贡献不会直接变成 canon，而是先由大脑判断是否具体、是否承重、对应哪条 claim、属于什么类型，再决定写入或退回追问。",
+  "type": "core",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

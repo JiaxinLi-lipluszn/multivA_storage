@@ -1,0 +1,17 @@
+{
+  "id": "C7",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "自动推进受理解 gate 控制",
+  "statement": "SeminarBot 在展示下一条 claim 前会检查成员对已展示 claim/concept 的理解进度，默认至少需要两位成员表达理解，阈值可由 `SEMINAR_ADVANCE_MIN_UNDERSTOOD` 调整。",
+  "type": "method",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

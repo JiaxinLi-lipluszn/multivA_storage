@@ -1,0 +1,17 @@
+{
+  "id": "C8",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "Private copilot 可填理解表",
+  "statement": "如果配置 private copilot 映射，SeminarBot 会通过 Slack marker 或 A2A profile 请求 copilot 回传学生的概念理解状态，并优先用这些状态作为推进 gate 的依据。",
+  "type": "method",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C1",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "Slack 入口只是管道",
+  "statement": "SeminarBot 的核心分工是 app.py 负责 Slack 事件、消息发送和调度管道，真正的判断交给 brain.py，持久事实交给 canon.py。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

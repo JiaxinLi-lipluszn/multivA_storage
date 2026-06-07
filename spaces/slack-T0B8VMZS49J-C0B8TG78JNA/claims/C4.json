@@ -1,0 +1,17 @@
+{
+  "id": "C4",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "Source 会先被打包再拆解",
+  "statement": "无论 source 来自论文、本地文件夹、GitHub repo、知识库召回还是 SeminarBot 自身源码，系统都会先把它打包成文本 source，再由大脑拆成 claims/concepts。",
+  "type": "method",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

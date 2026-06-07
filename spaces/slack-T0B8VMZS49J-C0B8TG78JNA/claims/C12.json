@@ -1,0 +1,17 @@
+{
+  "id": "C12",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "Cognee 是派生召回层",
+  "statement": "Git canon 仍是事实源，Cognee 只作为可重建的 graph/vector recall 层，用于补充联想召回；其失败或超时不应阻断主持流程。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

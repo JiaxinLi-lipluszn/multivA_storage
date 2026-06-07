@@ -1,0 +1,17 @@
+{
+  "id": "C2",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "本机 Codex 是中央大脑",
+  "statement": "SeminarBot 当前通过 brain.py shell 出本机的 `codex exec` 来执行拆主张、分诊、digest 等判断任务，而不是在 Slack 进程内直接实现推理。",
+  "type": "core",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

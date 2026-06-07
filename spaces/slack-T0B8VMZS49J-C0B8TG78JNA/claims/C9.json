@@ -1,0 +1,17 @@
+{
+  "id": "C9",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "A2A 只共享学习状态",
+  "statement": "SeminarBot 的 A2A-over-Slack profile 规定 bot-to-bot 协调只交换概念清单、学习状态请求和概念进度 artifact，不读取 private copilot 的内部记忆或私人知识库。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

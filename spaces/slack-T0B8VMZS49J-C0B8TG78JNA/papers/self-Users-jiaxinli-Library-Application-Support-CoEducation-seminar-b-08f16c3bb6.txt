@@ -1,0 +1,4127 @@
+===== FILE: README.md =====
+# SeminarBot
+
+一个研讨班 bot:一群人在 Slack 里精读一份学习材料 source(论文、文件夹、GitHub repo、知识库召回等),bot 的"中央大脑" shell 出你本机的 `codex exec` 做判断,把质疑/贡献沉淀成 git 仓库里的共识(canon)。
+
+```
+你的机器
+ ├─ app.py            Slack(Socket Mode)入口 = 管道
+ ├─ brain.py          调用 `codex exec` = 大脑
+ ├─ canon.py          git 仓库 = 数据库
+ ├─ prompts/          三个判断任务的 prompt
+ ├─ SEMINAR_PROTOCOL.md  协议(也复制给成员当 CLAUDE.md / AGENTS.md)
+ └─ canon/            运行后自动生成的 git 仓库(claims 存这里)
+```
+
+## 它现在能做什么(v1)
+
+- `/seminar start <题目>` 开一个研讨
+- `@SeminarBot 下载 <arXiv 链接/ID 或 bioRxiv DOI/链接>` 拉论文、拆主张、分批推送讲解
+- `/seminar source folder <目录>` 从受限导入目录读取整个文件夹,打包成学习材料并拆主张/概念
+- `/seminar source repo <github-url|owner/repo>` clone GitHub repo 后只读文本文件,打包成学习材料并拆主张/概念
+- `/seminar source kb <主题/问题>` 从已同步知识库 recall 内容,打包成学习材料并拆主张/概念
+- `/seminar source self` 把 SeminarBot 自己的运行时源码和 prompts 作为学习材料开一场 seminar
+- `/seminar decompose <文件名>` 从受限导入目录读取单个本地文件并拆主张
+- **@SeminarBot <你的质疑/贡献>** → 大脑分诊(是否承重、打哪条主张、什么类型)→ 写进 canon → 给你打 ✅;不够具体的会被退回并追问
+- `/seminar status` 看所有主张和它们的质疑/贡献数
+- `/seminar understanding` 看 active seminar 中每个成员对各 claim / concept 的理解填表情况；在汇总 channel 用 `/seminar understanding all` 看当前所有 active/paused seminar
+- `/seminar pause` 暂停自动展示/追问；`/seminar resume` 恢复，恢复后会等频道安静一下再继续
+- 自动继续下一条 C 前会检查理解进度，默认至少 2 位成员对已展示 C 打 ✅/👍 或在 thread 里表达理解；阈值可用 `SEMINAR_ADVANCE_MIN_UNDERSTOOD` 调整
+- 如果成员运行私人 copilot，seminarbot 会在每条 C 的 root thread 提供 `COPILOT_CONCEPT_CHECKLIST` 概念清单，并可在指定 bot-to-bot channel 主动发送 `COPILOT_LEARNING_STATUS_REQUEST` 询问各 private copilot。可信 copilot 用 `COPILOT_CONCEPT_PROGRESS` 回填每位学生的概念表。配置 `SEMINAR_COPILOT_OWNER_MAP=<copilot id>:<student id>` 后，gate 会优先使用这些表
+- `/seminar digest` 让大脑生成"我们现在相信什么 / 还在争什么 / 盲区 / 谁贡献了"
+- `/seminar search <相关论文/对比主题>` 用公开论文索引找外部论文候选,并基于 metadata/abstract 与当前论文做谨慎比较
+- `/seminar evidence-link C3 [页码]` 为某条 claim 生成随机 token 的 PDF 原文证据页链接；不填页码时会按 claim 关键词猜最相关页面
+
+撤回传播、自动共识提议、沉默成员 nudge 是 v2(协议里已留好位置)。
+
+---
+
+## 一、装环境
+
+```bash
+cd seminar-bot
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+确认 codex 能用(本机已登录 ChatGPT 订阅):
+
+```bash
+codex exec --skip-git-repo-check "只回复 OK 两个字"
+```
+
+> PDF 论文:装 `pdftotext`(macOS:`brew install poppler`),或先把论文转成 `.txt`。
+
+## 二、建 Slack app(2 分钟,用 manifest 一次配好)
+
+1. 打开 https://api.slack.com/apps → **Create New App** → **From a manifest**
+2. 选你的 workspace,把 `slack_manifest.yaml` 的内容整段粘进去 → 创建
+3. 左侧 **Basic Information** → **App-Level Tokens** → **Generate Token and Scopes**:
+   名字随便,加 scope **`connections:write`** → 生成 → 复制这个 **`xapp-...`**(这是 `SLACK_APP_TOKEN`)
+4. 左侧 **Install App** → **Install to Workspace** → 授权 → 复制 **Bot User OAuth Token** **`xoxb-...`**(这是 `SLACK_BOT_TOKEN`)
+
+> manifest 已经帮你开好:Socket Mode、App Home 的可写 Messages tab、`/seminar` 命令、`app_mention` / `message.im` / `reaction_added` 等事件、以及需要的 scopes。Socket Mode 不需要公网 URL。
+
+## 三、填 token 并运行
+
+```bash
+cp .env.example .env
+# 把 .env 里的 SLACK_BOT_TOKEN / SLACK_APP_TOKEN 填上
+# 如果要允许本地文件夹/repo/单文件导入,设置 SEMINAR_IMPORT_USER_IDS 和 PAPER_IMPORT_DIR
+set -a && source .env && set +a
+python app.py
+```
+
+看到 `SeminarBot 已启动` 就成了。
+
+如果要让 Slack 里的所有成员都能点开 PDF 原文证据链接,另开一个终端启动 viewer:
+
+```bash
+set -a && source .env && set +a
+python evidence_viewer.py
+```
+
+本地默认地址是 `http://localhost:8765`,只适合在运行 bot 的机器上测试。要给 Slack 成员共用,用 ngrok、Cloudflare Tunnel 或自己的反向代理把它暴露成 HTTPS,再设置:
+
+```bash
+SEMINAR_VIEWER_BASE_URL=https://你的-viewer-域名
+```
+
+viewer 的 URL 只有随机 token,不会把 PDF 路径放进链接；token 元数据存在 `canon/org/evidence_tokens.json`。
+
+其它 bot 不需要实现 PDF 定位逻辑,可以直接调 viewer API 生成链接:
+
+```bash
+curl -X POST http://127.0.0.1:8765/api/evidence-links \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+    "claim_id": "C3",
+    "created_by": "other-slack-bot"
+  }'
+```
+
+也可以不依赖 SeminarBot claim,直接传论文和文本:
+
+```json
+{
+  "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+  "paper_id": "1706.03762",
+  "query_text": "We also modify the self-attention sub-layer in the decoder stack to prevent positions from attending to subsequent positions.",
+  "created_by": "other-slack-bot"
+}
+```
+
+返回里会有 `url`, `page`, `excerpt`, `bbox`。默认 API 只接受 localhost 调用；跨机器调用时设置 `SEMINAR_VIEWER_API_TOKEN`,请求头带 `Authorization: Bearer ...`。
+
+### 用 launchd 常驻运行
+
+在 macOS 上可以让 `launchd` 同时托管 Slack bot 和 PDF viewer。配置文件已经在:
+
+```text
+launchd/com.coeducation.seminarbot.plist
+launchd/com.coeducation.evidence-viewer.plist
+```
+
+先确认 `.env` 和 `.venv` 都准备好,然后运行:
+
+```bash
+scripts/launchd.sh install
+scripts/launchd.sh status
+```
+
+这会把 plist 复制到 `~/Library/LaunchAgents/`,把当前代码和 `.env` 同步到 `~/Library/Application Support/CoEducation/seminar-bot/`,并注册两个用户级 job:
+
+```text
+com.coeducation.seminarbot
+com.coeducation.evidence-viewer
+```
+
+日志写到:
+
+```text
+~/Library/Application Support/CoEducation/seminar-bot/logs/seminarbot.out.log
+~/Library/Application Support/CoEducation/seminar-bot/logs/seminarbot.err.log
+~/Library/Application Support/CoEducation/seminar-bot/logs/evidence-viewer.out.log
+~/Library/Application Support/CoEducation/seminar-bot/logs/evidence-viewer.err.log
+```
+
+常用命令:
+
+```bash
+scripts/launchd.sh restart
+scripts/launchd.sh stop
+scripts/launchd.sh uninstall
+```
+
+之后如果改了 repo 里的代码或 `.env`,重新运行 `scripts/launchd.sh install` 让后台 job 拿到新版本。
+运行态的 `canon/` 和 Cognee 本地状态会保留在 Application Support 的 runtime copy 里,后续 install 不会覆盖它们。
+
+如果 private bot 也在用 launchd,只要它的 label、端口和 `.env` 分开即可；同一个用户级 launchd 可以同时管理这些 job。
+
+## 四、在 Slack 里用
+
+1. 把 bot 拉进一个频道:在频道里 `/invite @SeminarBot`
+2. `@SeminarBot 下载 1706.03762`
+3. 或者把本地材料放进 `PAPER_IMPORT_DIR`,配置 `SEMINAR_IMPORT_USER_IDS` 后运行 `/seminar source folder my-notes` 或 `/seminar decompose attention.txt`
+4. GitHub repo:`/seminar source repo owner/repo` 或 `/seminar source repo https://github.com/owner/repo`
+5. 知识库:`/seminar source kb <主题/问题>` 会使用 memory backend recall 的内容作为本场 source
+6. 理解 bot 自己:`/seminar source self`。它会跳过 `canon/`、`logs/`、`imports/`、`.env`、`.git` 等运行数据/敏感文件。
+7. 任何人:`@SeminarBot 我觉得 C2 的 baseline 选得不公平,因为它没控制参数量,可以用同参数量的 X 重跑来验证`
+8. `/seminar pause` 先停自动推进；`/seminar resume` 恢复；`/seminar status` / `/seminar understanding` / `/seminar understanding all` / `/seminar digest`
+9. `/seminar evidence-link C3` 给 C3 生成一条 PDF 原文页链接；`/seminar evidence-link C3 3` 指定第 3 页。folder/repo/kb source 暂时不会生成 PDF viewer 链接。
+10. 私信 `SeminarBot`:bot 会回复确认,但 DM 目前只作为个人检查/提示入口,不会启动 seminar,也不会写入公开研讨记忆。
+11. 主持人默认会对每个非全员重点问题给频道成员发一次私聊理解检查;如果嫌太频繁,运行环境里设 `SEMINAR_PRIVATE_CHECK_DEFAULT_ALL=0`。
+12. 全员重点问题默认仍发在对应 claim root thread 里,但会用 `<@U...>` 逐个 mention 频道成员来触发 Slack 通知,不会 `reply_broadcast` 到主信息流。要改回 `<!channel>`,设 `SEMINAR_ALL_HANDS_MENTION_MODE=special`。
+13. 测试全员追问:`/seminar allhands C14`;不填 C 时默认最近展示的一条。
+
+如果频道里有成员自己的 private copilot,在 seminarbot 的 `.env` 里配置:
+
+```bash
+SEMINAR_COPILOT_OWNER_MAP=B0PRIVATECOPILOT:U0STUDENT,A0PRIVATEAPP:U0OTHER
+# 如果要在 botsbots channel 里主动 @ private copilot,这里填可 mention 的 bot user ID:
+SEMINAR_COPILOT_CONTACT_MAP=U0PRIVATECOPILOT:U0STUDENT,U0OTHERCOPILOT:U0OTHER
+SEMINAR_COPILOT_CHANNEL_ID=C0BOTSBOTS
+```
+
+`SEMINAR_COPILOT_OWNER_MAP` 左边可以是 private copilot 的 bot user ID、bot ID 或 app ID;右边必须是它服务的学生 Slack member ID。`SEMINAR_COPILOT_CONTACT_MAP` 左边需要是可被 Slack `<@...>` 的 bot user ID,用于在 botsbots 里点名;如果 owner map 左边已经是 `U.../W...`,可以不填 contact map。
+
+也可以把 SeminarBot 和所有 private copilot 拉进 `botsbots` channel 后,在那个 channel 运行:
+
+```text
+/seminar copilot-channel
+/seminar link-copilot @JiaxinCopilot @Jiaxin
+```
+
+如果省略第二个 `@学生`,默认绑定到执行命令的人。之后每条 C 展示概念清单、理解 gate 卡住、或手动 `/seminar ask-copilots C3` 时,SeminarBot 会在这个 channel 主动问 private copilot 学生状态。配置后,seminarbot 会接受这些 copilot 在 claim thread 或 botsbots thread 里发来的 `COPILOT_CONCEPT_PROGRESS {...}`。如果没有显式设置 `SEMINAR_PRIVATE_CHECK_DEFAULT_ALL`,seminarbot 会默认停止给每个学生发私聊理解检查,改等 private copilot 填概念表。
+
+### A2A profile
+
+SeminarBot 现在把这套 bot-to-bot 协调包进一个 CoEducation A2A-over-Slack profile。Slack 里的
+`COPILOT_CONCEPT_CHECKLIST` / `COPILOT_LEARNING_STATUS_REQUEST` /
+`COPILOT_CONCEPT_PROGRESS` marker 仍然保留,但 JSON payload 里会带 `a2a`
+envelope,声明:
+
+- profile URI: `https://coeducation.local/a2a/extensions/seminar-copilot/v1`
+- skills: `coeducation.seminar.claim_concept_checklist.v1`,
+  `coeducation.private_copilot.learning_status.v1`,
+  `coeducation.seminar.concept_progress_ingest.v1`
+- artifacts: `ConceptChecklist`, `LearningStatusRequest`, `ConceptProgress`
+- consent/provenance: 只共享学习状态和公开 seminar provenance,不读取 private copilot 的内部记忆或私人知识库
+
+这意味着其他用户换成不同 private agent 时,只要它能解析这个 profile 并回传
+`ConceptProgress` artifact,SeminarBot 不需要知道它背后是 Codex、Claude、ChatGPT、
+本地 RAG 还是人工填写。运行 `/seminar a2a-card` 可以查看当前 SeminarBot 的能力卡;静态模板在
+`a2a_agent_card.json`。
+
+canon 的每一次变化都在 `canon/` 里 `git log` 可查,谁提的、对应哪条 Slack 消息(permalink)都记了。
+
+## 记忆空间(v2 地基)
+
+主持人 bot 现在按 Slack channel 维护独立 memory space。默认路径:
+
+```text
+canon/spaces/slack-<team_id>-<channel_id>/
+  index.json
+  seminars/S1.json
+  claims/
+  events/events.jsonl
+  dialogues/dialogue.jsonl
+  transcripts/slack.jsonl
+  papers/
+  explainers/
+  dreams/
+```
+
+- 逻辑 `space_id` 仍是 `slack:<team_id>:<channel_id>`;磁盘目录用 `slack-<team_id>-<channel_id>` 这种跨平台安全 slug。
+- 不同 channel 可以并发主持,后台 scheduler 会轮询所有已注册 space。
+- 同一个 channel 不并发,但可以先后发生多场相关 seminar;它们共享这个 channel 的长期记忆空间,同时每场有自己的 `S1`/`S2` 记录和 active seminar 边界。
+- 当前 seminar 的论文原文、对话日志、前序 seminar 的 digest/dream、同一 channel 下载过的其他论文原文片段,会优先作为明文 context pack 传给 bot 大脑。
+- `events/events.jsonl` 是 append-only provenance 流,给后台 dream / Cognee / Graphiti / Zep 等派生索引用。
+- `transcripts/slack.jsonl` 是本地 Slack I/O 调试日志,用来复盘 bot 和用户实际说了什么;默认被 canon repo 的 `.gitignore` 排除,不作为长期记忆或 GitHub 知识库内容。
+- `dreams/` 只放后台消化结果,默认不是 canon;必须经人/主持流程确认后才能升格成公共记忆。
+- `people/` 和 `bots/` 只记录公开 provenance、参与观察和明确授权进入知识库的内容;私人助手的私有记忆不应写入这个明文 GitHub repo。
+
+详细边界见 `MEMORY_ARCHITECTURE.md`。
+
+## 派生记忆库(Cognee)
+
+Git canon 仍是事实源;Cognee 只做可重建的 graph/vector recall。安装:
+
+```bash
+pip install -r requirements-memory.txt
+```
+
+然后按 Cognee 自己的要求配置 LLM / embedding 相关环境变量。Slack 命令:
+
+最小配置是 `LLM_API_KEY=...`。如果 embedding 不单独配置,Cognee 会复用
+`LLM_API_KEY`;也可以单独设置 `EMBEDDING_API_KEY=...`。注意这和
+`CODEX_BIN=codex` 是两套东西:bot 大脑可以用本机 Codex CLI 登录态,但 Cognee
+不会自动继承这个登录态。
+
+- `/seminar memory status` 查看当前 channel space 会同步哪些记录、对应哪些 dataset。
+- `/seminar memory sync` 把当前 channel space、`org/`、`people/`、`bots/` 的明文 canon 记录提交给 Cognee。
+- `/seminar memory recall <问题>` 从当前 channel dataset + org dataset + actors dataset 召回;默认只 ephemeral 回复给调用者。
+
+注意:Cognee 不是唯一记忆本体。bot 回答/归类/digest 时优先使用 Git canon 中的原文 context pack;Cognee 用来补“可能相关但不适合整段塞进 prompt”的联想召回。
+
+默认 `MEMORY_AUTO_RECALL=1`:在 route / explain / facilitate / answer / classify / resolve / digest 前会自动尝试 Cognee recall,把结果作为 `Retrieved Associative Memory` 放进 prompt。失败或超时会静默跳过,不影响主持流程。
+
+默认 dataset 形状:
+
+```text
+seminarbot-space-slack-<team_id>-<channel_id>
+seminarbot-org
+seminarbot-actors
+```
+
+---
+
+## 关于成本与合规(重要)
+
+- **bot 大脑现在 shell 你本机的 codex** —— 这是**你个人、单账户、本机**的用法,适合原型。**不要**把它做成"一个共享账户对外服务多人"或部署到 VPS 跑别人的请求 —— 那会踩 ToS。
+- 真正的重活(精读、复现、打磨质疑)应该在**每个成员自己的 Claude Code / Codex** 上做(各自的订阅、各自机器)。bot 只做轻量的中央判断。
+- 要正式对外服务时,把 `brain.py` 的 `_run` 换成 **API key** 调用即可(已隔离成一个函数);高频的 `classify` 用便宜的小模型 + prompt caching。
+
+## 换成 API(以后)
+
+只改 `brain.py` 里的 `_run(prompt)`:把 subprocess 调 codex 换成 Anthropic/OpenAI SDK 的一次 completion,返回字符串。其余代码不用动。
+
+
+===== FILE: app.py =====
+"""研讨班 bot — Slack(Socket Mode)入口。
+
+管道(此文件):收 Slack 事件、发消息、提交 git、调度。
+大脑(brain.py):判断,shell 出 codex。
+存储(canon.py):git 仓库。
+"""
+import os
+import json
+import re
+import subprocess
+import sys
+import tempfile
+import threading
+import time
+from pathlib import Path
+
+from slack_bolt import App
+from slack_bolt.adapter.socket_mode import SocketModeHandler
+
+import brain
+import a2a_profile
+import canon
+import evidence_service
+import fetch
+import figures
+import memory_backend
+import source_loader
+
+app = App(token=os.environ["SLACK_BOT_TOKEN"], token_verification_enabled=False)
+
+SEMINAR_A2A_AGENT_ID = os.environ.get("SEMINAR_A2A_AGENT_ID", "coeducation.seminarbot").strip()
+SEMINAR_A2A_AGENT_NAME = os.environ.get("SEMINAR_A2A_AGENT_NAME", "SeminarBot").strip()
+SEMINAR_A2A_SLACK_ACTOR_ID = os.environ.get("SEMINAR_A2A_SLACK_ACTOR_ID", "").strip()
+
+PAPER_IMPORT_DIR = Path(
+    os.environ.get("PAPER_IMPORT_DIR", str(Path(__file__).parent / "imports"))
+).expanduser().resolve()
+PAPER_IMPORT_SUFFIXES = {".txt", ".md", ".markdown", ".pdf"}
+SEMINAR_VIEWER_BASE_URL = os.environ.get("SEMINAR_VIEWER_BASE_URL", "").strip().rstrip("/")
+SEMINAR_VIEWER_PORT = int(os.environ.get("SEMINAR_VIEWER_PORT", "8765") or "8765")
+SEMINAR_EVIDENCE_TOKEN_TTL_DAYS = int(os.environ.get("SEMINAR_EVIDENCE_TOKEN_TTL_DAYS", "90") or "90")
+SENSITIVE_IMPORT_NAME = re.compile(
+    r"(^|[._-])(secret|token|credential|password|passwd|private[-_]?key)([._-]|$)|"
+    r"^(id_rsa|id_ed25519|authorized_keys|known_hosts)$|"
+    r"\.(pem|key|p12|pfx)$",
+    re.I,
+)
+
+
+def _permalink(client, channel, ts) -> str:
+    try:
+        return client.chat_getPermalink(channel=channel, message_ts=ts)["permalink"]
+    except Exception:
+        return ""
+
+
+def _seminar_a2a_agent(slack_actor_id: str = "") -> dict:
+    return a2a_profile.agent_ref(
+        agent_id=SEMINAR_A2A_AGENT_ID,
+        name=SEMINAR_A2A_AGENT_NAME,
+        role="seminar_host",
+        slack_actor_id=slack_actor_id or SEMINAR_A2A_SLACK_ACTOR_ID,
+    )
+
+
+def _seminar_agent_card(client=None) -> dict:
+    slack_actor_id = SEMINAR_A2A_SLACK_ACTOR_ID
+    if client:
+        slack_actor_id = slack_actor_id or _bot_user_id(client)
+    return a2a_profile.seminar_agent_card(
+        agent_id=SEMINAR_A2A_AGENT_ID,
+        name=SEMINAR_A2A_AGENT_NAME,
+        slack_actor_id=slack_actor_id,
+    )
+
+
+def _local_import_users() -> set:
+    raw = os.environ.get("SEMINAR_IMPORT_USER_IDS", "")
+    return {u for u in re.split(r"[\s,]+", raw.strip()) if u}
+
+
+def _can_import_local_file(user_id: str) -> bool:
+    allowed = _local_import_users()
+    return bool(user_id and user_id in allowed)
+
+
+def _resolve_import_path(path: str) -> Path:
+    raw = Path(path).expanduser()
+    candidate = raw if raw.is_absolute() else PAPER_IMPORT_DIR / raw
+    try:
+        p = candidate.resolve(strict=True)
+    except FileNotFoundError:
+        raise FileNotFoundError(path)
+    if not p.is_file():
+        raise RuntimeError("只能导入普通文件。")
+    if p.suffix.lower() not in PAPER_IMPORT_SUFFIXES:
+        raise RuntimeError("只能导入 .txt / .md / .pdf 论文文件。")
+    try:
+        rel = p.relative_to(PAPER_IMPORT_DIR)
+    except ValueError:
+        raise RuntimeError(f"本地导入只允许读取 {PAPER_IMPORT_DIR} 目录下的文件。")
+    if any(part.startswith(".") for part in rel.parts):
+        raise RuntimeError("不能导入隐藏文件或隐藏目录里的文件。")
+    if any(SENSITIVE_IMPORT_NAME.search(part) for part in rel.parts):
+        raise RuntimeError("文件名看起来像密钥或凭据,已拒绝导入。")
+    return p
+
+
+def _read_paper(path: str) -> str:
+    p = _resolve_import_path(path)
+    if p.suffix.lower() == ".pdf":
+        # 尽量用 pdftotext;没有就提示先转成 txt
+        import shutil
+        import subprocess
+
+        if shutil.which("pdftotext"):
+            out = subprocess.run(
+                ["pdftotext", str(p), "-"], capture_output=True, text=True, timeout=120
+            )
+            if out.returncode != 0:
+                raise RuntimeError((out.stderr or "PDF 转文本失败").strip()[:300])
+            return out.stdout
+        raise RuntimeError("检测到 PDF 但没有 pdftotext。请先转成 .txt,或安装 poppler。")
+    return p.read_text(encoding="utf-8", errors="ignore")
+
+
+def _source_kind_label(kind: str) -> str:
+    return {
+        "paper": "论文",
+        "file": "文件",
+        "folder": "文件夹",
+        "repo": "GitHub repo",
+        "kb": "知识库召回",
+        "self": "SeminarBot 自身源码",
+    }.get(kind or "", "学习材料")
+
+
+def _record_source_pack(info: dict, *, force_new: bool = True) -> tuple[str, list]:
+    source_id = info["id"]
+    title = info.get("title") or source_id
+    kind = info.get("kind") or "source"
+    text = info.get("text") or ""
+    if not text.strip():
+        raise RuntimeError("source text 为空。")
+    if force_new or not canon.get_session() or canon.get_active_paper() != source_id or not canon.seminar_is_running():
+        canon.start_session(title, force_new=True)
+    (canon.papers_dir() / f"{source_id}.txt").write_text(text, encoding="utf-8")
+    canon.record_source(
+        source_id,
+        title,
+        info.get("url", ""),
+        kind=kind,
+        metadata=info.get("metadata") or {},
+    )
+    data = brain.decompose(text)
+    claims = data.get("claims", [])
+    if not claims:
+        raise RuntimeError("没能拆出主张。")
+    ids = canon.add_claims_from_decompose(claims, source_id, by=kind, source_kind=kind)
+    canon.start_rollout()
+    canon.git_commit(f"source {kind} {source_id} (+{len(ids)} claims)")
+    return source_id, list(zip(ids, claims))
+
+
+def _source_runtime_state() -> str:
+    app_dir = Path(__file__).resolve().parent
+    lines = [
+        "\nSeminarBot runtime/source capabilities:",
+        f"- app/runtime path: {app_dir}",
+        f"- canon/data path: {canon.CANON_DIR}",
+        f"- local import root: {PAPER_IMPORT_DIR}",
+        "- source_load kinds: self, folder, repo, kb, file",
+        "- self source means this SeminarBot app/runtime source code and prompts; skip canon/logs/imports/.env/.git.",
+        "- folder/file sources must live under the local import root and require SEMINAR_IMPORT_USER_IDS authorization.",
+        "- repo source supports GitHub URLs, owner/repo, or authorized local repo paths under the import root.",
+        "- kb source uses the configured memory backend recall.",
+    ]
+    return "\n".join(lines)
+
+
+def _load_source_info_for_request(source_kind: str, source_ref: str, user_id: str) -> dict:
+    kind = (source_kind or "").strip().casefold()
+    ref = (source_ref or "").strip()
+    if kind in {"self", "me", "seminarbot", "自己", "自身", "你自己"}:
+        return source_loader.load_self(Path(__file__).resolve().parent)
+    if kind in {"folder", "dir", "directory", "文件夹", "目录"}:
+        if not _can_import_local_file(user_id):
+            raise RuntimeError(f"本地 source 导入默认关闭；需要把你的 Slack user id 加到 SEMINAR_IMPORT_USER_IDS。import root: {PAPER_IMPORT_DIR}")
+        if not ref:
+            raise RuntimeError("folder source 需要目录名。")
+        return source_loader.load_folder(ref, PAPER_IMPORT_DIR)
+    if kind in {"repo", "github", "git", "代码库", "仓库"}:
+        if not _can_import_local_file(user_id):
+            raise RuntimeError("repo source 导入默认关闭；需要把你的 Slack user id 加到 SEMINAR_IMPORT_USER_IDS。")
+        if not ref:
+            raise RuntimeError("repo source 需要 GitHub URL、owner/repo 或本地 repo 目录。")
+        return source_loader.load_repo(ref, PAPER_IMPORT_DIR, canon.source_cache_dir())
+    if kind in {"kb", "memory", "knowledge", "知识库", "记忆"}:
+        if not ref:
+            raise RuntimeError("kb source 需要一个主题或问题。")
+        recalled = memory_backend.recall(ref, include_global=True, top_k=12)
+        return source_loader.pack_text(
+            text=recalled,
+            title=f"KB: {ref[:80]}",
+            kind="kb",
+            url=f"kb:{ref}",
+            prefix="kb",
+        )
+    if kind in {"file", "local_file", "文件"}:
+        if not _can_import_local_file(user_id):
+            raise RuntimeError(f"本地文件导入默认关闭；需要把你的 Slack user id 加到 SEMINAR_IMPORT_USER_IDS。import root: {PAPER_IMPORT_DIR}")
+        if not ref:
+            raise RuntimeError("file source 需要文件名。")
+        text = _read_paper(ref)
+        title = Path(ref).stem or "local file"
+        return source_loader.pack_text(text=text, title=title, kind="file", url=f"file:{ref}", prefix="file")
+    raise RuntimeError(f"source 类型 `{source_kind or '-'}` 我还不认识；可用 self/folder/repo/kb/file。")
+
+
+def _source_loaded_text(info: dict, source_id: str, rows: list[tuple[str, dict]]) -> str:
+    kind_label = _source_kind_label(info.get("kind", "source"))
+    lines = [f"已载入 *{info.get('title', source_id)}*（{kind_label}）,拆出 *{len(rows)}* 条 C:"]
+    for cid, claim in rows:
+        lines.append(f"• *{cid}* {claim.get('title','')}")
+    lines.append("\n我会按理解进度 gate 分批讲；要立刻看某条可用 `/seminar present C1`。")
+    return "\n".join(lines)
+
+
+def _source_load_start_text(source_kind: str, source_ref: str) -> str:
+    kind = (source_kind or "source").strip()
+    ref = (source_ref or "").strip()
+    target = f" `{ref}`" if ref and ref != "self" else ""
+    return f"好，我把 {kind}{target} 当作本场 seminar source 来读，先打包并拆成 claims…"
+
+
+def _route_state() -> str:
+    return canon.papers_summary() + "\n" + _source_runtime_state()
+
+
+def _remove_eyes_safe(client, channel: str, ts: str):
+    try:
+        _remove_eyes(client, channel, ts)
+    except Exception:
+        pass
+
+
+def _add_done_reaction_safe(client, channel: str, ts: str):
+    try:
+        client.reactions_add(channel=channel, timestamp=ts, name="white_check_mark")
+    except Exception:
+        pass
+
+
+def _source_load_from_mention(client, say, channel: str, ts: str, user_id: str, r: dict, logger) -> bool:
+    kind = (r or {}).get("source_kind") or ""
+    ref = (r or {}).get("source_ref") or (r or {}).get("fetch_query") or ""
+    if not kind:
+        return False
+    _bot_say(say, _source_load_start_text(kind, ref), thread_ts=ts, source="mention_source_load_started")
+    try:
+        info = _load_source_info_for_request(kind, ref, user_id)
+        canon.set_channel(channel)
+        source_id, rows = _record_source_pack(info)
+    except Exception as e:
+        logger.exception("source load failed")
+        _remove_eyes_safe(client, channel, ts)
+        _bot_say(say, f"source 载入失败:{e}", thread_ts=ts, source="mention_source_load_error")
+        return True
+    _remove_eyes_safe(client, channel, ts)
+    _add_done_reaction_safe(client, channel, ts)
+    _bot_say(say, _source_loaded_text(info, source_id, rows), thread_ts=ts, source="mention_source_load_done")
+    return True
+
+
+# 秒回的快速通道(不调用 codex)
+_GREET = re.compile(r"(你在吗|在吗|在不在|在么|在嘛|^\s*(hi|hello|hey)\s*$|怎么用|帮助|^\s*help\s*$)", re.I)
+_STATUS = re.compile(r"(到哪了|进度|状态|status|在干嘛|干嘛|干什么|做什么|什么情况|现在.*(进展|到哪))")
+_UNDERSTANDING_STATUS = re.compile(
+    r"(理解情况|理解状态|谁懂了|谁没懂|成员理解|学生理解|understanding|comprehension|progress table)",
+    re.I,
+)
+_ALL_ACTIVE_UNDERSTANDING = re.compile(
+    r"(所有|全部|全局|汇总|各个|每个|\ball\b|\bevery\b|\bactive seminars?\b|\ball seminars?\b)",
+    re.I,
+)
+_REFERENCE_LOOKUP = re.compile(
+    r"(参考文献|引用|文献|论文名字|文献名字|具体.*(文献|论文)|哪篇(论文|文章)|citation|reference|bibliography|paper title|\[[0-9]+\])",
+    re.I,
+)
+_EXTERNAL_PAPER_LOOKUP = re.compile(
+    r"((找|搜索|检索|推荐).{0,20}(论文|文献|paper|article)|相关(论文|文献|工作)|另一篇|后续工作|最早.{0,20}(论文|文献|paper|attention)|源头.{0,20}(论文|文献|paper)|外部(论文|文献|paper)|对比.{0,20}(论文|文献|paper)|比较.{0,20}(论文|文献|paper)|compare.{0,20}(paper|article)|related work|follow[- ]?up|survey)",
+    re.I,
+)
+_EXTERNAL_CONCEPT_LOOKUP = re.compile(
+    r"(什么是|啥是|是什么意思|定义|外部查询|查一下|查询|搜索|检索|资料|怎么设计|怎么算|如何计算|评分|指标|metric|score|definition|what is)",
+    re.I,
+)
+_EXTERNAL_CONCEPT_DESIGN = re.compile(
+    r"(什么是|啥是|是什么意思|定义|怎么设计|怎么算|如何计算|评分|指标|metric|score|definition|what is)",
+    re.I,
+)
+_THREAD_CHAT = re.compile(
+    r"(\?|？|为什么|为啥|怎么|如何|能不能|可不可以|是不是|是否|啥意思|什么意思|讲讲|解释|展开|你觉得|怎么看|"
+    r"有意思的是|想到|联想到|类似|像不像|关系|区别|对比|回来了|"
+    r"GPT|LLM|language model|next[- ]?(state|token)|autoregressive)",
+    re.I,
+)
+_REPLAY_PAPER = re.compile(r"(重讲|重新讲|再讲一遍|重开|重新开|replay|reteach|restart)", re.I)
+_COPILOT_UNDERSTANDING_REPORT = re.compile(
+    r"(?:COPILOT_CONCEPT_PROGRESS|COPILOT_UNDERSTANDIN
+
+
+===== FILE: brain.py =====
+"""中央大脑:把判断任务交给本机的 `codex exec`。
+
+只在这里碰 codex。想换成 Anthropic/OpenAI API,只改 `_run` 一个函数即可。
+"""
+import json
+import os
+import re
+import subprocess
+import tempfile
+from pathlib import Path
+
+CODEX_BIN = os.environ.get("CODEX_BIN", "codex")
+CODEX_EXTRA_ARGS = os.environ.get("CODEX_EXTRA_ARGS", "--skip-git-repo-check")
+BRAIN_MODEL = os.environ.get("BRAIN_MODEL", "").strip()
+
+_PROMPTS = Path(__file__).parent / "prompts"
+
+
+def _load(name: str) -> str:
+    return (_PROMPTS / name).read_text(encoding="utf-8")
+
+
+def _model(task: str) -> str:
+    """按任务取模型:优先 <TASK>_MODEL,否则回落到 BRAIN_MODEL,再否则用 codex 默认。"""
+    return os.environ.get(f"{task}_MODEL", "").strip() or BRAIN_MODEL
+
+
+def _run(prompt: str, model: str = "", timeout: int = 240) -> str:
+    """调用 `codex exec`,返回它打印到 stdout 的最终内容。
+
+    在一个临时空目录里跑,避免它去动你的文件。
+    """
+    m = model or BRAIN_MODEL
+    workdir = tempfile.mkdtemp(prefix="seminar-brain-")
+    cmd = [CODEX_BIN, "exec"]
+    if CODEX_EXTRA_ARGS:
+        cmd += CODEX_EXTRA_ARGS.split()
+    if m:
+        cmd += ["-m", m]
+    cmd += ["-C", workdir, prompt]
+    try:
+        res = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
+    except FileNotFoundError:
+        return '{"error": "codex 未找到,请确认 CODEX_BIN 指向可执行文件"}'
+    except subprocess.TimeoutExpired:
+        return '{"error": "codex 超时"}'
+    return (res.stdout or "").strip()
+
+
+def extract_json(text: str):
+    """从一段可能含日志的文本里,稳健地抽出最后一个合法 JSON 对象。"""
+    if not text:
+        return None
+    candidates = re.findall(r"```(?:json)?\s*(\{.*?\})\s*```", text, re.S)
+    starts = [i for i, c in enumerate(text) if c == "{"]
+    for s in reversed(starts):
+        depth = 0
+        for e in range(s, len(text)):
+            if text[e] == "{":
+                depth += 1
+            elif text[e] == "}":
+                depth -= 1
+                if depth == 0:
+                    candidates.append(text[s : e + 1])
+                    break
+    for c in reversed(candidates):
+        try:
+            return json.loads(c)
+        except Exception:
+            continue
+    return None
+
+
+# ---- 三类任务 ----
+
+def route(history: str, papers_state: str, message: str) -> dict:
+    """主脑:看对话历史 + 论文状态,判意图 + 决定交给哪篇论文。"""
+    prompt = (
+        _load("route.md")
+        .replace("{{HISTORY}}", history or "(无)")
+        .replace("{{PAPERS}}", papers_state or "(目前还没有已下载的论文)")
+        .replace("{{MESSAGE}}", message)
+    )
+    return extract_json(_run(prompt, _model("ROUTE"))) or {}
+
+
+def paper_classify(paper_title: str, claims_text: str, message: str, memory_context: str = "") -> dict:
+    """子脑:把一条贡献按某篇论文的主张归类。"""
+    prompt = (
+        _load("paper_classify.md")
+        .replace("{{PAPER_TITLE}}", paper_title or "")
+        .replace("{{CLAIMS}}", claims_text or "(暂无)")
+        .replace("{{MEMORY_CONTEXT}}", memory_context or "(无)")
+        .replace("{{MESSAGE}}", message)
+    )
+    return extract_json(_run(prompt, _model("CLASSIFY"))) or {}
+
+
+def _strip_html(t: str) -> str:
+    if not t:
+        return "<!doctype html><html><body><p>(空)</p></body></html>"
+    m = re.search(r"```html\s*(.*?)```", t, re.S) or re.search(r"```\s*(<!doctype.*?)```", t, re.S | re.I)
+    if m:
+        return m.group(1).strip()
+    low = t.lower()
+    i = low.find("<!doctype")
+    if i < 0:
+        i = low.find("<html")
+    return t[i:].strip() if i >= 0 else t.strip()
+
+
+def explain_claim(paper_title: str, claim_text: str, paper_text: str, figures: list = None, memory_context: str = "", max_chars: int = 16000) -> list:
+    """为一条主张生成一串 twitterial 卡片。figures = 论文原图列表 [{id, caption}]。"""
+    if figures:
+        figs_txt = "\n".join(f"- {f.get('id')}: {f.get('caption','')}" for f in figures)
+    else:
+        figs_txt = "(无;本文没有可用的原图)"
+    prompt = (
+        _load("explain.md")
+        .replace("{{PAPER_TITLE}}", paper_title or "")
+        .replace("{{CLAIM}}", claim_text or "")
+        .replace("{{PAPER_TEXT}}", (paper_text or "")[:max_chars])
+        .replace("{{MEMORY_CONTEXT}}", memory_context or "(无)")
+        .replace("{{FIGURES}}", figs_txt)
+    )
+    data = extract_json(_run(prompt, _model("EXPLAIN"), timeout=360)) or {}
+    cards = data.get("cards") or []
+    return [
+        c for c in cards
+        if isinstance(c, dict) and (c.get("text") or c.get("svg") or c.get("figure") or c.get("caption"))
+    ]
+
+
+def _truthy(value) -> bool:
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        return value.strip().casefold() in {"1", "true", "yes", "y", "all_hands"}
+    return False
+
+
+def classify_reply(paper_title: str, claim_text: str, message: str, memory_context: str = "") -> dict:
+    """子脑:把一条(主持 thread 里的)回复,相对某条主张归类成认知/质疑等。"""
+    prompt = (
+        _load("cognition.md")
+        .replace("{{PAPER_TITLE}}", paper_title or "")
+        .replace("{{CLAIM}}", claim_text or "")
+        .replace("{{MEMORY_CONTEXT}}", memory_context or "(无)")
+        .replace("{{MESSAGE}}", message)
+    )
+    return extract_json(_run(prompt, _model("CLASSIFY"))) or {}
+
+
+def facilitation_decision(paper_title: str, claim_text: str, confusions: str, understandings: str, memory_context: str = "") -> dict:
+    """主脑:就某条主张写主持提问,并判断是否值得全员关注。"""
+    prompt = (
+        _load("facilitate.md")
+        .replace("{{PAPER_TITLE}}", paper_title or "")
+        .replace("{{CLAIM}}", claim_text or "")
+        .replace("{{CONFUSIONS}}", confusions or "(暂无)")
+        .replace("{{UNDERSTANDINGS}}", understandings or "(暂无)")
+        .replace("{{MEMORY_CONTEXT}}", memory_context or "(无)")
+    )
+    raw = _run(prompt, _model("ROUTE")) or ""
+    data = extract_json(raw)
+    if isinstance(data, dict):
+        question = (data.get("question") or data.get("text") or "").strip()
+        return {
+            "question": question,
+            "all_hands": _truthy(data.get("all_hands")),
+            "reason": (data.get("reason") or "").strip(),
+            "private_check": _truthy(data.get("private_check")),
+            "private_question": (data.get("private_question") or "").strip(),
+            "private_reason": (data.get("private_reason") or "").strip(),
+        }
+    return {
+        "question": raw.strip(),
+        "all_hands": False,
+        "reason": "",
+        "private_check": False,
+        "private_question": "",
+        "private_reason": "",
+    }
+
+
+def facilitation_question(paper_title: str, claim_text: str, confusions: str, understandings: str, memory_context: str = "") -> str:
+    """主脑:就某条主张写一条主持提问。"""
+    return facilitation_decision(
+        paper_title,
+        claim_text,
+        confusions,
+        understandings,
+        memory_context=memory_context,
+    ).get("question", "")
+
+
+def resolve_confusion(paper_title: str, claim_text: str, paper_text: str, understandings: str, confusion: str, memory_context: str = "", max_chars: int = 16000) -> str:
+    """子脑:帮成员解一条困惑(用论文 + 同伴已有的理解)。"""
+    prompt = (
+        _load("resolve.md")
+        .replace("{{PAPER_TITLE}}", paper_title or "")
+        .replace("{{CLAIM}}", claim_text or "")
+        .replace("{{PAPER_TEXT}}", (paper_text or "")[:max_chars])
+        .replace("{{MEMORY_CONTEXT}}", memory_context or "(无)")
+        .replace("{{UNDERSTANDINGS}}", understandings or "(暂无)")
+        .replace("{{CONFUSION}}", confusion)
+    )
+    return _run(prompt, _model("ANSWER")) or ""
+
+
+def _reference_excerpt(paper_text: str, limit: int = 12000) -> str:
+    if not paper_text:
+        return ""
+    matches = list(re.finditer(r"(?im)^\s*(references|bibliography)\s*$", paper_text))
+    if matches:
+        return paper_text[matches[-1].start() : matches[-1].start() + limit]
+    return paper_text[-limit:]
+
+
+def _paper_answer_context(paper_text: str, max_chars: int) -> str:
+    paper_text = paper_text or ""
+    head = paper_text[:max_chars]
+    refs = _reference_excerpt(paper_text)
+    if refs and refs not in head:
+        return head + "\n\n[Reference section / paper tail excerpt]\n" + refs
+    return head
+
+
+def paper_answer(paper_title: str, paper_text: str, message: str, memory_context: str = "", max_chars: int = 20000) -> str:
+    """子脑:用某篇论文的正文回答内容问题。"""
+    prompt = (
+        _load("paper_answer.md")
+        .replace("{{PAPER_TITLE}}", paper_title or "")
+        .replace("{{PAPER_TEXT}}", _paper_answer_context(paper_text, max_chars))
+        .replace("{{MEMORY_CONTEXT}}", memory_context or "(无)")
+        .replace("{{MESSAGE}}", message)
+    )
+    return _run(prompt, _model("ANSWER")) or "(没拿到回答)"
+
+
+def thread_chat(paper_title: str, claim_text: str, paper_text: str, message: str, memory_context: str = "", max_chars: int = 16000) -> str:
+    """子脑:在某条 claim thread 里做上下文回应,不做 canon 分类。"""
+    prompt = (
+        _load("thread_chat.md")
+        .replace("{{PAPER_TITLE}}", paper_title or "")
+        .replace("{{CLAIM}}", claim_text or "")
+        .replace("{{PAPER_TEXT}}", _paper_answer_context(paper_text, max_chars))
+        .replace("{{MEMORY_CONTEXT}}", memory_context or "(无)")
+        .replace("{{MESSAGE}}", message or "")
+    )
+    return _run(prompt, _model("ANSWER")) or "(没拿到回答)"
+
+
+def host_chat(paper_title: str, context: str, message: str, max_chars: int = 22000) -> str:
+    """主持人:普通研讨对话,不把用户话语硬塞进内部意图标签。"""
+    prompt = (
+        _load("host_chat.md")
+        .replace("{{PAPER_TITLE}}", paper_title or "")
+        .replace("{{CONTEXT}}", (context or "")[:max_chars])
+        .replace("{{MESSAGE}}", message or "")
+    )
+    return _run(prompt, _model("ANSWER")) or "(没拿到回答)"
+
+
+def external_paper_answer(
+    paper_title: str,
+    current_context: str,
+    message: str,
+    candidates_text: str,
+    max_chars: int = 16000,
+) -> str:
+    """主持人:用外部论文候选 metadata/abstract 做发现或谨慎比较。"""
+    prompt = (
+        _load("external_paper.md")
+        .replace("{{PAPER_TITLE}}", paper_title or "")
+        .replace("{{CURRENT_CONTEXT}}", (current_context or "")[:max_chars])
+        .replace("{{MESSAGE}}", message or "")
+        .replace("{{CANDIDATES}}", candidates_text or "(没有候选)")
+    )
+    return _run(prompt, _model("ANSWER"), timeout=300) or ""
+
+
+def external_concept_answer(
+    paper_title: str,
+    current_context: str,
+    message: str,
+    sources_text: str,
+    max_chars: int = 16000,
+) -> str:
+    """主持人:用外部概念来源解释术语/指标,不做论文候选比较。"""
+    prompt = (
+        _load("external_concept.md")
+        .replace("{{PAPER_TITLE}}", paper_title or "")
+        .replace("{{CURRENT_CONTEXT}}", (current_context or "")[:max_chars])
+        .replace("{{MESSAGE}}", message or "")
+        .replace("{{SOURCES}}", sources_text or "(没有找到外部来源)")
+    )
+    return _run(prompt, _model("ANSWER"), timeout=300) or ""
+
+
+def decompose(paper_text: str, max_chars: int = 24000) -> dict:
+    paper = paper_text[:max_chars]
+    if len(paper_text) > max_chars:
+        paper += "\n\n[...source 过长已截断...]"
+    prompt = _load("decompose.md").replace("{{PAPER}}", paper)
+    return extract_json(_run(prompt, _model("DECOMPOSE"))) or {}
+
+
+def digest(canon_json: str, memory_context: str = "") -> str:
+    prompt = (
+        _load("digest.md")
+        .replace("{{CANON}}", canon_json)
+        .replace("{{MEMORY_CONTEXT}}", memory_context or "(无)")
+    )
+    out = _run(prompt, _model("DIGEST"))
+    # digest 是纯文本;如果模型多嘴包了 JSON,也容错取一下
+    return out or "(空)"
+
+
+===== FILE: canon.py =====
+"""canon = git 仓库当数据库。
+
+布局:
+  CANON_DIR/                         git repo root / 明文事实源
+    spaces/index.json                 Slack channel -> memory space registry
+    spaces/<space_slug>/
+      index.json                      {counter, session, active_seminar_id, messages}
+      seminars/S1.json, S2.json, ...  sequential seminar records in this channel
+      claims/C1.json, C2.json, ...
+      events/events.jsonl             append-only raw/decision event log
+      dialogues/dialogue.jsonl        raw seminar conversation turns
+      papers/                         paper pdf/txt/figures scoped to this seminar
+      explainers/                     rendered claim explainers
+      dreams/                         background digestion outputs
+    org/                              company/org-level knowledge
+    people/<slack_user_id>.json       human memory profile + consent shell
+    bots/<bot_id>.json                imported private-bot profile shell
+
+每条 claim:
+  {id, title, statement, type, status, source,
+   provenance:{slack_user, permalink, ts},
+   contributions:[{kind, by, text, permalink, ts}],
+   depends_on:[]}
+"""
+import contextvars
+import json
+import os
+import re
+import secrets
+import shutil
+import subprocess
+import time
+from datetime import datetime, timedelta, timezone
+from pathlib import Path
+
+CANON_DIR = Path(os.environ.get("CANON_DIR", "./canon")).resolve()
+SPACES_DIR = CANON_DIR / "spaces"
+ORG_DIR = CANON_DIR / "org"
+PEOPLE_DIR = CANON_DIR / "people"
+BOTS_DIR = CANON_DIR / "bots"
+EVIDENCE_TOKEN_SCHEMA_VERSION = 1
+
+# Legacy root layout, kept readable for backward compatibility and one-time import.
+LEGACY_CLAIMS_DIR = CANON_DIR / "claims"
+LEGACY_INDEX = CANON_DIR / "index.json"
+
+# 远程托管(GitHub)。留空则只在本地 git。
+CANON_REMOTE = os.environ.get("CANON_REMOTE", "").strip()
+
+OPEN_STATUSES = {"proposed", "contested"}
+DEFAULT_SPACE_TYPE = "seminar"
+
+_CURRENT_SPACE = contextvars.ContextVar("seminar_canon_space_id", default="")
+_IDENTITY_SET = False
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _slug(s: str) -> str:
+    s = (s or "legacy").strip()
+    s = re.sub(r"[:/\\]+", "-", s)
+    s = re.sub(r"[^A-Za-z0-9_.-]+", "-", s)
+    return s.strip("-")[:180] or "legacy"
+
+
+def _claim_sort_key(value) -> tuple:
+    cid = value.get("id", "") if isinstance(value, dict) else str(value or "")
+    m = re.fullmatch(r"([A-Za-z]+)(\d+)", cid)
+    if m:
+        return (m.group(1), int(m.group(2)), cid)
+    return (cid, 0, cid)
+
+
+def _legacy_slug(s: str) -> str:
+    s = (s or "legacy").strip()
+    s = re.sub(r"[^A-Za-z0-9_.:-]+", "-", s)
+    return s.strip("-")[:180] or "legacy"
+
+
+def _active_space_id() -> str:
+    return _CURRENT_SPACE.get() or os.environ.get("CANON_SPACE_ID", "").strip()
+
+
+def set_current_space(space_id: str):
+    """Set the active memory space for this handler/task; returns a reset token."""
+    return _CURRENT_SPACE.set(space_id or "")
+
+
+def reset_current_space(token):
+    _CURRENT_SPACE.reset(token)
+
+
+def current_space_id() -> str:
+    return _active_space_id() or "legacy"
+
+
+def space_id_for_channel(channel_id: str, team_id: str = "", seminar_id: str = "") -> str:
+    """Stable boundary: one long-lived memory space per Slack channel.
+
+    Normal sequential seminars live inside the channel space as `S1`, `S2`, ...
+    The optional `seminar_id` remains only for explicit isolated-space experiments.
+    """
+    parts = ["slack"]
+    if team_id:
+        parts.append(team_id)
+    parts.append(channel_id or "unknown-channel")
+    if seminar_id:
+        parts.append(seminar_id)
+    return ":".join(parts)
+
+
+def _space_dir(space_id: str = "") -> Path:
+    sid = space_id or _active_space_id()
+    if not sid:
+        return CANON_DIR
+    path = SPACES_DIR / _slug(sid)
+    legacy_path = SPACES_DIR / _legacy_slug(sid)
+    if not path.exists() and legacy_path.exists():
+        return legacy_path
+    return path
+
+
+def _index_path() -> Path:
+    return _space_dir() / "index.json"
+
+
+def _claims_dir() -> Path:
+    return _space_dir() / "claims"
+
+
+def _events_dir() -> Path:
+    return _space_dir() / "events"
+
+
+def _events_path() -> Path:
+    return _events_dir() / "events.jsonl"
+
+
+def _dialogues_dir() -> Path:
+    return _space_dir() / "dialogues"
+
+
+def _dialogue_path() -> Path:
+    return _dialogues_dir() / "dialogue.jsonl"
+
+
+def _transcripts_dir() -> Path:
+    return _space_dir() / "transcripts"
+
+
+def _slack_transcript_path() -> Path:
+    return _transcripts_dir() / "slack.jsonl"
+
+
+def _slack_transcript_seen_path() -> Path:
+    return _transcripts_dir() / ".seen.json"
+
+
+def _seminars_dir() -> Path:
+    return _space_dir() / "seminars"
+
+
+def _seminar_path(seminar_id: str) -> Path:
+    return _seminars_dir() / f"{_slug(seminar_id)}.json"
+
+
+def _spaces_index_path() -> Path:
+    return SPACES_DIR / "index.json"
+
+
+def _org_settings_path() -> Path:
+    return ORG_DIR / "settings.json"
+
+
+def _evidence_tokens_path() -> Path:
+    return ORG_DIR / "evidence_tokens.json"
+
+
+# ---- 底层 ----
+
+def _git(args, **kw):
+    return subprocess.run(["git", *args], cwd=CANON_DIR, check=False, **kw)
+
+
+def _set_identity():
+    _git(["config", "user.email", "seminarbot@local"])
+    _git(["config", "user.name", "SeminarBot"])
+
+
+def _ensure_canon_gitignore():
+    path = CANON_DIR / ".gitignore"
+    try:
+        text = path.read_text(encoding="utf-8") if path.exists() else ""
+    except Exception:
+        text = ""
+    needed = [
+        "# Local Slack I/O debug logs; may include ephemeral/private messages.",
+        "transcripts/",
+        "**/transcripts/",
+    ]
+    lines = text.splitlines()
+    present = {line.strip() for line in lines}
+    changed = False
+    for line in needed:
+        if line.strip() not in present:
+            lines.append(line)
+            changed = True
+    if changed:
+        path.write_text("\n".join(lines).strip() + "\n", encoding="utf-8")
+
+
+def _ensure_repo():
+    """Prepare the Git-backed plaintext knowledge repo."""
+    global _IDENTITY_SET
+    if not (CANON_DIR / ".git").exists():
+        if CANON_REMOTE and not CANON_DIR.exists():
+            CANON_DIR.parent.mkdir(parents=True, exist_ok=True)
+            subprocess.run(
+                ["git", "clone", CANON_REMOTE, str(CANON_DIR)], check=False
+            )
+        if not (CANON_DIR / ".git").exists():
+            CANON_DIR.mkdir(parents=True, exist_ok=True)
+            _git(["init", "-q"])
+            _git(["branch", "-M", "main"])
+            if CANON_REMOTE:
+                _git(["remote", "add", "origin", CANON_REMOTE])
+    elif CANON_REMOTE:
+        # 已是本地仓库:确保 origin 指向远程
+        r = _git(["remote"], capture_output=True, text=True)
+        if "origin" not in (r.stdout or ""):
+            _git(["remote", "add", "origin", CANON_REMOTE])
+    if not _IDENTITY_SET:
+        _set_identity()
+        _IDENTITY_SET = True
+
+    for d in (SPACES_DIR, ORG_DIR, PEOPLE_DIR, BOTS_DIR):
+        d.mkdir(parents=True, exist_ok=True)
+    _ensure_canon_gitignore()
+    if not _spaces_index_path().exists():
+        _spaces_index_path().write_text(
+            json.dumps({"schema_version": 1, "spaces": {}}, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
+
+def _default_index() -> dict:
+    sid = current_space_id()
+    return {
+        "schema_version": 2,
+        "space_id": sid,
+        "space_type": DEFAULT_SPACE_TYPE,
+        "created_at": _now(),
+        "counter": 0,
+        "session": "",
+        "active_seminar_id": "",
+        "seminars": [],
+        "messages": {},
+    }
+
+
+def _copy_legacy_into_space(space: Path, channel_id: str):
+    """One-time compatibility import from the old root canon layout.
+
+    This is intentionally copy-only. The legacy files remain untouched.
+    """
+    if not LEGACY_INDEX.exists() or (space / "index.json").exists():
+        return
+    try:
+        idx = json.loads(LEGACY_INDEX.read_text(encoding="utf-8"))
+    except Exception:
+        return
+    if channel_id and idx.get("channel") != channel_id:
+        return
+    if not LEGACY_CLAIMS_DIR.exists():
+        return
+    for name in ("claims", "papers", "explainers"):
+        src = CANON_DIR / name
+        dst = space / name
+        if src.exists() and not dst.exists():
+            if src.is_dir():
+                shutil.copytree(src, dst)
+            else:
+                shutil.copy2(src, dst)
+    (space / "index.json").write_text(
+        json.dumps({**idx, "schema_version": 2, "space_id": current_space_id()}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+
+
+def _load_spaces_index() -> dict:
+    _ensure_repo()
+    try:
+        return json.loads(_spaces_index_path().read_text(encoding="utf-8"))
+    except Exception:
+        return {"schema_version": 1, "spaces": {}}
+
+
+def _save_spaces_index(idx: dict):
+    SPACES_DIR.mkdir(parents=True, exist_ok=True)
+    _spaces_index_path().write_text(json.dumps(idx, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _load_org_settings() -> dict:
+    _ensure_repo()
+    try:
+        data = json.loads(_org_settings_path().read_text(encoding="utf-8"))
+    except Exception:
+        data = {}
+    return data if isinstance(data, dict) else {}
+
+
+def _save_org_settings(data: dict):
+    ORG_DIR.mkdir(parents=True, exist_ok=True)
+    _org_settings_path().write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _load_evidence_tokens() -> dict:
+    _ensure_repo()
+    try:
+        data = json.loads(_evidence_tokens_path().read_text(encoding="utf-8"))
+    except Exception:
+        data = {}
+    if not isinstance(data, dict):
+        data = {}
+    if not isinstance(data.get("tokens"), dict):
+        data["tokens"] = {}
+    data.setdefault("schema_version", EVIDENCE_TOKEN_SCHEMA_VERSION)
+    return data
+
+
+def _save_evidence_tokens(data: dict):
+    ORG_DIR.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "schema_version": EVIDENCE_TOKEN_SCHEMA_VERSION,
+        "tokens": data.get("tokens", {}),
+        "updated_at": _now(),
+    }
+    _evidence_tokens_path().write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def get_copilot_coordination_channel() -> dict:
+    settings = _load_org_settings()
+    value = settings.get("copilot_coordination_channel") or {}
+    return value if isinstance(value, dict) else {}
+
+
+def set_copilot_coordination_channel(channel_id: str, *, team_id: str = "", by: str = "") -> dict:
+    channel_id = (channel_id or "").strip()
+    if not channel_id:
+        return {}
+    settings = _load_org_settings()
+    rec = {
+        "channel": channel_id,
+        "team": team_id,
+        "updated_by": by,
+        "updated_at": _now(),
+    }
+    settings["copilot_coordination_channel"] = rec
+    _save_org_settings(settings)
+    return rec
+
+
+def get_copilot_contact_map() -> dict:
+    settings = _load_org_settings()
+    raw = settings.get("copilot_contact_map") or {}
+    mapping = {}
+    if isinstance(raw, dict):
+        for copilot_id, value in raw.items():
+            if isinstance(value, dict):
+                owner_id = value.get("owner_user_id") or value.get("student_user_id") or ""
+            else:
+                owner_id = str(value or "")
+            if copilot_id and owner_id:
+                mapping[copilot_id] = owner_id
+    return mapping
+
+
+def set_copilot_contact(copilot_id: str, owner_user_id: str, *, by: str = "") -> dict:
+    copilot_id = (copilot_id or "").strip()
+    owner_user_id = (owner_user_id or "").strip()
+    if not copilot_id or not owner_user_id:
+        return {}
+    settings = _load_org_settings()
+    contacts = settings.setdefault("copilot_contact_map", {})
+    rec = {
+        "copilot_id": copilot_id,
+        "owner_user_id": owner_user_id,
+        "updated_by": by,
+        "updated_at": _now(),
+    }
+    contacts[copilot_id] = rec
+    _save_org_settings(settings)
+    return rec
+
+
+def register_space(space_id: str, *, channel_id: str = "", team_id: str = "", space_type: str = DEFAULT_SPACE_TYPE):
+    """Ensure a memory space exists and is listed in the repo-level registry
+
+
+===== FILE: source_loader.py =====
+"""Load non-paper seminar sources into one bounded text pack."""
+from __future__ import annotations
+
+import hashlib
+import os
+import re
+import shutil
+import subprocess
+from pathlib import Path
+from urllib.parse import urlparse
+
+
+TEXT_SUFFIXES = {
+    ".txt", ".md", ".markdown", ".rst", ".adoc",
+    ".py", ".js", ".jsx", ".ts", ".tsx", ".java", ".go", ".rs", ".c", ".cc", ".cpp", ".h", ".hpp",
+    ".json", ".yaml", ".yml", ".toml", ".ini", ".cfg",
+    ".sh", ".bash", ".zsh", ".sql", ".html", ".css",
+    ".tex", ".bib", ".csv", ".tsv",
+}
+PDF_SUFFIXES = {".pdf"}
+SKIP_DIRS = {
+    ".git", ".hg", ".svn", "__pycache__", ".venv", "venv", "node_modules", "dist", "build",
+    ".next", ".turbo", ".cache", ".mypy_cache", ".pytest_cache", ".ruff_cache",
+    "canon", "logs", "imports", "source_cache",
+}
+SENSITIVE_NAME = re.compile(
+    r"(^|[._-])(secret|token|credential|password|passwd|private[-_]?key|api[-_]?key)([._-]|$)|"
+    r"^(id_rsa|id_ed25519|authorized_keys|known_hosts|\.env)$|"
+    r"\.(pem|key|p12|pfx)$",
+    re.I,
+)
+PRIORITY_FILES = [
+    "README.md",
+    "app.py",
+    "brain.py",
+    "canon.py",
+    "source_loader.py",
+    "prompts/route.md",
+    "prompts/decompose.md",
+    "prompts/explain.md",
+    "prompts/paper_answer.md",
+    "prompts/thread_chat.md",
+    "prompts/paper_classify.md",
+]
+
+
+def _limit_int(name: str, default: int) -> int:
+    try:
+        return max(1, int(os.environ.get(name, str(default)) or default))
+    except Exception:
+        return default
+
+
+def _max_files() -> int:
+    return _limit_int("SEMINAR_SOURCE_MAX_FILES", 160)
+
+
+def _max_file_bytes() -> int:
+    return _limit_int("SEMINAR_SOURCE_MAX_FILE_BYTES", 600_000)
+
+
+def _max_file_chars() -> int:
+    return _limit_int("SEMINAR_SOURCE_MAX_FILE_CHARS", 12_000)
+
+
+def _max_total_chars() -> int:
+    return _limit_int("SEMINAR_SOURCE_MAX_CHARS", 140_000)
+
+
+def _slug(s: str, prefix: str = "source") -> str:
+    raw = (s or prefix).strip()
+    base = re.sub(r"[^A-Za-z0-9_.-]+", "-", raw).strip("-")[:64] or prefix
+    digest = hashlib.sha1(raw.encode("utf-8", errors="ignore")).hexdigest()[:10]
+    return f"{prefix}-{base}-{digest}"[:100]
+
+
+def _safe_relative(path: Path, root: Path) -> Path:
+    try:
+        return path.resolve(strict=True).relative_to(root.resolve(strict=True))
+    except ValueError:
+        raise RuntimeError(f"本地 source 只能读取 {root} 目录下的内容。")
+
+
+def resolve_import_directory(ref: str, import_root: Path) -> Path:
+    raw = Path(ref).expanduser()
+    candidate = raw if raw.is_absolute() else import_root / raw
+    try:
+        path = candidate.resolve(strict=True)
+    except FileNotFoundError:
+        raise FileNotFoundError(ref)
+    if not path.is_dir():
+        raise RuntimeError("folder source 必须是目录。")
+    rel = _safe_relative(path, import_root)
+    if any(part.startswith(".") for part in rel.parts):
+        raise RuntimeError("不能导入隐藏目录。")
+    if any(SENSITIVE_NAME.search(part) for part in rel.parts):
+        raise RuntimeError("目录名看起来像密钥或凭据,已拒绝导入。")
+    return path
+
+
+def _read_pdf_text(path: Path) -> str:
+    try:
+        import fitz  # type: ignore
+        out = []
+        with fitz.open(path) as doc:
+            for page in doc:
+                out.append(page.get_text("text") or "")
+        return "\n".join(out)
+    except Exception:
+        pass
+    if shutil.which("pdftotext"):
+        out = subprocess.run(["pdftotext", str(path), "-"], capture_output=True, text=True, timeout=120)
+        if out.returncode == 0:
+            return out.stdout
+    return ""
+
+
+def _read_file(path: Path) -> str:
+    suffix = path.suffix.lower()
+    if suffix in PDF_SUFFIXES:
+        return _read_pdf_text(path)
+    return path.read_text(encoding="utf-8", errors="ignore")
+
+
+def _should_skip(path: Path, root: Path) -> bool:
+    try:
+        rel = path.relative_to(root)
+    except Exception:
+        rel = path
+    parts = rel.parts
+    if any(part.startswith(".") for part in parts):
+        return True
+    if any(part in SKIP_DIRS for part in parts):
+        return True
+    if any(SENSITIVE_NAME.search(part) for part in parts):
+        return True
+    return False
+
+
+def _iter_source_files(root: Path) -> list[Path]:
+    files = []
+    priority = {name: i for i, name in enumerate(PRIORITY_FILES)}
+
+    def sort_key(path: Path):
+        rel = path.relative_to(root).as_posix()
+        return (priority.get(rel, len(priority)), rel.count("/"), rel.casefold())
+
+    for path in sorted(root.rglob("*"), key=sort_key):
+        if not path.is_file() or _should_skip(path, root):
+            continue
+        if path.suffix.lower() not in TEXT_SUFFIXES | PDF_SUFFIXES:
+            continue
+        try:
+            if path.stat().st_size > _max_file_bytes():
+                continue
+        except OSError:
+            continue
+        files.append(path)
+        if len(files) >= _max_files():
+            break
+    return files
+
+
+def pack_directory(root: Path, *, source_id: str, title: str, kind: str, url: str = "") -> dict:
+    root = root.resolve(strict=True)
+    chunks = []
+    total = 0
+    for path in _iter_source_files(root):
+        rel = path.relative_to(root)
+        try:
+            text = _read_file(path)
+        except Exception:
+            continue
+        text = re.sub(r"\x00", "", text).strip()
+        if not text:
+            continue
+        header = f"\n\n===== FILE: {rel.as_posix()} =====\n"
+        remaining = _max_total_chars() - total - len(header)
+        if remaining <= 0:
+            break
+        body = text[: min(remaining, _max_file_chars())]
+        chunks.append(header + body)
+        total += len(header) + len(body)
+        if total >= _max_total_chars():
+            break
+    if not chunks:
+        raise RuntimeError("没有找到可导入的文本文件。")
+    return {
+        "id": source_id,
+        "title": title,
+        "kind": kind,
+        "url": url,
+        "text": "\n".join(chunks).strip(),
+        "metadata": {
+            "root": str(root),
+            "file_count": len(chunks),
+            "truncated": total >= _max_total_chars(),
+        },
+    }
+
+
+def load_folder(ref: str, import_root: Path) -> dict:
+    root = resolve_import_directory(ref, import_root)
+    sid = _slug(str(root), "folder")
+    return pack_directory(root, source_id=sid, title=root.name or sid, kind="folder", url=f"folder:{ref}")
+
+
+def load_self(app_dir: Path) -> dict:
+    root = app_dir.resolve(strict=True)
+    sid = _slug(str(root), "self")
+    return pack_directory(root, source_id=sid, title="SeminarBot source", kind="self", url=f"self:{root}")
+
+
+def _github_url(ref: str) -> str:
+    ref = (ref or "").strip()
+    if re.fullmatch(r"[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+", ref):
+        return f"https://github.com/{ref}.git"
+    parsed = urlparse(ref)
+    if parsed.scheme in {"http", "https"} and parsed.netloc.casefold() == "github.com":
+        path = parsed.path.strip("/")
+        if path:
+            return f"https://github.com/{path.removesuffix('.git')}.git"
+    if ref.startswith("git@github.com:"):
+        return ref
+    raise RuntimeError("repo source 目前只支持 GitHub URL、git@github.com:owner/repo.git 或 owner/repo。")
+
+
+def load_repo(ref: str, import_root: Path, cache_root: Path) -> dict:
+    raw_path = Path(ref).expanduser()
+    if (raw_path if raw_path.is_absolute() else import_root / raw_path).exists():
+        root = resolve_import_directory(ref, import_root)
+        sid = _slug(str(root), "repo")
+        return pack_directory(root, source_id=sid, title=root.name or sid, kind="repo", url=f"repo:{ref}")
+
+    url = _github_url(ref)
+    sid = _slug(url, "repo")
+    dest = cache_root / sid
+    if not dest.exists():
+        cache_root.mkdir(parents=True, exist_ok=True)
+        out = subprocess.run(["git", "clone", "--depth", "1", url, str(dest)], capture_output=True, text=True, timeout=240)
+        if out.returncode != 0:
+            raise RuntimeError((out.stderr or out.stdout or "git clone failed").strip()[:500])
+    title = url.removesuffix(".git").rstrip("/").split("/")[-1] or sid
+    return pack_directory(dest, source_id=sid, title=title, kind="repo", url=url)
+
+
+def pack_text(*, text: str, title: str, kind: str, url: str = "", prefix: str = "source") -> dict:
+    text = (text or "").strip()
+    if not text:
+        raise RuntimeError("source text 为空。")
+    sid = _slug(f"{kind}:{title}:{text[:500]}", prefix)
+    return {
+        "id": sid,
+        "title": title or sid,
+        "kind": kind,
+        "url": url,
+        "text": text[:_max_total_chars()],
+        "metadata": {"truncated": len(text) > _max_total_chars()},
+    }
+
+
+===== FILE: prompts/route.md =====
+你是 SeminarBot 的后台动作路由器,只负责判断成员最新一句话是否需要触发少数几个有规则约束的动作。
+
+不要试图给所有用户话语贴"完整意图标签"。普通问题、联想、吐槽、半懂不懂、随口讨论,都不是后台动作;交给主持人自然回应即可。
+
+频道最近的对话(从旧到新):
+{{HISTORY}}
+
+已加载、就在 canon repo 里的 seminar sources(论文、文件夹、repo、知识库召回等;当前活跃的标 *active*)和可用 source 能力:
+{{PAPERS}}
+
+成员最新一句话:
+"""
+{{MESSAGE}}
+"""
+
+只输出一个 JSON 对象(不要写文件、不要跑命令、不要多余解释):
+
+{
+  "action": "none" | "fetch" | "discover" | "external_concept" | "source_load" | "meta",
+  "paper_id": "如果能明显看出这句话关于哪份已加载 source,填它的 id;说不清就用当前 active 的;一份都没有则空字符串",
+  "source_kind": "当 action=source_load 时填 self|folder|repo|kb|file;否则空字符串",
+  "source_ref": "当 action=source_load 时填用户给出的路径、GitHub repo、知识库查询,或 self;否则空字符串",
+  "answer": "仅当 action=meta 时,给一句简短、直接的中文回答;其他情况留空字符串",
+  "fetch_query": "当 action=fetch/discover/external_concept 时,要下载/搜索的论文标题、领域、概念、引用线索或术语;否则留空字符串"
+}
+
+动作判断:
+- **fetch**:用户明确要下载/加载/导入某篇具体论文,并给了标题、arXiv 链接/ID、DOI 或足够明确的唯一线索。
+- **source_load**:用户明确要把某份非论文材料变成本场 seminar 的学习对象,例如本地文件夹、GitHub repo、知识库内容、一个文件,或 SeminarBot 自己的源码/运行时。  
+  - 如果用户说"理解你自己/研究 SeminarBot/读你自己的代码/你自己的 source",source_kind=self,source_ref=self。
+  - 如果用户只问"你的文件在哪里/怎么用 source 功能/能读什么",这是 meta,不要启动 source_load。
+  - 如果用户说"我们来理解 X"、"把 X 当作本场 seminar source"、"读这个 repo/folder/知识库主题",这是 source_load。
+- **discover**:用户明确要找"论文/文献/related work/后续工作/源头论文/对比论文/比较文献"。这只是论文候选发现,不是概念解释。
+- **external_concept**:用户明确要外部查询一个术语、指标、benchmark、数据集、方法名或背景概念的定义、设计、怎么算、怎么来的、是什么。例如"什么是 BLEU""外部查询 BLEU 这个评分怎么设计的""查一下 perplexity 怎么算"。不要因为用户说"外部查询/查资料"就判成 discover。
+- **meta**:关于 SeminarBot 流程、状态、source/文件在哪、怎么参与、是否已同步、当前在干嘛、有哪些能力的简短问题。
+- **none**:其他所有正常研讨对话。包括关于论文内容的普通问题、"这个是不是像 GPT"、"我没懂这里"、"BLEU 好像怪怪的"、尚未明确要求写入 canon 的想法。不要把这些硬判成贡献或论文比较。
+
+关于"同步/推云端":canon repo 每次有变化都会自动 commit 并 push 到 GitHub 远程。有人问"能不能推云端/同步到云端"时,如实告诉他已经在自动同步,并给出上面 source 状态里的 GitHub 仓库地址。
+
+能力边界:你能做论文发现,但发现结果只是 metadata/abstract 级别的候选,不是 canon 结论。要把某篇论文纳入 seminar 精读,最好有 arXiv ID、bioRxiv DOI、标题或链接。要把 folder/repo/kb 纳入 seminar,需要 source_load。Slack 附件文件暂时不能自动读取。
+
+
+===== FILE: prompts/decompose.md =====
+你是一个研讨班的"中央大脑"。下面是一份学习材料 source 的文本(可能是一篇论文、一个文件夹、一个 GitHub repo、或知识库召回；可能被截断):
+
+"""
+{{PAPER}}
+"""
+
+把它拆解成值得 seminar 逐条学习/质疑的**承重主张或核心概念**(load-bearing claims/concepts)——即:如果这条理解错了,对这份材料的整体理解就会明显偏掉的那些。不要罗列背景常识,只要这份 source 自己承载的核心断言、机制、设计选择、证据、接口约定或概念。
+
+**要拆得细、原子化**:
+- 每条主张只包含**一个可独立质疑的断言**。一句话里若含多个论点("X 提升了 A,而且揭示了 B"),**拆成多条**。
+- 把"主结论/目标""背后的机制""每一项关键证据/实验""关键方法或架构选择""重要接口/配置/文件职责""适用范围/边界条件"**分别**列成独立主张,而不是揉成一条。
+- 颗粒度以"组里能就这一条单独讨论半天"为准。
+- 一般 **8~15 条**(论文内容多就更多);宁可细,不要把几个论点塞进一条。
+
+**只输出一个 JSON 对象**(不要写文件、不要跑命令、不要多余解释):
+
+{
+  "claims": [
+    {"title": "短标题", "statement": "这条主张的完整陈述", "type": "core|method|evidence|concept"}
+  ]
+}
+
+
+===== FILE: prompts/explain.md =====
+你在为研讨班把"某条主张/概念"做成一串 **twitterial**(像推特长贴),在 Slack 的一个帖子里按顺序连续发。
+
+学习材料:《{{PAPER_TITLE}}》
+这条主张:
+{{CLAIM}}
+
+学习材料相关正文(可能被截断):
+"""
+{{PAPER_TEXT}}
+"""
+
+同一研讨空间的额外明文上下文(当前 seminar 对话、前序 seminar 抽象记忆、相关论文原文片段、Cognee 联想召回;可能为空):
+"""
+{{MEMORY_CONTEXT}}
+"""
+
+拆成 **4~7 张卡片**,每张只讲**一个点**,按讲故事顺序:① 抛出主张/钩子 → ② 关键直觉 → ③ 证据/机制 → ④ 一个常见误解或值得追问的点 → ⑤ 收尾。
+
+每张卡片要么是**文字**,要么是**一张图**。**只输出一个 JSON 对象**(不写文件、不跑命令、不要多余解释):
+
+{
+  "cards": [
+    {"type": "text", "text": "这张卡片的内容,用 Slack 原生格式"},
+    {"type": "visual", "caption": "这张图说明了什么(一句话)", "figure": "fig2"},
+    {"type": "visual", "caption": "这张图说明了什么(一句话)", "svg": "<svg ...>...</svg>"}
+  ]
+}
+
+## 原图/材料配图(优先用!)
+本文可用的原图(id: 图注):
+{{FIGURES}}
+
+- **如果上面某张原图/材料图正好支撑你这个点,优先用原图**:`{"type":"visual","figure":"figN","caption":"一句话说明它说明了什么"}`——**不要再自己画 SVG 去重复它**。
+- 一张卡片要么用 `figure`、要么用 `svg`,不要同时。
+- 没有合适的原图、又确实需要图时,才考虑自己画 `svg`(判据见下,很严)。
+
+## 文字卡片(占大多数)
+直接写成 **Slack 原生 mrkdwn**(方便成员复制粘贴),规则:
+- 加粗 `*这样*`(**单**星号);斜体 `_这样_`;删除线 `~这样~`;行内术语 `` `这样` ``
+- 引用论文原文关键句/数字用 `> 引用`(整行开头)
+- 列表用 `• ` 或 `- ` 开头
+- **不要**用 Markdown 的 `#` 标题、`**双星号**`、HTML——Slack 不认
+- 每张文字卡片简短、聚焦一个点,像发推
+
+## 配图卡片(少而精,整串 0~2 张)
+只有"画出来比文字更好懂"时才出 `type:"visual"`。**硬判据**:
+- 一张图要让人**一眼获得一个文字里得费劲才能得到的具体信息**(结构 / 对比 / 因果或流程 / 趋势)。**说不出这图"让人看懂哪件具体的事",就别画,改成文字卡片。**
+- svg 里必须用**source 里真实的实体**(模块/函数/概念/变量/步骤/条件名),画出它们的**关系**;**绝不把成段文字塞进图里**。
+- **反例(不要)**:写满字的方框+箭头、占位图、把正文又画一遍、纯装饰。
+- caption 一句话点出这图的结论。
+
+## 证据
+需要支撑时,在文字卡片里用 `> ` 引用 source 原文的**具体**证据(发现/数字/关键句/代码片段/配置项),别泛泛说"材料表明"。只用上面提供的正文。
+- `> ` 后面请复制 source 原文里的短句/数字/短代码,不要翻译成中文,不要自己编页码或 URL;如果 source 有 PDF,系统会在发送前把这行自动链接回 PDF 原文。
+- 每条主张至少放 1 条这样的原文引用;证据密集的主张可以放 2~3 条,但不要把卡片写成引用堆。
+
+
+===== FILE: prompts/paper_answer.md =====
+你是负责《{{PAPER_TITLE}}》这份 seminar source 的"子脑"。source 正文(可能被截断):
+"""
+{{PAPER_TEXT}}
+"""
+
+同一研讨空间的额外明文上下文(对话、前序 seminar 抽象记忆、相关 source 片段;可能为空):
+"""
+{{MEMORY_CONTEXT}}
+"""
+
+一位成员的问题:
+"""
+{{MESSAGE}}
+"""
+
+用**这份 source 的内容**简短回答(中文)。如果 source 是论文,且问题是在找引用编号、参考文献、文献名、作者、标题或 arXiv 号,优先查看正文里的 citation 和文末 References/Bibliography,直接给出具体条目;能定位到编号就写明编号(如 `[2]`)。如果 source 是 repo/folder,优先指出相关文件/函数/配置名。
+
+如果当前 source 没有足够信息,明确说"当前 source 里没给出/我在当前文本里没找到",再说明还需要外部检索或更多文件。**不要替他把理解全做完**——答完后,鼓励他把疑问变成一条针对某条具体主张的质疑或反驳。直接输出正文,不要 JSON、不要代码块。
+
+
+===== FILE: prompts/thread_chat.md =====
+你是研讨班主持人 bot,正在某条 claim 的 Slack thread 里回应成员。
+
+学习材料:《{{PAPER_TITLE}}》
+
+当前 claim:
+{{CLAIM}}
+
+成员刚才说:
+"""
+{{MESSAGE}}
+"""
+
+source 正文/参考文献/文件摘录:
+"""
+{{PAPER_TEXT}}
+"""
+
+同一研讨空间的额外明文上下文(当前 seminar 对话、前序 seminar 抽象记忆、相关 source 片段、可能的联想召回;可能为空):
+"""
+{{MEMORY_CONTEXT}}
+"""
+
+请直接回复成员,不要做标签分类,不要说"已记入 canon"。
+
+要求:
+- 如果成员是在问问题,给一个清楚、短而有用的回答。
+- 如果成员是在抛联想/类比/吐槽,接住这个联想,说明它和当前 claim 的关系。
+- 可以使用你的一般背景知识,但要明确区分"source 里直接说的"和"我推断/类比的"。
+- 如果需要外部论文或具体资料才能确认,说明这是待查点,不要编造引用。
+- 保持 Slack thread 里的自然语气,中文为主,2-5 段即可。
+
+
+===== FILE: prompts/paper_classify.md =====
+你是负责《{{PAPER_TITLE}}》这份 seminar source 的"子脑",掌握这份 source 的全部讨论。
+
+这份 source 里**尚未关闭的主张/概念**(open claims):
+{{CLAIMS}}
+
+同一研讨空间的额外明文上下文(当前 seminar 对话、前序 seminar 抽象记忆、相关 source 片段;可能为空):
+"""
+{{MEMORY_CONTEXT}}
+"""
+
+一位成员针对这份 source 说:
+"""
+{{MESSAGE}}
+"""
+
+判断这条贡献,**只输出一个 JSON 对象**(不写文件、不跑命令):
+
+{
+  "is_substantive": true 或 false,
+  "kind": "critique" | "support" | "question" | "contribution" | "noise",
+  "targets_claim_id": "已存在的 claim id(如 C2),全新主张则为 null",
+  "new_claim": null 或 {"title": "...", "statement": "...", "type": "core|method|evidence|concept"},
+  "summary": "用一句话把它规范化(中立、可入库)",
+  "load_bearing": "core" | "side",
+  "reason": "一句话依据"
+}
+
+规则:
+- 明确针对某条 open claim → 填 targets_claim_id,new_claim 为 null。
+- 提出还没有的新主张 → targets_claim_id 为 null,填 new_claim。
+- 空泛、没指向任何主张、为质疑而质疑 → is_substantive=false 且 kind="noise"。
+
+
+===== FILE: a2a_agent_card.json =====
+{
+  "protocolVersion": "0.3",
+  "name": "SeminarBot",
+  "description": "CoEducation seminar host agent. Coordinates public seminar workflow and ingests scoped private-copilot learning-status artifacts.",
+  "url": "slack://coeducation/seminarbot",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "extensions": [
+      "https://coeducation.local/a2a/extensions/seminar-copilot/v1"
+    ]
+  },
+  "metadata": {
+    "agent_id": "coeducation.seminarbot",
+    "role": "seminar_host",
+    "profile": "https://coeducation.local/a2a/extensions/seminar-copilot/v1"
+  },
+  "defaultInputModes": [
+    "application/json",
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "application/json",
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "coeducation.seminar.claim_concept_checklist.v1",
+      "name": "Publish claim concept checklist",
+      "description": "Publishes typed concept checklists for private copilots to evaluate against owner-visible seminar evidence.",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    },
+    {
+      "id": "coeducation.seminar.concept_progress_ingest.v1",
+      "name": "Ingest private-copilot concept progress",
+      "description": "Accepts scoped ConceptProgress artifacts without reading private memory or private knowledge stores.",
+      "inputModes": [
+        "application/json"
+      ],
+      "outputModes": [
+        "application/json"
+      ]
+    }
+  ]
+}
+
+
+===== FILE: a2a_profile.py =====
+"""CoEducation A2A-over-Slack profile helpers.
+
+This is not a full HTTP A2A server. It keeps the existing Slack transport and
+adds a stable A2A-shaped envelope so SeminarBot and private copilots depend on
+capabilities and artifacts rather than one bot implementation.
+"""
+from __future__ import annotations
+
+from copy import deepcopy
+from datetime import datetime, timezone
+
+
+A2A_PROTOCOL_VERSION = "0.3"
+PROFILE_VERSION = "1"
+PROFILE_URI = "https://coeducation.local/a2a/extensions/seminar-copilot/v1"
+
+SKILL_CONCEPT_CHECKLIST = "coeducation.seminar.claim_concept_checklist.v1"
+SKILL_LEARNING_STATUS = "coeducation.private_copilot.learning_status.v1"
+SKILL_PROGRESS_INGEST = "coeducation.seminar.concept_progress_ingest.v1"
+
+ARTIFACT_CONCEPT_CHECKLIST = "coeducation.seminar.ConceptChecklist.v1"
+ARTIFACT_LEARNING_STATUS_REQUEST = "coeducation.seminar.LearningStatusRequest.v1"
+ARTIFACT_CONCEPT_PROGRESS = "coeducation.seminar.ConceptProgress.v1"
+
+
+def _now() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _drop_empty(value):
+    if isinstance(value, dict):
+        return {
+            key: cleaned
+            for key, item in value.items()
+            if (cleaned := _drop_empty(item)) not in ("", None, [], {})
+        }
+    if isinstance(value, list):
+        return [cleaned for item in value if (cleaned := _drop_empty(item)) not in ("", None, [], {})]
+    return value
+
+
+def agent_ref(
+    *,
+    agent_id: str,
+    name: str,
+    role: str,
+    slack_actor_id: str = "",
+    owner_user_id: str = "",
+) -> dict:
+    """Return a transport-neutral agent reference with Slack metadata optional."""
+    return _drop_empty(
+        {
+            "agent_id": agent_id,
+            "name": name,
+            "role": role,
+            "slack_actor_id": slack_actor_id,
+            "owner_user_id": owner_user_id,
+        }
+    )
+
+
+def attach_envelope(
+    payload: dict,
+    *,
+    message_kind: str,
+    skill_id: str,
+    artifact_type: str,
+    from_agent: dict,
+    to_agent: dict | None = None,
+    task_id: str = "",
+    context_id: str = "",
+    artifact_data: dict | None = None,
+    consent: dict | None = None,
+    provenance: dict | None = None,
+) -> dict:
+    """Attach the CoEducation A2A profile envelope while preserving legacy fields."""
+    out = deepcopy(payload or {})
+    data = deepcopy(artifact_data if artifact_data is not None else payload or {})
+    task = {
+        "id": task_id,
+        "kind": message_kind,
+        "context_id": context_id,
+    }
+    envelope = {
+        "protocol": "a2a",
+        "protocol_version": A2A_PROTOCOL_VERSION,
+        "profile": PROFILE_URI,
+        "profile_version": PROFILE_VERSION,
+        "created_at": _now(),
+        "message_kind": message_kind,
+        "skill_id": skill_id,
+        "task": task,
+        "from": from_agent,
+        "to": to_agent or {},
+        "artifacts": [
+            {
+                "artifact_id": task_id or message_kind,
+                "type": artifact_type,
+                "media_type": "application/json",
+                "data": data,
+            }
+        ],
+        "consent": consent or {},
+        "provenance": provenance or {},
+    }
+    out["a2a"] = _drop_empty(envelope)
+    return out
+
+
+def flatten_payload(payload: dict) -> dict:
+    """Merge A2A artifact data into top-level fields for old and new parsers."""
+    if not isinstance(payload, dict):
+        return {}
+    merged = {}
+    a2a = payload.get("a2a") if isinstance(payload.get("a2a"), dict) else {}
+    for artifact in a2a.get("artifacts") or []:
+        if isinstance(artifact, dict) and isinstance(artifact.get("data"), dict):
+            merged.update(deepcopy(artifact["data"]))
+    for key, value in payload.items():
+        if key != "a2a":
+            merged[key] = value
+    if a2a:
+        merged["a2a"] = a2a
+    return merged
+
+
+def seminar_agent_card(*, agent_id: str, name: str, slack_actor_id: str = "") -> dict:
+    return _drop_empty(
+        {
+            "protocolVersion": A2A_PROTOCOL_VERSION,
+            "name": name,
+            "description": "CoEducation seminar host agent. Coordinates public seminar workflow and ingests scoped private-copilot learning-status artifacts.",
+            "url": "slack://coeducation/seminarbot",
+            "capabilities": {
+                "streaming": False,
+                "pushNotifications": False,
+                "extensions": [PROFILE_URI],
+            },
+            "metadata": {
+                "agent_id": agent_id,
+                "role": "seminar_host",
+                "slack_actor_id": slack_actor_id,
+                "profile": PROFILE_URI,
+            },
+            "defaultInputModes": ["application/json", "text/plain"],
+            "defaultOutputModes": ["application/json", "text/plain"],
+            "skills": [
+                {
+                    "id": SKILL_CONCEPT_CHECKLIST,
+                    "name": "Publish claim concept checklist",
+                    "description": "Publishes typed concept checklists for private copilots to evaluate against owner-visible seminar evidence.",
+                    "inputModes": ["application/json"],
+                    "outputModes": ["application/json"],
+                },
+                {
+                    "id": SKILL_PROGRESS_INGEST,
+                    "name": "Ingest private-copilot concept progress",
+                    "description": "Accepts scoped ConceptProgress artifacts without reading private memory or private knowledge stores.",
+                    "inputModes": ["application/json"],
+                    "outputModes": ["application/json"],
+                },
+            ],
+        }
+    )
+
+
+def private_copilot_agent_card(*, agent_id: str, name: str, owner_user_id: str = "", slack_actor_id: str = "") -> dict:
+    return _drop_empty(
+        {
+            "protocolVersion": A2A_PROTOCOL_VERSION,
+            "name": name,
+            "description": "CoEducation private copilot agent. Serves one owner and returns scoped learning-status artifacts to trusted seminar hosts.",
+            "url": "slack://coeducation/private-copilot",
+            "capabilities": {
+                "streaming": False,
+                "pushNotifications": False,
+                "extensions": [PROFILE_URI],
+            },
+            "metadata": {
+                "agent_id": agent_id,
+                "role": "private_copilot",
+                "owner_user_id": owner_user_id,
+                "slack_actor_id": slack_actor_id,
+                "profile": PROFILE_URI,
+            },
+            "defaultInputModes": ["application/json", "text/plain"],
+            "defaultOutputModes": ["application/json", "text/plain"],
+            "skills": [
+                {
+                    "id": SKILL_LEARNING_STATUS,
+                    "name": "Report owner learning status",
+                    "description": "Returns ConceptProgress artifacts for the configured owner using visible seminar context and explicit owner signals.",
+                    "inputModes": ["application/json"],
+                    "outputModes": ["application/json"],
+                }
+            ],
+        }
+    )
+
+
+===== FILE: backfill_slack_transcript.py =====
+"""Backfill public Slack channel/thread history into local transcript logs.
+
+This is a debugging aid only. It records public Slack history into
+canon/spaces/<space>/transcripts/slack.jsonl and does not feed the transcript
+into seminar context or derived memory.
+"""
+import argparse
+import os
+import re
+import time
+from pathlib import Path
+
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+
+import canon
+
+# Backfill only writes local debug transcript rows; it does not commit. Avoid
+# touching .git/config while the live bot may also be using the canon repo.
+canon._IDENTITY_SET = True
+
+
+BOT_ID = ""
+BOT_USER_ID = ""
+NAME_CACHE = {}
+SKIP_SUBTYPES = {"message_deleted", "message_changed", "channel_join", "channel_leave"}
+
+
+def load_dotenv(path: Path = Path(".env")):
+    if not path.exists():
+        return
+    for raw in path.read_text(encoding="utf-8", errors="ignore").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip("\"'"))
+
+
+def clean_text(text: str) -> str:
+    return re.sub(r"<@[^>]+>", "", text or "").strip()
+
+
+def slack_call(fn, **kwargs):
+    while True:
+        try:
+            return fn(**kwargs)
+        except SlackApiError as e:
+            if e.response is not None and e.response.status_code == 429:
+                delay = int(e.response.headers.get("Retry-After", "1") or "1")
+                time.sleep(max(delay, 1))
+                continue
+            raise
+
+
+def display_name(client: WebClient, user_id: str) -> str:
+    if not user_id:
+        return "?"
+    if user_id in NAME_CACHE:
+        return NAME_CACHE[user_id]
+    name = user_id
+    try:
+        user = slack_call(client.users_info, user=user_id)["user"]
+        profile = user.get("profile", {})
+        name = profile.get("display_name") or user.get("real_name") or user.get("name") or user_id
+    except Exception:
+        pass
+    NAME_CACHE[user_id] = name
+    return name
+
+
+def init_bot_identity(client: WebClient):
+    global BOT_ID, BOT_USER_ID
+    try:
+        auth = slack_call(client.auth_test)
+        BOT_ID = auth.get("bot_id", "") or ""
+        BOT_USER_ID = auth.get("user_id", "") or ""
+    except Exception:
+        BOT_ID = ""
+        BOT_USER_ID = ""
+
+
+def message_actor(client: WebClient, message: dict) -> tuple[str, str, str, str]:
+    bot_id = message.get("bot_id", "")
+    user_id = message.get("user", "")
+    if bot_id:
+        actor_id = bot_id
+        display = message.get("username") or bot_id
+        role = "bot"
+        direction = "out" if bot_id == BOT_ID or user_id == BOT_USER_ID else "in"
+        return direction, role, actor_id, display
+    actor_id = user_id
+    role = "bot" if user_id and user_id == BOT_USER_ID else "human"
+    direction = "out" if role == "bot" else "in"
+    display = "SeminarBot" if role == "bot" else display_name(client, user_id)
+    return direction, role, actor_id, display
+
+
+def record_message(client: WebClient, message: dict, *, channel: str, source: str, thread_root: str = "") -> bool:
+    if message.get("subtype", "") in SKIP_SUBTYPES:
+        return False
+    text = clean_text(message.get("text", ""))
+    if not text:
+        return False
+    ts = message.get("ts", "")
+    thread_ts = message.get("thread_ts") or thread_root
+    claim_id = canon.find_post_claim(thread_ts or ts) or ""
+    direction, role, actor_id, display = message_actor(client, message)
+    canon.record_slack_transcript(
+        direction=direction,
+        role=role,
+        actor_id=actor_id,
+        display_name=display,
+        text=text,
+        channel=channel,
+        ts=ts,
+        thread_ts=thread_ts,
+        claim_id=claim_id,
+        source=source,
+        visibility="channel",
+        metadata={
+            "subtype": message.get("subtype", ""),
+            "backfilled": True,
+        },
+    )
+    return True
+
+
+def iter_history(client: WebClient, *, channel: str, oldest: str, latest: str, page_limit: int):
+    cursor = None
+    while True:
+        kwargs = {
+            "channel": channel,
+            "limit": min(max(page_limit, 1), 200),
+            "oldest": oldest,
+            "latest": latest,
+            "inclusive": True,
+        }
+        if cursor:
+            kwargs["cursor"] = cursor
+        response = slack_call(client.conversations_history, **kwargs)
+        for message in response.get("messages", []):
+            yield message
+        cursor = (response.get("response_metadata") or {}).get("next_cursor")
+        if not cursor:
+            break
+
+
+def iter_replies(client: WebClient, *, channel: str, thread_ts: str, page_limit: int):
+    cursor = None
+    while True:
+        kwargs = {"channel": channel, "ts": thread_ts, "limit": min(max(page_limit, 1), 200)}
+        if cursor:
+            kwargs["cursor"] = cursor
+        response = slack_call(client.conversations_replies, **kwargs)
+        for message in response.get("messages", []):
+            yield message
+        cursor = (response.get("response_metadata") or {}).get("next_cursor")
+        if not cursor:
+            break
+
+
+def backfill_space(client: WebClient, space: dict, *, oldest: str, latest: str, page_limit: int, include_threads: bool) -> dict:
+    token = canon.set_current_space(space.get("space_id", ""))
+    try:
+        channel = space.get("channel", "")
+        if not channel:
+            return {"space_id": space.get("space_id", ""), "channel": "", "messages": 0, "threads": 0}
+        seen_thread_roots = set()
+        messages = 0
+        threads = 0
+        items = [
+            (message.get("ts", ""), message, "slack_history", "")
+            for message in iter_history(client, channel=channel, oldest=oldest, latest=latest, page_limit=page_limit)
+        ]
+        for _, message, _, _ in list(items):
+            root_ts = message.get("thread_ts") or message.get("ts", "")
+            if include_threads and root_ts and message.get("reply_count", 0) and root_ts not in seen_thread_roots:
+                seen_thread_roots.add(root_ts)
+                for reply in iter_replies(client, channel=channel, thread_ts=root_ts, page_limit=page_limit):
+                    if reply.get("ts") == root_ts:
+                        continue
+                    items.append((reply.get("ts", ""), reply, "slack_thread_history", root_ts))
+                threads += 1
+        for _, message, source, root_ts in sorted(items, key=lambda item: float(item[0] or 0)):
+            if record_message(client, message, channel=channel, source=source, thread_root=root_ts):
+                messages += 1
+        return {"space_id": space.get("space_id", ""), "channel": channel, "messages": messages, "threads": threads}
+    finally:
+        canon.reset_current_space(token)
+
+
+def selected_spaces(args) -> list[dict]:
+    spaces = canon.list_spaces()
+    if args.space:
+        spaces = [space for space in spaces if space.get("space_id") == args.space or space.get("slug") == args.space]
+    if args.channel:
+        spaces = [space for space in spaces if space.get("channel") == args.channel]
+    if not spaces:
+        raise SystemExit("No matching Slack memory spaces found.")
+    if not args.all_spaces and not args.space and not args.channel:
+        spaces = spaces[-1:]
+    return spaces
+
+
+def main():
+    load_dotenv()
+    parser = argparse.ArgumentParser(description="Backfill public Slack history into local transcript logs.")
+    parser.add_argument("--space", default="", help="Space id or slug. Defaults to latest registered space.")
+    parser.add_argument("--channel", default="", help="Slack channel id.")
+    parser.add_argument("--all-spaces", action="store_true", help="Backfill every registered Slack space.")
+    parser.add_argument("--days", type=float, default=2.0, help="Backfill this many days back. Default: 2.")
+    parser.add_argument("--oldest", default="", help="Slack oldest timestamp override.")
+    parser.add_argument("--latest", default="", help="Slack latest timestamp override.")
+    parser.add_argument("--page-limit", type=int, default=200, help="Slack page limit, max 200.")
+    parser.add_argument("--no-threads", action="store_true", help="Only backfill top-level channel messages.")
+    parser.add_argument("--reset", action="store_true", help="Clear transcript log for selected spaces before backfilling.")
+    args = parser.parse_args()
+
+    token = os.environ.get("SLACK_BOT_TOKEN", "").strip()
+    if not token:
+        raise SystemExit("SLACK_BOT_TOKEN is not set.")
+    client = WebClient(token=token)
+    init_bot_identity(client)
+
+    now = time.time()
+    oldest = args.oldest or str(max(0.0, now - args.days * 86400.0))
+    latest = args.latest or str(now + 60.0)
+    spaces = selected_spaces(args)
+    if args.reset:
+        for space in spaces:
+            token = canon.set_current_space(space.get("space_id", ""))
+            try:
+                path = canon._slack_transcript_path()
+                if path.exists():
+                    path.unlink()
+                seen_path = canon._slack_transcript_seen_path()
+                if seen_path.exists():
+                    seen_path.unlink()
+            finally:
+                canon.reset_current_space(token)
+    results = [
+        backfill_space(
+            client,
+            space,
+            oldest=oldest,
+            latest=latest,
+            page_limit=args.page_limit,
+            include_threads=not args.no_threads,
+        )
+        for space in spaces
+    ]
+    for result in results:
+        print(
+            f"{result['space_id']} channel={result['channel']} "
+            f"messages={result['messages']} threads={result['threads']}"
+        )
+
+
+if __name__ == "__main__":
+    main()
+
+
+===== FILE: evidence_service.py =====
+"""Reusable PDF evidence-link service logic.
+
+This module is intentionally Slack-agnostic. Slack bots can either import it
+directly in-process or call evidence_viewer.py's HTTP API.
+"""
+from __future__ import annotations
+
+import os
+import re
+from difflib import SequenceMatcher
+from typing import Any
+
+import canon
+
+EVIDENCE_STOPWORDS = {
+    "that", "this", "with", "from", "into", "using", "used", "than", "then", "their", "there",
+    "where", "which", "when", "what", "the", "and", "for", "are", "can", "its", "not", "all",
+    "claim", "paper", "method", "model", "because", "through", "based", "show", "shows",
+}
+
+EVIDENCE_ZH_TERM_MAP = {
+    "解码器": ["decoder"],
+    "编码器": ["encoder"],
+    "自注意力": ["self-attention", "attention"],
+    "注意力": ["attention"],
+    "遮蔽": ["mask", "masked", "masking"],
+    "屏蔽": ["mask", "masked", "masking"],
+    "掩码": ["mask", "masked", "masking"],
+    "未来": ["future", "subsequent"],
+    "前序": ["previous", "earlier", "preceding"],
+    "之前": ["previous", "earlier"],
+    "位置": ["position", "positions"],
+    "自回归": ["auto-regressive", "autoregressive"],
+    "输出": ["output", "outputs"],
+    "输入": ["input", "inputs"],
+    "依赖": ["depend", "depends", "attend"],
+    "并行": ["parallel"],
+    "训练": ["training"],
+    "生成": ["generation", "generate"],
+    "层": ["layer", "layers"],
+    "残差": ["residual"],
+    "归一化": ["normalization", "normalized"],
+    "嵌入": ["embedding", "embeddings"],
+    "位置编码": ["positional", "encoding"],
+}
+
+
+def viewer_base_url(*, allow_local: bool = False) -> str:
+    base = os.environ.get("SEMINAR_VIEWER_BASE_URL", "").strip().rstrip("/")
+    if base:
+        return base
+    if allow_local:
+        port = int(os.environ.get("SEMINAR_VIEWER_PORT", "8765") or "8765")
+        return f"http://localhost:{port}"
+    return ""
+
+
+def viewer_url(token: str, *, allow_local: bool = False) -> str:
+    base = viewer_base_url(allow_local=allow_local)
+    return f"{base}/evidence/{token}" if base and token else ""
+
+
+def claim_search_terms(claim: dict[str, Any]) -> list[str]:
+    text = f"{claim.get('title','')} {claim.get('statement','')}"
+    terms: list[str] = []
+    seen = set()
+
+    def add(term: str):
+        term = term.lower().strip()
+        if len(term) < 4 or term in EVIDENCE_STOPWORDS or term in seen:
+            return
+        terms.append(term)
+        seen.add(term)
+
+    for raw in re.findall(r"[A-Za-z][A-Za-z0-9-]{3,}", text):
+        add(raw.strip("-"))
+    for zh, mapped_terms in EVIDENCE_ZH_TERM_MAP.items():
+        if zh in text:
+            for term in mapped_terms:
+                add(term)
+    return terms[:18]
+
+
+def _short_one_line(text: str, limit: int = 360) -> str:
+    text = re.sub(r"\s+", " ", text or "").strip()
+    if len(text) <= limit:
+        return text
+    return text[: max(1, limit - 1)].rstrip() + "..."
+
+
+def _clean_query_text(text: str) -> str:
+    text = re.sub(r"<https?://[^>|]+(?:\|[^>]+)?>", "", text or "")
+    text = re.sub(r"[`*_~>]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def text_search_terms(text: str) -> list[str]:
+    text = _clean_query_text(text)
+    terms: list[str] = []
+    seen = set()
+
+    def add(term: str):
+        term = term.lower().strip("- ")
+        if len(term) < 4 or term in EVIDENCE_STOPWORDS or term in seen:
+            return
+        terms.append(term)
+        seen.add(term)
+
+    for raw in re.findall(r"[A-Za-z][A-Za-z0-9-]{3,}", text):
+        add(raw)
+    for zh, mapped_terms in EVIDENCE_ZH_TERM_MAP.items():
+        if zh in text:
+            for term in mapped_terms:
+                add(term)
+    return terms[:24]
+
+
+def _compact_match_text(text: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", (text or "").lower())
+
+
+def _line_bbox_dict(page, bbox) -> dict:
+    try:
+        x0, y0, x1, y1 = [float(x) for x in bbox]
+        rect = page.rect
+        return {
+            "x0": round(max(0.0, x0 - 2.0), 2),
+            "y0": round(max(0.0, y0 - 1.5), 2),
+            "x1": round(min(float(rect.width), x1 + 2.0), 2),
+            "y1": round(min(float(rect.height), y1 + 1.5), 2),
+            "unit": "pdf_points",
+        }
+    except Exception:
+        return {}
+
+
+def _excerpt_for_page(text: str, terms: list[str], *, limit: int = 360) -> str:
+    lines = [re.sub(r"\s+", " ", line).strip() for line in (text or "").splitlines()]
+    lines = [line for line in lines if len(line) >= 24]
+    if not lines:
+        return ""
+    lowered_terms = [t.lower() for t in terms]
+    scored = []
+    for line in lines:
+        low = line.lower()
+        score = sum(1 for term in lowered_terms if term in low)
+        if score:
+            scored.append((score, len(line), line))
+    line = max(scored, default=(0, 0, lines[0]))[2]
+    return _short_one_line(line, limit=limit)
+
+
+def _best_claim_line_on_page(page, terms: list[str]) -> tuple[int, str, dict]:
+    try:
+        data = page.get_text("dict") or {}
+    except Exception:
+        return 0, "", {}
+    lowered_terms = [t.lower() for t in terms]
+    best = (0, 0, "", {})
+    for block in data.get("blocks", []) or []:
+        if block.get("type", 0) != 0:
+            continue
+        for line in block.get("lines", []) or []:
+            spans = line.get("spans", []) or []
+            text = re.sub(r"\s+", " ", "".join(s.get("text", "") for s in spans)).strip()
+            if len(text) < 16:
+                continue
+            low = text.lower()
+            hits = [term for term in lowered_terms if term in low]
+            if not hits:
+                continue
+            score = sum(len(term) + 2 for term in hits)
+            tie = min(len(text), 240)
+            bbox = _line_bbox_dict(page, line.get("bbox"))
+            if score > best[0] or (score == best[0] and tie > best[1]):
+                best = (score, tie, text, bbox)
+    return best[0], _short_one_line(best[2], limit=360), best[3]
+
+
+def _exact_text_match_on_page(page, query_text: str) -> tuple[int, str, dict]:
+    query_text = _clean_query_text(query_text)
+    if len(query_text) < 12:
+        return 0, "", {}
+    candidates = [query_text]
+    if len(query_text) > 120:
+        candidates.append(query_text[:120].rstrip())
+    first_sentence = re.split(r"(?<=[.;:])\s+", query_text, maxsplit=1)[0].strip()
+    if 12 <= len(first_sentence) < len(query_text):
+        candidates.append(first_sentence)
+    seen = set()
+    for candidate in candidates:
+        candidate = candidate.strip()
+        if len(candidate) < 12 or candidate in seen:
+            continue
+        seen.add(candidate)
+        try:
+            rects = page.search_for(candidate)
+        except Exception:
+            rects = []
+        if not rects:
+            continue
+        bbox = _line_bbox_dict(page, rects[0])
+        return 10000 + min(len(candidate), 500), _short_one_line(candidate, limit=360), bbox
+    return 0, "", {}
+
+
+def _best_text_line_on_page(page, query_text: str, terms: list[str]) -> tuple[int, str, dict]:
+    exact = _exact_text_match_on_page(page, query_text)
+    if exact[0]:
+        return exact
+    try:
+        data = page.get_text("dict") or {}
+    except Exception:
+        return 0, "", {}
+    query_compact = _compact_match_text(_clean_query_text(query_text))
+    lowered_terms = [t.lower() for t in terms]
+    best = (0, 0, "", {})
+    for block in data.get("blocks", []) or []:
+        if block.get("type", 0) != 0:
+            continue
+        for line in block.get("lines", []) or []:
+            spans = line.get("spans", []) or []
+            text = re.sub(r"\s+", " ", "".join(s.get("text", "") for s in spans)).strip()
+            if len(text) < 16:
+                continue
+            low = text.lower()
+            hits = [term for term in lowered_terms if term in low]
+            if not hits and not query_compact:
+                continue
+            score = sum(len(term) + 2 for term in hits)
+            line_compact = _compact_match_text(text)
+            if query_compact and len(query_compact) >= 16:
+                if query_compact in line_compact or line_compact in query_compact:
+                    score += 800
+                elif hits:
+                    score += int(SequenceMatcher(None, query_compact[:260], line_compact[:360]).ratio() * 120)
+            if not score:
+                continue
+            tie = min(len(text), 240)
+            bbox = _line_bbox_dict(page, line.get("bbox"))
+            if score > best[0] or (score == best[0] and tie > best[1]):
+                best = (score, tie, text, bbox)
+    return best[0], _short_one_line(best[2], limit=360), best[3]
+
+
+def find_claim_evidence(paper_id: str, claim: dict[str, Any], page: int = 0) -> dict:
+    """Find a page, excerpt, and line bbox for a claim against a local PDF."""
+    pdf = canon.paper_pdf_path(paper_id)
+    terms = claim_search_terms(claim)
+    result = {"page": max(1, int(page or 1)), "excerpt": "", "bbox": {}, "terms": terms}
+    if not pdf.exists() or not terms:
+        return result
+    try:
+        import fitz
+    except Exception:
+        return result
+    try:
+        with fitz.open(pdf) as doc:
+            if doc.page_count < 1:
+                return result
+            if page:
+                page_number = min(max(1, int(page)), doc.page_count)
+                score, excerpt, bbox = _best_claim_line_on_page(doc[page_number - 1], terms)
+                result.update({"page": page_number, "excerpt": excerpt, "bbox": bbox, "score": score})
+                return result
+            best = (0, 1, "", {})
+            for i in range(min(doc.page_count, 80)):
+                text = doc[i].get_text("text") or ""
+                low = text.lower()
+                page_score = sum((len(term) + 2) for term in terms if term in low)
+                line_score, excerpt, bbox = _best_claim_line_on_page(doc[i], terms)
+                score = max(page_score, line_score * 2)
+                if score > best[0]:
+                    best = (score, i + 1, excerpt or _excerpt_for_page(text, terms), bbox)
+            result.update({"page": best[1], "excerpt": best[2], "bbox": best[3], "score": best[0]})
+            return result
+    except Exception:
+        return result
+
+
+def find_text_evidence(paper_id: str, query_text: str, page: int = 0) -> dict:
+    """Find a page, excerpt, and line bbox for a quoted source phrase."""
+    pdf = canon.paper_pdf_path(paper_id)
+    query_text = _clean_query_text(query_text)
+    terms = text_search_terms(query_text)
+    result = {"page": max(1, int(page or 1)), "excerpt": "", "bbox": {}, "terms": terms, "score": 0}
+    if not pdf.exists() or not query_text:
+        return result
+    try:
+        import fitz
+    except Exception:
+        return result
+    try:
+        with fitz.open(pdf) as doc:
+            if doc.page_count < 1:
+                return result
+            if page:
+                page_number = min(max(1, int(page)), doc.page_count)
+                score, excerpt, bbox = _best_text_line_on_page(doc[page_number - 1], query_text, terms)
+                result.update({"page": page_number, "excerpt": excerpt or query_text, "bbox": bbox, "score": score})
+                return result
+            best = (0, 1, "", {})
+            for i in range(min(doc.page_count, 80)):
+                score, excerpt, bbox = _best_text_line_on_page(doc[i], query_text, terms)
+                if score > best[0]:
+                    best = (score, i + 1, excerpt, bbox)
+                    if score >= 10000:
+                        break
+            if best[0]:
+                result.update({"page": best[1], "excerpt": best[2] or query_text, "bbox": best[3], "score": best[0]})
+            return result
+    except Exception:
+        return result
+
+
+def create_claim_evidence_link(
+    *,
+    paper_id: str,
+    claim: dict[str, Any],
+    claim_id: str = "",
+    page: int = 0,
+    label: str = "",
+    excerpt: str = "",
+    bbox: dict | None = None,
+    ttl_days: int = 90,
+    created_by: str = "",
+    allow_local_url: bool = False,
+) -> dict:
+    evidence = find_claim_evidence(paper_id, claim, page=page) i
+
+
+===== FILE: evidence_viewer.py =====
+"""Token-based evidence viewer for SeminarBot PDF citations.
+
+Run this next to the Socket Mode app, then expose it with a public HTTPS tunnel:
+
+    python evidence_viewer.py
+
+Slack messages should link to /evidence/<random-token>. The token metadata lives
+in canon/org/evidence_tokens.json and points back to a known paper PDF inside a
+known seminar space; callers never pass filesystem paths through the URL.
+"""
+from __future__ import annotations
+
+import html
+import json
+import os
+import re
+from http import HTTPStatus
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlparse
+
+import fitz
+
+import canon
+import evidence_service
+
+DEFAULT_HOST = os.environ.get("SEMINAR_VIEWER_HOST", "127.0.0.1")
+DEFAULT_PORT = int(os.environ.get("SEMINAR_VIEWER_PORT", "8765") or "8765")
+TOKEN_RE = re.compile(r"^[A-Za-z0-9_-]{24,128}$")
+
+
+def _token_from_path(path: str, suffix: str = "") -> str:
+    parts = [p for p in path.split("/") if p]
+    if len(parts) < 2 or parts[0] != "evidence":
+        return ""
+    if suffix and (len(parts) != 3 or parts[2] != suffix):
+        return ""
+    if not suffix and len(parts) != 2:
+        return ""
+    token = parts[1]
+    return token if TOKEN_RE.fullmatch(token or "") else ""
+
+
+def _pdf_path_for(rec: dict):
+    return canon.paper_pdf_path(rec.get("paper_id", ""), space_id=rec.get("space_id", ""))
+
+
+def _safe_page_number(rec: dict, page_count: int) -> int:
+    try:
+        page = int(rec.get("page", 1) or 1)
+    except Exception:
+        page = 1
+    return min(max(1, page), max(1, page_count))
+
+
+def _draw_bbox(page, bbox: dict):
+    if not isinstance(bbox, dict) or not bbox:
+        return
+    try:
+        rect = page.rect
+        x0 = float(bbox.get("x0", 0))
+        y0 = float(bbox.get("y0", 0))
+        x1 = float(bbox.get("x1", 0))
+        y1 = float(bbox.get("y1", 0))
+        if max(abs(x0), abs(y0), abs(x1), abs(y1)) <= 1.0:
+            target = fitz.Rect(x0 * rect.width, y0 * rect.height, x1 * rect.width, y1 * rect.height)
+        else:
+            target = fitz.Rect(x0, y0, x1, y1)
+        if target.is_empty or target.is_infinite:
+            return
+        page.draw_rect(
+            target,
+            color=(0.96, 0.58, 0.18),
+            fill=(1.0, 0.89, 0.40),
+            width=1.0,
+            overlay=True,
+            fill_opacity=0.28,
+        )
+    except Exception:
+        return
+
+
+def _render_page_png(rec: dict) -> bytes:
+    pdf_path = _pdf_path_for(rec)
+    if not pdf_path.exists() or not pdf_path.is_file():
+        raise FileNotFoundError(str(pdf_path))
+    with fitz.open(pdf_path) as doc:
+        if doc.page_count < 1:
+            raise RuntimeError("empty PDF")
+        page_number = _safe_page_number(rec, doc.page_count)
+        page = doc[page_number - 1]
+        _draw_bbox(page, rec.get("bbox") or {})
+        matrix = fitz.Matrix(1.65, 1.65)
+        pix = page.get_pixmap(matrix=matrix, alpha=False, annots=True)
+        return pix.tobytes("png")
+
+
+def _viewer_html(rec: dict) -> str:
+    label = html.escape(rec.get("label") or f"p.{rec.get('page', 1)} 原文")
+    paper_title = html.escape(rec.get("paper_title") or rec.get("paper_id") or "paper")
+    paper_id = html.escape(rec.get("paper_id") or "")
+    claim_id = html.escape(rec.get("claim_id") or "")
+    excerpt = html.escape(rec.get("excerpt") or "这条链接指向论文原文中的对应页面。")
+    page = html.escape(str(rec.get("page", 1)))
+    token = html.escape(rec.get("token") or "")
+    return f"""<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{claim_id or paper_id} {label}</title>
+  <style>
+    :root {{
+      color-scheme: light;
+      --ink: #202124;
+      --muted: #667085;
+      --line: #d7dce2;
+      --soft: #f4f6f8;
+      --accent: #b84a22;
+      --paper: #ffffff;
+    }}
+    * {{ box-sizing: border-box; }}
+    body {{
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: #eef1f4;
+    }}
+    header {{
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: rgba(255,255,255,.94);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }}
+    .title {{
+      min-width: 0;
+      font-size: 14px;
+      font-weight: 650;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }}
+    .pill {{
+      flex: none;
+      border: 1px solid #e5a06b;
+      background: #fff5eb;
+      color: #8a3516;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 650;
+    }}
+    main {{
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 16px;
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      padding: 16px;
+    }}
+    .page {{
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 28px rgba(30, 42, 55, .12);
+    }}
+    .page img {{
+      display: block;
+      width: 100%;
+      height: auto;
+    }}
+    aside {{
+      align-self: start;
+      position: sticky;
+      top: 62px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      background: #fff;
+    }}
+    h1 {{
+      margin: 0 0 8px;
+      font-size: 16px;
+      line-height: 1.35;
+    }}
+    .meta {{
+      margin-bottom: 12px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }}
+    blockquote {{
+      margin: 0;
+      padding: 10px 12px;
+      border-left: 4px solid var(--accent);
+      background: var(--soft);
+      font-size: 14px;
+      line-height: 1.55;
+    }}
+    @media (max-width: 760px) {{
+      header {{ align-items: flex-start; }}
+      main {{
+        grid-template-columns: 1fr;
+        padding: 10px;
+      }}
+      aside {{
+        position: static;
+        order: -1;
+      }}
+      .title {{ white-space: normal; }}
+    }}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title">{paper_title}</div>
+    <div class="pill">{label}</div>
+  </header>
+  <main>
+    <section class="page" aria-label="PDF page {page}">
+      <img src="/evidence/{token}/page.png" alt="PDF page {page}">
+    </section>
+    <aside>
+      <h1>{claim_id or "Evidence"} · {label}</h1>
+      <div class="meta">{paper_id} · page {page}</div>
+      <blockquote>{excerpt}</blockquote>
+    </aside>
+  </main>
+</body>
+</html>"""
+
+
+class EvidenceHandler(BaseHTTPRequestHandler):
+    server_version = "SeminarEvidenceViewer/0.1"
+
+    def log_message(self, fmt, *args):
+        if os.environ.get("SEMINAR_VIEWER_QUIET", "0").lower() in {"1", "true", "yes"}:
+            return
+        super().log_message(fmt, *args)
+
+    def _headers(self, status: HTTPStatus, content_type: str):
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.send_header("Cache-Control", "private, max-age=60")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.end_headers()
+
+    def _send_text(self, status: HTTPStatus, text: str, content_type: str = "text/plain; charset=utf-8"):
+        self._headers(status, content_type)
+        self.wfile.write(text.encode("utf-8"))
+
+    def _send_json(self, status: HTTPStatus, payload: dict):
+        self._headers(status, "application/json; charset=utf-8")
+        self.wfile.write(json.dumps(payload, ensure_ascii=False).encode("utf-8"))
+
+    def _send_bytes(self, status: HTTPStatus, data: bytes, content_type: str):
+        self._headers(status, content_type)
+        self.wfile.write(data)
+
+    def _read_json_body(self) -> dict:
+        try:
+            length = int(self.headers.get("Content-Length", "0") or "0")
+        except Exception:
+            length = 0
+        if length <= 0 or length > 100_000:
+            return {}
+        try:
+            return json.loads(self.rfile.read(length).decode("utf-8"))
+        except Exception:
+            return {}
+
+    def _api_authorized(self) -> bool:
+        expected = os.environ.get("SEMINAR_VIEWER_API_TOKEN", "").strip()
+        if expected:
+            auth = self.headers.get("Authorization", "").strip()
+            bearer = auth.removeprefix("Bearer ").strip() if auth.lower().startswith("bearer ") else ""
+            header_token = self.headers.get("X-Seminar-Viewer-Token", "").strip()
+            return expected in {bearer, header_token}
+        host = (self.client_address[0] if self.client_address else "") or ""
+        if host in {"127.0.0.1", "::1", "localhost"} or host.startswith("127."):
+            return True
+        return os.environ.get("SEMINAR_VIEWER_API_ALLOW_UNAUTH_LAN", "0").lower() in {"1", "true", "yes"}
+
+    def do_POST(self):
+        parsed = urlparse(self.path)
+        if parsed.path not in {"/api/evidence-links", "/api/evidence_tokens"}:
+            self._send_text(HTTPStatus.NOT_FOUND, "Not found.")
+            return
+        if not self._api_authorized():
+            self._send_json(HTTPStatus.UNAUTHORIZED, {"ok": False, "error": "unauthorized"})
+            return
+
+        payload = self._read_json_body()
+        if not isinstance(payload, dict) or not payload:
+            self._send_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "invalid_json"})
+            return
+
+        reset_token = None
+        try:
+            space_id = (payload.get("space_id") or "").strip()
+            if space_id:
+                reset_token = canon.set_current_space(space_id)
+            claim_id = (payload.get("claim_id") or "").strip().upper()
+            claim = {}
+            if claim_id:
+                claim = canon.get_claim(claim_id) or {}
+            claim.update({
+                k: v
+                for k, v in {
+                    "id": claim_id or payload.get("id", ""),
+                    "title": payload.get("title", ""),
+                    "statement": payload.get("statement", ""),
+                }.items()
+                if v
+            })
+            paper_id = (payload.get("paper_id") or claim.get("paper") or canon.get_active_paper() or "").strip()
+            if not paper_id:
+                self._send_json(HTTPStatus.BAD_REQUEST, {"ok": False, "error": "paper_id_required"})
+                return
+            page = int(payload.get("page") or 0)
+            ttl_days = int(payload.get("ttl_days") or os.environ.get("SEMINAR_EVIDENCE_TOKEN_TTL_DAYS", "90") or 90)
+            query_text = (payload.get("query_text") or payload.get("quote") or "").strip()
+            if query_text:
+                result = evidence_service.create_text_evidence_link(
+                    paper_id=paper_id,
+                    query_text=query_text,
+                    claim_id=claim_id,
+                    page=page,
+                    label=payload.get("label", ""),
+                    ttl_days=ttl_days,
+                    created_by=payload.get("created_by", "evidence_api"),
+                    allow_local_url=True,
+                )
+            else:
+                result = evidence_service.create_claim_evidence_link(
+                    paper_id=paper_id,
+                    claim=claim,
+                    claim_id=claim_id,
+                    page=page,
+                    label=payload.get("label", ""),
+                    excerpt=payload.get("excerpt", ""),
+                    bbox=payload.get("bbox") if isinstance(payload.get("bbox"), dict) else None,
+                    ttl_days=ttl_days,
+                    created_by=payload.get("created_by", "evidence_api"),
+                    allow_local_url=True,
+                )
+            rec = result.get("record") or {}
+            self._send_json(
+                HTTPStatus.OK,
+                {
+                    "ok": True,
+                    "url": result.get("url", ""),
+                    "token": rec.get("token", ""),
+                    "page": rec.get("page", 1),
+                    "label": rec.get("label", ""),
+             
+
+
+===== FILE: fetch.py =====
+"""抓论文:支持 arXiv(链接/ID/标题)和 bioRxiv(链接/DOI/标题)。
+
+标题 → DOI 用 Crossref 解析(能覆盖 bioRxiv 及多数已发表论文)。
+返回 {id(文件键), title, source, url, pdf, txt, text}。
+"""
+import json
+import re
+import urllib.parse
+import urllib.request
+import xml.etree.ElementTree as ET
+from pathlib import Path
+
+_UA = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+}
+_ARXIV_ID = re.compile(r"(\d{4}\.\d{4,5})(?:v\d+)?")
+
+# cloudscraper 能模拟浏览器解 Cloudflare 的 JS 质询;装了就用它,没装回退 urllib。
+try:
+    import cloudscraper
+
+    _scraper = cloudscraper.create_scraper(
+        browser={"browser": "chrome", "platform": "darwin", "mobile": False}
+    )
+except Exception:
+    _scraper = None
+
+
+def _get(url: str, timeout: int = 45, extra: dict = None) -> bytes:
+    headers = dict(_UA)
+    if extra:
+        headers.update(extra)
+    if _scraper is not None:
+        r = _scraper.get(url, headers=headers, timeout=timeout)
+        r.raise_for_status()
+        return r.content
+    req = urllib.request.Request(url, headers=headers)
+    with urllib.request.urlopen(req, timeout=timeout) as r:
+        return r.read()
+
+
+def _pdf_to_text(pdf_path: Path) -> str:
+    from pypdf import PdfReader
+
+    reader = PdfReader(str(pdf_path))
+    return "\n".join((p.extract_text() or "") for p in reader.pages)
+
+
+# ---------- arXiv ----------
+
+def _arxiv_id(text: str):
+    m = _ARXIV_ID.search(text or "")
+    return m.group(1) if m else None
+
+
+def _arxiv_title_search(title: str):
+    q = urllib.parse.urlencode({"search_query": f'ti:"{title}"', "start": 0, "max_results": 1})
+    data = _get(f"https://export.arxiv.org/api/query?{q}", timeout=25).decode("utf-8", "ignore")
+    ns = {"a": "http://www.w3.org/2005/Atom"}
+    e = ET.fromstring(data).find("a:entry", ns)
+    if e is None:
+        return None, None
+    return _arxiv_id((e.find("a:id", ns).text or "")), " ".join((e.find("a:title", ns).text or "").split())
+
+
+def _arxiv_search(query: str, limit: int = 5) -> list:
+    q = urllib.parse.urlencode({"search_query": f'all:"{query}"', "start": 0, "max_results": limit})
+    data = _get(f"https://export.arxiv.org/api/query?{q}", timeout=25).decode("utf-8", "ignore")
+    ns = {"a": "http://www.w3.org/2005/Atom"}
+    root = ET.fromstring(data)
+    out = []
+    for e in root.findall("a:entry", ns):
+        aid = _arxiv_id((e.find("a:id", ns).text or ""))
+        title = " ".join((e.find("a:title", ns).text or "").split())
+        summary = " ".join((e.find("a:summary", ns).text or "").split())
+        authors = [
+            " ".join((a.find("a:name", ns).text or "").split())
+            for a in e.findall("a:author", ns)
+        ]
+        published = (e.find("a:published", ns).text or "")[:4] if e.find("a:published", ns) is not None else ""
+        out.append(
+            {
+                "source": "arxiv",
+                "title": title,
+                "authors": authors,
+                "year": published,
+                "venue": "arXiv",
+                "abstract": summary,
+                "url": f"https://arxiv.org/abs/{aid}" if aid else "",
+                "arxiv_id": aid or "",
+                "doi": "",
+                "citation_count": None,
+            }
+        )
+    return out
+
+
+def _fetch_arxiv(aid: str, title, papers_dir: Path) -> dict:
+    papers_dir.mkdir(parents=True, exist_ok=True)
+    pdf = papers_dir / f"{aid}.pdf"
+    pdf.write_bytes(_get(f"https://arxiv.org/pdf/{aid}.pdf"))
+    text = _pdf_to_text(pdf)
+    (papers_dir / f"{aid}.txt").write_text(text, encoding="utf-8")
+    return {
+        "id": aid, "title": title or aid, "source": "arxiv",
+        "url": f"https://arxiv.org/abs/{aid}",
+        "pdf": str(pdf), "txt": str(papers_dir / f"{aid}.txt"), "text": text,
+    }
+
+
+# ---------- Europe PMC 全文(免费、不经 Cloudflare) ----------
+
+def _europepmc_id(doi: str):
+    """DOI → (source, id)。bioRxiv 预印本 source 多为 'PPR'。"""
+    q = urllib.parse.quote(f'DOI:"{doi}"')
+    url = (
+        "https://www.ebi.ac.uk/europepmc/webservices/rest/search"
+        f"?query={q}&format=json&resultType=lite&pageSize=1"
+    )
+    data = json.loads(_get(url, timeout=25).decode("utf-8", "ignore"))
+    res = data.get("resultList", {}).get("result", [])
+    if not res:
+        return None, None
+    r = res[0]
+    return r.get("source"), r.get("id")
+
+
+def _jats_to_text(xml_bytes: bytes) -> str:
+    """把 JATS 全文 XML 的正文压成纯文本。"""
+    try:
+        root = ET.fromstring(xml_bytes)
+    except ET.ParseError:
+        return ""
+    body = root.find(".//body")
+    if body is None:
+        return ""
+    raw = " ".join(t for t in body.itertext())
+    text = re.sub(r"[ \t]+", " ", raw)
+    text = re.sub(r"\n\s*\n+", "\n\n", text)
+    return text.strip()
+
+
+def _europepmc_fulltext(doi: str) -> str:
+    src, pid = _europepmc_id(doi)
+    if not src or not pid:
+        return ""
+    try:
+        xml = _get(
+            f"https://www.ebi.ac.uk/europepmc/webservices/rest/{src}/{pid}/fullTextXML",
+            timeout=45,
+        )
+    except Exception:
+        return ""
+    return _jats_to_text(xml)
+
+
+# ---------- bioRxiv ----------
+
+def _biorxiv_doi(text: str):
+    m = re.search(r"10\.1101/[0-9.]+", text or "")
+    if not m:
+        return None, None
+    doi = m.group(0)
+    vm = re.search(re.escape(doi) + r"v(\d+)", text)
+    return doi, (vm.group(1) if vm else None)
+
+
+def _biorxiv_meta(doi: str):
+    """返回 (latest_version, title, abstract)。走 api.biorxiv.org(不经 Cloudflare)。"""
+    try:
+        data = json.loads(_get(f"https://api.biorxiv.org/details/biorxiv/{doi}").decode("utf-8", "ignore"))
+        coll = data.get("collection", [])
+        if not coll:
+            return None, None, None
+        vers = [int(c["version"]) for c in coll if str(c.get("version", "")).isdigit()]
+        last = coll[-1]
+        return (str(max(vers)) if vers else "1"), last.get("title"), last.get("abstract")
+    except Exception:
+        return None, None, None
+
+
+def _fetch_biorxiv(doi: str, ver, title, papers_dir: Path) -> dict:
+    mver, mtitle, mabstract = _biorxiv_meta(doi)
+    ver = ver or mver or "1"
+    title = title or mtitle or doi
+    key = "biorxiv_" + doi.replace("/", "_")
+    art = f"https://www.biorxiv.org/content/{doi}v{ver}"
+    papers_dir.mkdir(parents=True, exist_ok=True)
+
+    text, pdf_path = "", ""
+
+    # 1) Europe PMC 全文 XML(免费、不经 Cloudflare,优先)
+    try:
+        ft = _europepmc_fulltext(doi)
+        if len(ft.strip()) >= 500:
+            text = ft
+    except Exception:
+        pass
+
+    # 2) cloudscraper 过盾抓官方全文 PDF(校验 %PDF 魔数,避免把质询页当成 PDF)
+    if not text:
+        try:
+            raw = _get(art + ".full.pdf", extra={"Referer": art, "Accept": "application/pdf,*/*"})
+            if raw[:4] == b"%PDF":
+                p = papers_dir / f"{key}.pdf"
+                p.write_bytes(raw)
+                t = _pdf_to_text(p)
+                if len(t.strip()) >= 500:
+                    text, pdf_path = t, str(p)
+        except Exception:
+            pass
+
+    # 3) 全文都取不到 → 用摘要兜底
+    if not text and mabstract:
+        text = f"[注意:bioRxiv 全文取不到,以下仅为摘要]\n\n标题:{title}\n\n摘要:\n{mabstract}"
+
+    # 4) 摘要也没有 → 提示手动导入
+    if not text.strip():
+        raise RuntimeError(
+            "bioRxiv 全文(Europe PMC + 官网 PDF)和摘要都取不到。"
+            "可手动下载 PDF 放进 canon/papers/ 再走本地导入。"
+        )
+
+    (papers_dir / f"{key}.txt").write_text(text, encoding="utf-8")
+    return {
+        "id": key, "title": title, "source": "biorxiv",
+        "url": art,
+        "pdf": pdf_path, "txt": str(papers_dir / f"{key}.txt"), "text": text,
+    }
+
+
+# ---------- 标题 → DOI(Crossref) ----------
+
+def _crossref_items(title: str):
+    """返回 [(doi, title), ...](按相关度)。"""
+    q = urllib.parse.urlencode({"query.bibliographic": title, "rows": 5})
+    data = json.loads(_get(f"https://api.crossref.org/works?{q}", timeout=25).decode("utf-8", "ignore"))
+    out = []
+    for it in data.get("message", {}).get("items", []):
+        out.append((it.get("DOI", ""), " ".join((it.get("title") or [""])[0].split())))
+    return out
+
+
+def _semantic_scholar_search(query: str, limit: int = 5) -> list:
+    params = urllib.parse.urlencode(
+        {
+            "query": query,
+            "limit": min(max(limit, 1), 10),
+            "fields": "title,authors,year,venue,abstract,url,externalIds,openAccessPdf,citationCount",
+        }
+    )
+    data = json.loads(
+        _get(f"https://api.semanticscholar.org/graph/v1/paper/search?{params}", timeout=25).decode(
+            "utf-8", "ignore"
+        )
+    )
+    out = []
+    for item in data.get("data", []):
+        ext = item.get("externalIds") or {}
+        out.append(
+            {
+                "source": "semantic_scholar",
+                "title": " ".join((item.get("title") or "").split()),
+                "authors": [a.get("name", "") for a in item.get("authors", []) if a.get("name")],
+                "year": str(item.get("year") or ""),
+                "venue": item.get("venue") or "",
+                "abstract": " ".join((item.get("abstract") or "").split()),
+                "url": item.get("url") or "",
+                "arxiv_id": ext.get("ArXiv", "") or "",
+                "doi": ext.get("DOI", "") or "",
+                "citation_count": item.get("citationCount"),
+            }
+        )
+    return out
+
+
+def _openalex_search(query: str, limit: int = 5) -> list:
+    params = urllib.parse.urlencode({"search": query, "per-page": min(max(limit, 1), 10)})
+    data = json.loads(_get(f"https://api.openalex.org/works?{params}", timeout=25).decode("utf-8", "ignore"))
+    out = []
+    for item in data.get("results", []):
+        ids = item.get("ids") or {}
+        doi = (ids.get("doi") or "").replace("https://doi.org/", "")
+        arxiv_id = ""
+        for loc in item.get("locations") or []:
+            url = ((loc.get("landing_page_url") or "") + " " + (loc.get("pdf_url") or "")).strip()
+            aid = _arxiv_id(url)
+            if aid:
+                arxiv_id = aid
+                break
+        authors = []
+        for au in item.get("authorships") or []:
+            name = ((au.get("author") or {}).get("display_name") or "").strip()
+            if name:
+                authors.append(name)
+        abstract = ""
+        inv = item.get("abstract_inverted_index")
+        if isinstance(inv, dict):
+            words = []
+            for word, positions in inv.items():
+                for pos in positions:
+                    words.append((pos, word))
+            abstract = " ".join(word for _, word in sorted(words))
+        out.append(
+            {
+                "source": "openalex",
+                "title": item.get("display_name") or "",
+                "authors": authors,
+                "year": str(item.get("publication_year") or ""),
+                "venue": ((item.get("primary_location") or {}).get("source") or {}).get("display_name") or "",
+                "abstract": abstract,
+                "url": item.get("id") or "",
+                "arxiv_id": arxiv_id,
+                "doi": doi,
+                "citation_count": item.get("cited_by_count"),
+            }
+        )
+    return out
+
+
+def _candidate_key(candidate: dict) -> str:
+    if candidate.get("arxiv_id"):
+        return "arxiv:" + candidate["arxiv_id"].lower()
+    if candidate.get("doi"):
+        return "doi:" + candidate["doi"].lower()
+    return "title:" + re.sub(r"\W+", "", (candidate.get("title") or "").lower())
+
+
+def search_papers(query: str, limit: int = 5) -> list:
+    """Search public paper indexes for discovery/comparison candidates.
+
+    This is metadata discovery, not canon truth. Results may be used for Slack
+    discussion, and exact arXiv/bioRxiv/DOI hits can later be fetched into canon.
+    """
+    q = (query or "").strip()
+    if not q:
+        return []
+    candidates = []
+    for searcher in (_semantic_scholar_search, _arxiv_search, _openalex_search):
+        try:
+            candidates.extend(searcher(q, limit=limit))
+        except Exception:
+            continue
+        if len(candidates) >= limit:
+            break
+    seen = set(
+
+
+===== FILE: figures.py =====
+"""从论文 PDF 里抽取插图:按"Figure N…"图注定位,裁剪图注上方的图区(对栅格图和矢量图都有效)。
+
+依赖 PyMuPDF(fitz)。返回 [{id, caption, page}],PNG 存到 out_dir。
+"""
+import re
+from pathlib import Path
+
+try:
+    import fitz  # PyMuPDF
+except Exception:  # 没装也不让 bot 崩
+    fitz = None
+
+_CAP = re.compile(r"^\s*(fig(?:ure)?\.?\s*\d+|图\s*\d+)\b", re.I)
+_MAX_H = 540.0  # pt,防止把整页当成一张图
+
+
+def extract_figures(pdf_path, out_dir, max_figs: int = 12, dpi: int = 160) -> list:
+    if fitz is None:
+        return []
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        doc = fitz.open(pdf_path)
+    except Exception:
+        return []
+    figs = []
+    for pno in range(len(doc)):
+        page = doc[pno]
+        blocks = [
+            b for b in page.get_text("blocks")
+            if len(b) >= 7 and b[6] == 0 and (b[4] or "").strip()
+        ]
+        for b in blocks:
+            x0, y0, x1, y1 = b[0], b[1], b[2], b[3]
+            txt = (b[4] or "").strip().replace("\n", " ")
+            if not _CAP.match(txt):
+                continue
+            # 图注上方、同列(x 范围重叠)最近文字块的底部 → 作为图区顶
+            above = [t for t in blocks if t[3] <= y0 + 2 and not (t[2] < x0 - 5 or t[0] > x1 + 5)]
+            top = max((t[3] for t in above), default=0.0)
+            if y0 - top > _MAX_H:
+                top = y0 - _MAX_H
+            rect = fitz.Rect(x0, top, x1, y0)
+            if rect.height < 60 or rect.width < 90:
+                continue
+            try:
+                pix = page.get_pixmap(matrix=fitz.Matrix(dpi / 72, dpi / 72), clip=rect)
+                fid = f"fig{len(figs) + 1}"
+                pix.save(str(out_dir / f"{fid}.png"))
+            except Exception:
+                continue
+            figs.append({"id": fid, "caption": txt[:300], "page": pno + 1})
+            if len(figs) >= max_figs:
+                doc.close()
+                return figs
+    doc.close()
+    return figs
+
+
+===== FILE: MEMORY_ARCHITECTURE.md =====
+# SeminarBot Memory Architecture
+
+This bot uses a Git-backed plaintext repository as the source of truth. External
+memory systems such as Cognee, Graphiti, Zep, Redis, or vector stores should be
+treated as derived indexes that can be rebuilt from the files below.
+
+## Memory Spaces
+
+Each Slack channel gets an independent seminar memory space by default:
+
+```text
+canon/
+  spaces/
+    index.json
+    slack-<team_id>-<channel_id>/
+      index.json
+      seminars/S1.json
+      claims/
+      events/events.jsonl
+      dialogues/dialogue.jsonl
+      papers/
+      explainers/
+      dreams/
+      indexes/
+```
+
+The logical `space_id` remains `slack:<team_id>:<channel_id>`, while the on-disk
+directory uses a cross-platform safe slug such as `slack-T1-C111`.
+
+The current product boundary is one active seminar at a time per channel, but a
+channel can host many related seminars sequentially. The channel memory space is
+long-lived; each seminar gets an `S1` / `S2` record and the active seminar id is
+attached to events, papers, claims, and dreams. Different channels can run
+concurrently because the scheduler iterates registered spaces.
+
+## Fact Source vs Derived Memory
+
+Facts that affect public seminar state must be written to the active space:
+
+- `claims/*.json`: public claim state, critiques, support, understanding, and
+  confusion records.
+- `papers/*.txt`: raw paper text. The active paper is a primary context source,
+  not merely an indexed artifact.
+- `dialogues/dialogue.jsonl`: raw seminar conversation turns, scoped by
+  `seminar_id`.
+- `events/events.jsonl`: append-only provenance stream for Slack events,
+  claim changes, paper loading, post registration, and background outputs.
+- `decisions/` can be added later for explicit human ratification, merge, and
+  retraction records.
+
+Derived memory must not silently change public truth:
+
+- `dreams/*.md`: background digestion, summaries, hypotheses, and suggested
+  promotions. These are `derived_not_canon` until a human or host flow promotes
+  them into claims, decisions, or shared knowledge.
+- `indexes/`: optional local index metadata. Safe to delete and rebuild.
+- External graph/vector stores: derived only.
+
+## Runtime Context Assembly
+
+Before asking the host brain to answer, classify, resolve confusion, or produce
+a digest, the bot builds a plaintext context pack directly from Git canon:
+
+```text
+active paper raw text
+current seminar dialogue turns
+previous same-channel seminar digest/dream records
+other downloaded papers in this channel space
+```
+
+This context pack is the first-class memory surface for a seminar. Cognee recall
+is an additional retrieval layer, not a replacement for raw text in context.
+With `MEMORY_AUTO_RECALL=1`, the host also performs a best-effort Cognee recall
+before route / explain / facilitate / answer / classify / resolve / digest and
+appends it as `Retrieved Associative Memory`. These results are associative
+hints only.
+
+## Actor Memory
+
+The host maintains lightweight actor profiles:
+
+```text
+canon/
+  people/<slack_user_id>.json
+  bots/<bot_id>.json
+  org/
+```
+
+Human profile files are not private memory. They only store public provenance,
+observed seminar participation, and explicit opt-in shared knowledge. Personal
+private memory belongs to a private assistant and must not enter this Git repo
+unless the user explicitly promotes it.
+
+Bot profile files track private assistants that appear in the seminar: owner,
+capabilities, observed behavior, and permission boundaries can be added over
+time.
+
+## Consent Rules
+
+- Public channel messages can be used for seminar provenance inside that
+  seminar space.
+- Organization-level knowledge must be intentionally written under `org/`.
+- Person-specific shared knowledge must be added through an explicit promote
+  path, not inferred from private chats.
+- Private memory should remain outside the public Git repo.
+
+## Future Index Backends
+
+Implemented first backend: Cognee. It is not only "vector memory"; current
+Cognee provides dataset-scoped memory with graph/vector recall. The adapter uses Cognee v1-style
+`remember()` / `recall()` when available, and keeps the older `add()` /
+`cognify()` path as a fallback.
+
+Dataset boundary:
+
+```text
+seminarbot-space-<space_id_slug>   # current Slack channel memory space
+seminarbot-org                     # explicit company/org knowledge
+seminarbot-actors                  # public/opt-in human and private-bot profiles
+```
+
+Slack commands:
+
+```text
+/seminar memory status
+/seminar memory sync
+/seminar memory recall <question>
+```
+
+Manual recall is ephemeral by default because it may include org or actor
+memory. Automatic recall is inserted into the internal prompt context, with a
+short timeout and silent failure so raw canon context remains primary.
+
+Recommended temporal graph backend: Graphiti or Zep, because `group_id` /
+group graphs map naturally onto `space_id`, `org`, `person`, and `bot` memory
+spaces.
+
+The adapter contract should be:
+
+```text
+Git plaintext event/claim files -> indexer -> derived graph/vector store
+```
+
+Never the reverse as the only source of truth.
+
+
+===== FILE: memory_backend.py =====
+"""Optional derived memory backend for SeminarBot.
+
+The Git canon remains the source of truth. This module indexes exported canon
+records into Cognee so the host can recall graph/vector memory across seminars.
+"""
+import asyncio
+import importlib.util
+import json
+import os
+import re
+from collections import Counter
+from pathlib import Path
+
+import canon
+
+
+BASE_DIR = Path(__file__).resolve().parent
+
+
+class MemoryBackendError(RuntimeError):
+    pass
+
+
+def _truthy(name: str, default: str = "0") -> bool:
+    return os.environ.get(name, default).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _slug(s: str) -> str:
+    s = (s or "default").strip()
+    s = re.sub(r"[:/\\]+", "-", s)
+    s = re.sub(r"[^A-Za-z0-9_.-]+", "-", s)
+    return s.strip("-")[:160] or "default"
+
+
+def _provider() -> str:
+    return os.environ.get("MEMORY_BACKEND", "cognee").strip().lower()
+
+
+def _env_value(name: str) -> str:
+    return os.environ.get(name, "").strip()
+
+
+def _has_env_value(name: str) -> bool:
+    return bool(_env_value(name))
+
+
+def _cognee_llm_ready() -> bool:
+    # Cognee reads LLM_API_KEY. OPENAI_API_KEY is a common alias, so the
+    # adapter maps it during import, but the key still remains outside canon.
+    return _has_env_value("LLM_API_KEY") or _has_env_value("OPENAI_API_KEY")
+
+
+def _prefix() -> str:
+    return _slug(os.environ.get("MEMORY_DATASET_PREFIX", "seminarbot"))
+
+
+def _dataset_for(scope: str) -> str:
+    prefix = _prefix()
+    if scope == "space":
+        return f"{prefix}-space-{_slug(canon.current_space_id())}"
+    if scope == "org":
+        return f"{prefix}-org"
+    if scope == "actors":
+        return f"{prefix}-actors"
+    return f"{prefix}-{_slug(scope)}"
+
+
+def _load_cognee():
+    if not _has_env_value("LLM_API_KEY") and _has_env_value("OPENAI_API_KEY"):
+        os.environ["LLM_API_KEY"] = _env_value("OPENAI_API_KEY")
+    if not _has_env_value("EMBEDDING_API_KEY") and _has_env_value("LLM_API_KEY"):
+        os.environ["EMBEDDING_API_KEY"] = _env_value("LLM_API_KEY")
+    os.environ.setdefault("SYSTEM_ROOT_DIRECTORY", str(BASE_DIR / ".cognee_system"))
+    os.environ.setdefault("COGNEE_LOGS_DIR", str(BASE_DIR / ".cognee_logs"))
+    for key in ("SYSTEM_ROOT_DIRECTORY", "COGNEE_LOGS_DIR"):
+        value = os.environ.get(key, "")
+        if value and not Path(value).expanduser().is_absolute():
+            os.environ[key] = str((BASE_DIR / value).resolve())
+    os.environ.setdefault("ENABLE_BACKEND_ACCESS_CONTROL", "false")
+    os.environ.setdefault("REQUIRE_AUTHENTICATION", "false")
+    os.environ.setdefault("ACCEPT_LOCAL_FILE_PATH", "false")
+    os.environ.setdefault("TELEMETRY_DISABLED", "1")
+    try:
+        import cognee  # type: ignore
+    except Exception as e:
+        raise MemoryBackendError(
+            "Cognee 没有安装。运行 `pip install -r requirements-memory.txt`,"
+            "并配置 Cognee 所需的 LLM/embedding 环境变量后再同步。"
+        ) from e
+    return cognee
+
+
+def _cognee_installed() -> bool:
+    return importlib.util.find_spec("cognee") is not None
+
+
+def _run_async(coro, timeout: float = 0):
+    try:
+        asyncio.get_running_loop()
+    except RuntimeError:
+        if timeout and timeout > 0:
+            return asyncio.run(asyncio.wait_for(coro, timeout=timeout))
+        return asyncio.run(coro)
+    raise MemoryBackendError("当前线程已经有 event loop;请从后台 worker 或 CLI 调用 memory backend。")
+
+
+def _max_events() -> int:
+    return int(os.environ.get("MEMORY_MAX_EVENTS", "200"))
+
+
+def _max_docs_per_sync() -> int:
+    return int(os.environ.get("MEMORY_MAX_DOCS_PER_SYNC", "0") or "0")
+
+
+def auto_recall_enabled() -> bool:
+    return _truthy("MEMORY_AUTO_RECALL", "1")
+
+
+def _manual_recall_timeout() -> float:
+    return float(os.environ.get("MEMORY_RECALL_TIMEOUT_SECONDS", "20") or "20")
+
+
+def _auto_recall_timeout() -> float:
+    return float(os.environ.get("MEMORY_AUTO_RECALL_TIMEOUT_SECONDS", "6") or "6")
+
+
+def _auto_recall_top_k() -> int:
+    return int(os.environ.get("MEMORY_AUTO_RECALL_TOP_K", "5") or "5")
+
+
+def build_plan(include_global: bool = True) -> dict:
+    docs = canon.export_memory_documents(
+        include_events=True,
+        include_global=include_global,
+        max_events=_max_events(),
+    )
+    max_docs = _max_docs_per_sync()
+    truncated = bool(max_docs and len(docs) > max_docs)
+    if truncated:
+        docs = docs[:max_docs]
+    by_scope = Counter(d["scope"] for d in docs)
+    by_type = Counter(d["record_type"] for d in docs)
+    return {
+        "provider": _provider(),
+        "space_id": canon.current_space_id(),
+        "active_seminar_id": canon.get_active_seminar_id(),
+        "datasets": {scope: _dataset_for(scope) for scope in sorted(by_scope)},
+        "document_count": len(docs),
+        "truncated": truncated,
+        "by_scope": dict(by_scope),
+        "by_type": dict(by_type),
+    }
+
+
+async def _remember_doc(cognee, text: str, dataset: str, *, run_in_background: bool, self_improvement: bool):
+    if hasattr(cognee, "remember"):
+        try:
+            return await cognee.remember(
+                text,
+                dataset_name=dataset,
+                run_in_background=run_in_background,
+                self_improvement=self_improvement,
+            )
+        except TypeError:
+            return await cognee.remember(text, dataset_name=dataset, run_in_background=run_in_background)
+
+    if not hasattr(cognee, "add") or not hasattr(cognee, "cognify"):
+        raise MemoryBackendError("当前 cognee 包没有 remember/recall 或 add/cognify API。")
+    await cognee.add(text, dataset_name=dataset)
+    return await cognee.cognify(datasets=[dataset], run_in_background=run_in_background)
+
+
+async def _sync_cognee(cognee, docs: list[dict]) -> list:
+    run_in_background = _truthy("MEMORY_COGNEE_BACKGROUND", "1")
+    self_improvement = _truthy("MEMORY_COGNEE_SELF_IMPROVEMENT", "0")
+    results = []
+    for doc in docs:
+        dataset = _dataset_for(doc["scope"])
+        result = await _remember_doc(
+            cognee,
+            doc["text"],
+            dataset,
+            run_in_background=run_in_background,
+            self_improvement=self_improvement,
+        )
+        results.append({"record_type": doc["record_type"], "record_id": doc["record_id"], "dataset": dataset, "result": str(result)})
+    return results
+
+
+def sync_current_space(include_global: bool = True) -> dict:
+    if _provider() != "cognee":
+        raise MemoryBackendError(f"暂不支持 MEMORY_BACKEND={_provider()!r};当前实现是 Cognee adapter。")
+    if not _cognee_llm_ready():
+        raise MemoryBackendError("Cognee sync/建图需要 `LLM_API_KEY`;也可设置 `OPENAI_API_KEY`,adapter 会映射给 Cognee。")
+    docs = canon.export_memory_documents(
+        include_events=True,
+        include_global=include_global,
+        max_events=_max_events(),
+    )
+    max_docs = _max_docs_per_sync()
+    truncated = bool(max_docs and len(docs) > max_docs)
+    if truncated:
+        docs = docs[:max_docs]
+    if not docs:
+        return {"document_count": 0, "datasets": {}, "truncated": False, "results": []}
+
+    cognee = _load_cognee()
+    results = _run_async(_sync_cognee(cognee, docs))
+    by_dataset = Counter(r["dataset"] for r in results)
+    return {
+        "document_count": len(docs),
+        "datasets": dict(by_dataset),
+        "truncated": truncated,
+        "results": results,
+    }
+
+
+async def _recall_cognee(cognee, query: str, datasets: list[str], top_k: int):
+    if hasattr(cognee, "recall"):
+        try:
+            return await cognee.recall(query_text=query, datasets=datasets, top_k=top_k)
+        except TypeError:
+            return await cognee.recall(query, datasets=datasets, top_k=top_k)
+    if hasattr(cognee, "search"):
+        try:
+            return await cognee.search(query_text=query, datasets=datasets, top_k=top_k)
+        except TypeError:
+            return await cognee.search(query, datasets=datasets, top_k=top_k)
+    raise MemoryBackendError("当前 cognee 包没有 recall/search API。")
+
+
+def _format_recall_results(results) -> str:
+    if results is None:
+        return "(Cognee 没有返回结果)"
+    if isinstance(results, str):
+        return results
+    if not isinstance(results, list):
+        return json.dumps(results, ensure_ascii=False, indent=2, default=str)
+    if not results:
+        return "(没有检索到相关记忆)"
+
+    lines = []
+    for i, item in enumerate(results[:8], 1):
+        if isinstance(item, dict):
+            answer = item.get("answer") or item.get("text") or item.get("context") or json.dumps(item, ensure_ascii=False, default=str)
+            source = item.get("_source") or item.get("source") or ""
+            prefix = f"{i}. " + (f"[{source}] " if source else "")
+            lines.append(prefix + str(answer).strip())
+        else:
+            lines.append(f"{i}. {str(item).strip()}")
+    return "\n\n".join(lines)
+
+
+def recall(query: str, *, include_global: bool = True, top_k: int = 8) -> str:
+    if not query.strip():
+        raise MemoryBackendError("recall query 不能为空。")
+    if _provider() != "cognee":
+        raise MemoryBackendError(f"暂不支持 MEMORY_BACKEND={_provider()!r};当前实现是 Cognee adapter。")
+    if not _cognee_llm_ready():
+        raise MemoryBackendError("Cognee recall 需要 `LLM_API_KEY`;也可设置 `OPENAI_API_KEY`,adapter 会映射给 Cognee。")
+    scopes = ["space"]
+    if include_global:
+        scopes.extend(["org", "actors"])
+    datasets = [_dataset_for(scope) for scope in scopes]
+    cognee = _load_cognee()
+    results = _run_async(_recall_cognee(cognee, query.strip(), datasets, top_k), timeout=_manual_recall_timeout())
+    return _format_recall_results(results)
+
+
+def associative_context(query: str, *, include_global: bool = True, task: str = "") -> str:
+    """Best-effort Cognee recall for automatic host association.
+
+    This is deliberately soft: failures, missing indexes, or timeouts return an
+    empty string so canonical raw context still drives the host.
+    """
+    if not auto_recall_enabled() or not query.strip():
+        return ""
+    try:
+        recalled = recall(query, include_global=include_global, top_k=_auto_recall_top_k())
+    except Exception:
+        return ""
+    if not recalled or recalled.startswith("("):
+        return ""
+    header = [
+        "\n## Retrieved Associative Memory",
+        "source: Cognee derived recall",
+        f"task: {task or '-'}",
+        f"query: {query.strip()[:500]}",
+        "rule: Treat these as associative hints. Verify against Git canon, raw paper text, and dialogue before relying on them.",
+        "",
+        recalled,
+    ]
+    return "\n".join(header)
+
+
+def status_text() -> str:
+    plan = build_plan(include_global=True)
+    llm_ready = _cognee_llm_ready()
+    installed = "yes" if _cognee_installed() else "no"
+    lines = [
+        f"*Memory backend*: `{plan['provider']}`",
+        f"*Cognee installed*: `{installed}`",
+        f"*Cognee LLM key*: `{'set' if llm_ready else 'missing'}`",
+        f"*Space*: `{plan['space_id']}`",
+        f"*Active seminar*: `{plan['active_seminar_id'] or '-'}`",
+        f"*Auto recall*: `{'on' if auto_recall_enabled() else 'off'}`",
+        f"*Documents to sync*: `{plan['document_count']}`" + (" (truncated)" if plan["truncated"] else ""),
+        "*Datasets*: " + ", ".join(f"`{k}`→`{v}`" for k, v in plan["datasets"].items()),
+        "*By scope*: " + json.dumps(plan["by_scope"], ensure_ascii=False),
+        "*By type*: " + json.dumps(plan["by_type"], ensure_ascii=False),
+    ]
+    if installed == "no":
+        lines.append("启用方式: `pip install -r requirements-memory.txt`;然后配置 Cognee 所需的 LLM/embedding env。")
+    elif not llm_ready:
+        lines.append("当前 Cognee 只能做安装/待同步状态检查; recall/sync 建图需要 `LLM_API_KEY`。如果你已有 OpenAI key,也可以设 `OPENAI_API_KEY`,adapter 会自动映射。")
+    return "\n".join(lines)
+
+
+===== FILE: render.py =====
+"""独立渲染器:把若干 HTML 文件分别整页截成 PNG(一次启动浏览器,批量渲染)。
+
+用法:python render.py <in1.html> <out1.png> [<in2.html> <out2.png> ...]
+放在子进程里跑,避免和 bot 的线程/事件循环冲突。
+"""
+import sys
+from pathlib import Path
+
+from playwright.sync_api import sync_playwright
+
+
+def main():
+    args = sys.argv[1:]
+    pairs = list(zip(args[0::2], args[1::2]))
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        for html, png in pairs:
+            page = browser.new_page(viewport={"width": 780, "height": 1000}, device_scale_factor=2)
+            page.goto("file://" + str(Path(html).resolve()), wait_until="networkidle")
+            page.wait_for_timeout(200)
+            # 只截 .card 元素本身,紧贴内容、无多余留白
+            el = page.locator(".card")
+            (el.screenshot(path=png) if el.count() else page.screenshot(path=png, full_page=True))
+            page.close()
+        browser.close()
+
+
+if __name__ == "__main__":
+    main()
+
+
+===== FILE: requirements-memory.txt =====
+cognee>=1.0.0
+
+
+===== FILE: requirements.txt =====
+slack-bolt>=1.18.0
+pypdf>=4.0.0
+playwright>=1.40.0
+pymupdf>=1.23.0
+cloudscraper>=1.2.71
+
+
+===== FILE: SEMINAR_PROTOCOL.md =====
+# 研讨班协议(单一事实源)
+
+这份协议同时给两边读:
+- **成员自己的 agent**(各自机器上的 Claude Code / Codex)——复制成 `CLAUDE.md` 或 `AGENTS.md`。
+- **bot 的中央大脑**——被 `app.py` 当作判断任务的 system 约束。
+
+## 目标
+
+一群人(有成熟研究者也有新手)一起精读一篇论文,目的是:**每个人都提出*承重的*质疑或贡献,并把这些逐步沉淀成全组共享、能进入下游决策的共识(canon)。**
+
+## 三条铁律
+
+1. **不为质疑而质疑。** 一条质疑要能说清:打的是哪条主张、为什么重要(动摇核心还是边角)、最强版本是什么、能不能给一个 check(反例 / 复现 / 推导)。打磨不到这个程度的,先别发。
+2. **不替成员把理解做掉。** agent 用苏格拉底式追问帮人*自己*想通,不许直接甩摘要让人点头。摘要替代理解 = 没有任何东西进过任何人的脑子。
+3. **共识只提议,人来拍板。** bot 永远不自动宣布"达成共识"。它只说"这条看起来扛过了挑战,24h 内无异议就并入",由人确认。
+
+## claim 的状态机
+
+- `proposed` 刚提出,未被检验
+- `contested` 有未解决的质疑
+- `accepted` 扛过了足够多*不同背景*成员的挑战(不是投票多数,是多样性下都没打穿)
+- `retracted` 被新证据/反例推翻;其依赖项需复查
+
+## 贡献的类型
+
+`critique`(质疑) / `support`(佐证) / `question`(问题) / `contribution`(新论点或扩展)
+
+## 分层(新手 vs 老手)
+
+- 新手的 agent:先补前置知识,让他问出*有信息量*的问题,而不是基础名词。新手的"naive 问题"常戳中未明说的假设,要保护、要顶上来。
+- 老手的 agent:走对抗,帮他找微妙的漏洞、做 check。
+
+## 给 bot 大脑的输出纪律
+
+所有判断任务**只输出 JSON,不写文件、不跑命令**(除非任务明确要求)。措辞中立,不夸大。
+
+
+===== FILE: slack_manifest.yaml =====
+display_information:
+  name: SeminarBot
+  description: 研讨班中央大脑 — 把论文研讨沉淀成共识
+features:
+  bot_user:
+    display_name: SeminarBot
+    always_online: true
+  app_home:
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: false
+  slash_commands:
+    - command: /seminar
+      description: 研讨班控制
+      usage_hint: decompose <导入目录内文件名> | status | digest
+      should_escape: false
+oauth_config:
+  scopes:
+    bot:
+      - app_mentions:read
+      - chat:write
+      - commands
+      - channels:read
+      - channels:history
+      - groups:read
+      - groups:history
+      - im:history
+      - im:write
+      - reactions:read
+      - reactions:write
+      - users:read
+      - files:write
+settings:
+  event_subscriptions:
+    bot_events:
+      - app_mention
+      - message.channels
+      - message.groups
+      - message.im
+      - reaction_added
+  interactivity:
+    is_enabled: true
+  socket_mode_enabled: true
+  org_deploy_enabled: false
+
+
+===== FILE: demo/pdf-citation-demo.html =====
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SeminarBot PDF Citation Demo</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --panel: #ffffff;
+      --line: #d9dde5;
+      --text: #1d1c1d;
+      --muted: #616061;
+      --slack: #4a154b;
+      --chip: #1264a3;
+      --chip-bg: #e8f3fb;
+      --highlight: rgba(255, 214, 102, 0.7);
+      --highlight-border: #b7791f;
+      --pdf-paper: #fffdf8;
+      --shadow: 0 8px 24px rgba(29, 28, 29, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      letter-spacing: 0;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(340px, 0.9fr) minmax(420px, 1.1fr);
+    }
+
+    .slack {
+      display: grid;
+      grid-template-columns: 64px 1fr;
+      min-height: 100vh;
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+    }
+
+    .rail {
+      background: var(--slack);
+      color: #fff;
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .workspace-mark {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: #ffffff;
+      color: var(--slack);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 18px;
+    }
+
+    .rail-dot {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.18);
+    }
+
+    .channel {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .channel-head {
+      min-height: 58px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      gap: 16px;
+    }
+
+    .channel-title {
+      font-size: 16px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .channel-meta {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+    }

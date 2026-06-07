@@ -1,0 +1,17 @@
+{
+  "id": "C11",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "记忆空间按 Slack channel 隔离",
+  "statement": "SeminarBot 按 Slack team/channel 维护独立 memory space；不同 channel 可以并行主持，同一 channel 不并发但可连续进行多场 seminar 并共享长期记忆。",
+  "type": "core",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C3",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "Git canon 是事实源",
+  "statement": "研讨中的 claim、质疑、贡献、来源和 provenance 被沉淀到 `canon/` Git 仓库中，canon 的提交历史构成可追踪的公共共识记录。",
+  "type": "core",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

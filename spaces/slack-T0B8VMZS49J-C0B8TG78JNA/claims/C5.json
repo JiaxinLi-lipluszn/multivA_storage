@@ -1,0 +1,17 @@
+{
+  "id": "C5",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "本地导入有权限和路径边界",
+  "statement": "本地 file/folder/repo source 默认关闭，只有 `SEMINAR_IMPORT_USER_IDS` 授权用户能从 `PAPER_IMPORT_DIR` 内导入，并且隐藏文件、敏感文件名和非允许后缀会被拒绝。",
+  "type": "method",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

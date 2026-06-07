@@ -3,7 +3,7 @@
   "space_id": "slack:T0B8VMZS49J:C0B8TG78JNA",
   "space_type": "seminar",
   "created_at": "2026-06-07T16:31:03.435840+00:00",
-  "counter": 0,
+  "counter": 14,
   "session": "SeminarBot source",
   "active_seminar_id": "S1",
   "seminars": [
@@ -24,11 +24,25 @@
     "1780849862.546929",
     "1780850521.671529"
   ],
-  "active_paper": "",
+  "active_paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
   "presented": [],
   "next_rollout_at": 0,
   "facilitations": [],
   "posts": [],
   "probe_at": {},
-  "probe_meta": {}
+  "probe_meta": {},
+  "papers": [
+    {
+      "id": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+      "title": "SeminarBot source",
+      "url": "self:/Users/jiaxinli/Library/Application Support/CoEducation/seminar-bot/app",
+      "kind": "self",
+      "seminar_id": "S1",
+      "metadata": {
+        "root": "/Users/jiaxinli/Library/Application Support/CoEducation/seminar-bot/app",
+        "file_count": 26,
+        "truncated": true
+      }
+    }
+  ]
 }

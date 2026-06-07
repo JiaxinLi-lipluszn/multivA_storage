@@ -1,0 +1,17 @@
+{
+  "id": "C10",
+  "seminar_id": "S1",
+  "paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
+  "title": "证据链接不暴露 PDF 路径",
+  "statement": "`/seminar evidence-link` 和 evidence viewer 会为 claim 生成随机 token 的 PDF 原文页链接，token 元数据存在 canon 中，URL 不直接暴露本地 PDF 路径。",
+  "type": "method",
+  "status": "proposed",
+  "source": "self",
+  "provenance": {
+    "slack_user": "self",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}
