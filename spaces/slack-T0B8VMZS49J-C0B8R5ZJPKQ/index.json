@@ -38,7 +38,7 @@
     "C3",
     "C4"
   ],
-  "next_rollout_at": 1780790359.1768472,
+  "next_rollout_at": 1780790793.1993449,
   "facilitations": [],
   "posts": [
     {
@@ -574,6 +574,12 @@
       "claim_id": "C4",
       "seminar_id": "S1",
       "last_ts": "1780790474.286119"
+    },
+    {
+      "ts": "1780790525.492469",
+      "claim_id": "C17",
+      "seminar_id": "S1",
+      "last_ts": "1780790525.492469"
     }
   ],
   "probe_at": {
