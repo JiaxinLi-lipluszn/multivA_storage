@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C7 · 缩放点积注意力必要</h1>
+<p>*C7 钩子：Transformer 的 attention 不是普通点积，而是“缩放”点积。*<br><br>关键动作很小：把 query-key 分数 `q · k` 除以 `sqrt(d_k)`。<br><br>这个缩放不是装饰；它是在防止高维点积把 `softmax` 推到梯度很小的区域。</p>
+<hr>
+<p><em>Figure 2 直接显示 Scaled Dot-Product Attention：`QK^T` 先除以 `sqrt(d_k)`，再进 softmax。</em></p>
+
+<hr>
+<p>*关键直觉：维度越高，随机点积越容易变大。*<br><br>如果 `q` 和 `k` 的每个分量都差不多是均值 0、方差 1，那么：<br><br>• `q · k` 是 `d_k` 个乘积项相加<br>• 方差会随 `d_k` 增长<br>• 典型幅度约是 `sqrt(d_k)`<br><br>所以除以 `sqrt(d_k)`，就是把分数尺度拉回稳定范围。</p>
+<hr>
+<p>论文把这个机制说得很直接：<br><br>> their dot product ... has mean 0 and variance dk.<br><br>这句话解释了为什么不是随便除一个常数：点积的方差正好随 `d_k` 变大。`/ sqrt(d_k)` 后，尺度大致回到方差 1。</p>
+<hr>
+<p>*为什么这会影响训练？*<br><br>`softmax` 对输入分数很敏感：<br><br>• 分数差不多时，输出分布还比较软，梯度有空间调整<br>• 分数特别大/特别小时，输出接近 one-hot<br>• 接近 one-hot 后，很多位置的梯度会很小<br><br>论文的表述是：<br><br>> pushing the softmax function into regions where it has extremely small gradients</p>
+<hr>
+<p>*常见误解：缩放不是为了让 attention “更平均”。*<br><br>它不是强行让模型平均看所有 token，而是让进入 `softmax` 的 logits 有合适尺度。<br><br>模型仍然可以学出尖锐注意力；只是训练早期不会因为高维点积天然过大而过早饱和。</p>
+<hr>
+<p>*收尾：这就是 scaled dot-product attention 的必要性。*<br><br>点积 attention 快、能用矩阵乘法高效实现；但高维时原始点积数值尺度会出问题。<br><br>Transformer 的处理是：保留点积 attention 的效率，同时用 `/ sqrt(d_k)` 修正 softmax 前的尺度。</p></div></body></html>
