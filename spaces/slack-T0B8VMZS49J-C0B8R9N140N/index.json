@@ -605,6 +605,42 @@
       "claim_id": "C13",
       "seminar_id": "S1",
       "last_ts": "1780795021.673089"
+    },
+    {
+      "ts": "1780795181.304119",
+      "claim_id": "C14",
+      "seminar_id": "S1",
+      "last_ts": "1780795181.304119"
+    },
+    {
+      "ts": "1780795181.726139",
+      "claim_id": "C14",
+      "seminar_id": "S1",
+      "last_ts": "1780795181.726139"
+    },
+    {
+      "ts": "1780795182.844379",
+      "claim_id": "C14",
+      "seminar_id": "S1",
+      "last_ts": "1780795182.844379"
+    },
+    {
+      "ts": "1780795185.010739",
+      "claim_id": "C14",
+      "seminar_id": "S1",
+      "last_ts": "1780795185.010739"
+    },
+    {
+      "ts": "1780795186.265439",
+      "claim_id": "C14",
+      "seminar_id": "S1",
+      "last_ts": "1780795186.265439"
+    },
+    {
+      "ts": "1780795187.507959",
+      "claim_id": "C14",
+      "seminar_id": "S1",
+      "last_ts": "1780795187.507959"
     }
   ],
   "probe_at": {
@@ -684,5 +720,29 @@
       "seminar_id": "S1"
     }
   ],
-  "last_all_hands_at": 1780794325.661698
+  "last_all_hands_at": 1780794325.661698,
+  "private_checks_sent": {
+    "S1:C14:U0B8Q1X1SF8": {
+      "seminar_id": "S1",
+      "claim_id": "C14",
+      "user_id": "U0B8Q1X1SF8",
+      "dm_channel": "D0B9LDRN9QQ",
+      "message_ts": "1780795203.326499",
+      "root_ts": "1780795181.304119",
+      "question": "这条主张说 Transformer big 在 WMT 2014 英德翻译上拿到 28.4 BLEU，超过当时论文比较的最佳结果，包括集成模型。大家读下来通不通：这里最需要先确认的是 BLEU/数据设置是否可比，还是“单模型超过集成”到底能说明什么？",
+      "reason": "默认向每位成员确认这个 claim 是否跟上。",
+      "sent_at": "2026-06-07T01:20:03.483296+00:00"
+    },
+    "S1:C14:U0B8X18RULU": {
+      "seminar_id": "S1",
+      "claim_id": "C14",
+      "user_id": "U0B8X18RULU",
+      "dm_channel": "D0B8X190DMJ",
+      "message_ts": "1780795204.058499",
+      "root_ts": "1780795181.304119",
+      "question": "这条主张说 Transformer big 在 WMT 2014 英德翻译上拿到 28.4 BLEU，超过当时论文比较的最佳结果，包括集成模型。大家读下来通不通：这里最需要先确认的是 BLEU/数据设置是否可比，还是“单模型超过集成”到底能说明什么？",
+      "reason": "默认向每位成员确认这个 claim 是否跟上。",
+      "sent_at": "2026-06-07T01:20:04.236470+00:00"
+    }
+  }
 }
