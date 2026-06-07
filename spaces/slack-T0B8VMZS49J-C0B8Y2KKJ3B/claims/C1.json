@@ -13,5 +13,32 @@
     "ts": ""
   },
   "contributions": [],
-  "depends_on": []
+  "depends_on": [],
+  "concept_checklist": [
+    {
+      "id": "K1",
+      "label": "指南目标: 这份 ESHRE 2025 更新指南的核心任务，是给出 IVF/ICSI 中卵巢刺激管理的推荐，而不是讨论所有促排卵场景",
+      "prompt": "学生能否用自己的话解释: 指南目标: 这份 ESHRE 2025 更新指南的核心任务，是给出 IVF/ICSI 中卵巢刺激管理的推荐，而不是讨论所有促排卵场景"
+    },
+    {
+      "id": "K2",
+      "label": "C1｜先把范围钉住 这份 ESHRE 2025 更新指南，不是在讲“所有促排卵怎么做”。 它的核心任务更窄： IVF/ICSI 里的 ovarian stimulation 管理推荐 。 ovarian stimulat…",
+      "prompt": "学生能否用自己的话解释: C1｜先把范围钉住 这份 ESHRE 2025 更新指南，不是在讲“所有促排卵怎么做”。 它的核心任务更窄： IVF/ICSI 里的 ovarian stimulation 管理推荐 。 ovarian stimulat…"
+    },
+    {
+      "id": "K3",
+      "label": "这张图把“卵巢刺激”这个大概念和本指南真正覆盖的 IVF/ICSI 范围分开",
+      "prompt": "学生能否用自己的话解释: 这张图把“卵巢刺激”这个大概念和本指南真正覆盖的 IVF/ICSI 范围分开"
+    },
+    {
+      "id": "K4",
+      "label": "关键直觉：标题里的 IVF/ICSI 不是装饰词 ovarian stimulation 本身可以服务很多场景；但这份指南把问题限定在 assisted reproduction 里：为了 IVF/ICSI 取卵而管理刺…",
+      "prompt": "学生能否用自己的话解释: 关键直觉：标题里的 IVF/ICSI 不是装饰词 ovarian stimulation 本身可以服务很多场景；但这份指南把问题限定在 assisted reproduction 里：为了 IVF/ICSI 取卵而管理刺…"
+    },
+    {
+      "id": "K5",
+      "label": "证据：它的产物就是推荐清单 摘要里把任务说得很直接：回答关键问题，给出推荐。 provides 121 recommendations answering 21 key questions",
+      "prompt": "学生能否用自己的话解释: 证据：它的产物就是推荐清单 摘要里把任务说得很直接：回答关键问题，给出推荐。 provides 121 recommendations answering 21 key questions"
+    }
+  ]
 }
