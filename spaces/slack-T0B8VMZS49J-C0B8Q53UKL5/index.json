@@ -33,12 +33,64 @@
     "1780796781.757659"
   ],
   "active_paper": "1706.03762",
-  "presented": [],
+  "presented": [
+    "C1"
+  ],
   "next_rollout_at": 0,
   "facilitations": [],
-  "posts": [],
-  "probe_at": {},
-  "probe_meta": {},
+  "posts": [
+    {
+      "ts": "1780796785.968549",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780796785.968549"
+    },
+    {
+      "ts": "1780796786.260179",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780796786.260179"
+    },
+    {
+      "ts": "1780796788.142199",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780796788.142199"
+    },
+    {
+      "ts": "1780796789.235829",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780796789.235829"
+    },
+    {
+      "ts": "1780796790.359119",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780796790.359119"
+    },
+    {
+      "ts": "1780796791.500469",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780796791.500469"
+    },
+    {
+      "ts": "1780796792.656579",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780796792.656579"
+    }
+  ],
+  "probe_at": {
+    "C1": 1780797410.8299499
+  },
+  "probe_meta": {
+    "C1": {
+      "sig": 0,
+      "count": 1
+    }
+  },
   "papers": [
     {
       "id": "1706.03762",
@@ -46,5 +98,6 @@
       "url": "https://arxiv.org/abs/1706.03762",
       "seminar_id": "S1"
     }
-  ]
+  ],
+  "last_all_hands_at": 1780796808.950249
 }
