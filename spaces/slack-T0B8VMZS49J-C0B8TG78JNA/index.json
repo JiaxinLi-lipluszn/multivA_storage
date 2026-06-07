@@ -19,14 +19,15 @@
   "messages": {},
   "channel": "C0B8TG78JNA",
   "team": "T0B8VMZS49J",
-  "last_human_activity_at": 1780850521.671529,
+  "last_human_activity_at": 1780850644.060219,
   "dialogue_seen": [
     "1780849862.546929",
-    "1780850521.671529"
+    "1780850521.671529",
+    "1780850644.060219"
   ],
   "active_paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
   "presented": [],
-  "next_rollout_at": 0,
+  "next_rollout_at": 1780850944.060219,
   "facilitations": [],
   "posts": [],
   "probe_at": {},
