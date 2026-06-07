@@ -111,11 +111,11 @@
       "user_id": "U0B8Q1X1SF8",
       "copilot_id": "U0B8X5WHULU",
       "coordination_channel": "C0B8RKJHY14",
-      "message_ts": "1780857825.144939",
+      "message_ts": "1780858148.683359",
       "root_ts": "1780851041.297459",
       "reason": "understanding_gate_blocked",
-      "sent_at_epoch": 1780857825.2953432,
-      "sent_at": "2026-06-07T18:43:45.295353+00:00"
+      "sent_at_epoch": 1780858148.817576,
+      "sent_at": "2026-06-07T18:49:08.817586+00:00"
     }
   },
   "private_checks_sent": {
