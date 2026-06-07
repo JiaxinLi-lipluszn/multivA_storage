@@ -23,19 +23,19 @@
       "concepts": {
         "__claim__": {
           "id": "__claim__",
-          "status": "unknown",
-          "evidence": "No observed owner signal yet; asked owner one clarification question.",
-          "confidence": 0.0,
-          "updated_at": "2026-06-07T03:58:40.008945+00:00"
+          "status": "uncertain",
+          "evidence": "你能问我几个问题帮我判断一下我懂没懂吗?",
+          "confidence": 0.85,
+          "updated_at": "2026-06-07T03:59:37.163555+00:00"
         }
       },
-      "source": "copilot_learning_status_request",
-      "confidence": 0.0,
-      "evidence": "Answered SeminarBot learning status request 1780804715.902959.",
+      "source": "owner_dm_clarification",
+      "confidence": 0.85,
+      "evidence": "你能问我几个问题帮我判断一下我懂没懂吗?",
       "reporter_bot_id": "U0B8X5WHULU",
-      "message_ts": "1780804717.491359",
+      "message_ts": "1780804774.952729",
       "channel": "C0B8RKJHY14",
-      "updated_at": "2026-06-07T03:58:40.008945+00:00"
+      "updated_at": "2026-06-07T03:59:37.163555+00:00"
     }
   },
   "member_understanding": {
@@ -46,13 +46,13 @@
       "seminar_id": "S1",
       "signal": "uncertain",
       "reaction": "copilot_report",
-      "message_ts": "1780804717.491359",
+      "message_ts": "1780804774.952729",
       "channel": "C0B8RKJHY14",
       "source": "private_copilot",
-      "confidence": 0.0,
-      "evidence": "Answered SeminarBot learning status request 1780804715.902959.",
+      "confidence": 0.85,
+      "evidence": "你能问我几个问题帮我判断一下我懂没懂吗?",
       "reporter_bot_id": "U0B8X5WHULU",
-      "updated_at": "2026-06-07T03:58:40.146486+00:00"
+      "updated_at": "2026-06-07T03:59:37.292336+00:00"
     }
   }
 }
