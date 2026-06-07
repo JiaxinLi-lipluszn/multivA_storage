@@ -13,5 +13,15 @@
     "ts": ""
   },
   "contributions": [],
-  "depends_on": []
+  "depends_on": [],
+  "confusions": [
+    {
+      "by": "LiGaZn",
+      "text": "发言者表示没有跟上这个线程正在围绕 C1 讨论什么，希望弄清当前讨论内容。",
+      "permalink": "https://multivaworkspace.slack.com/archives/C0B8Q53UKL5/p1780797265990579?thread_ts=1780796785.968549&cid=C0B8Q53UKL5",
+      "ts": "1780797265.990579",
+      "load_bearing": "side",
+      "status": "open"
+    }
+  ]
 }
