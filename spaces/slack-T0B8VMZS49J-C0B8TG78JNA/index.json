@@ -80,7 +80,7 @@
     }
   ],
   "probe_at": {
-    "C1": 1780852280.786637
+    "C1": 1780852909.17975
   },
   "probe_meta": {
     "C1": {
@@ -109,11 +109,11 @@
       "user_id": "U0B8Q1X1SF8",
       "copilot_id": "U0B8X5WHULU",
       "coordination_channel": "C0B8RKJHY14",
-      "message_ts": "1780852051.052979",
+      "message_ts": "1780852373.799019",
       "root_ts": "1780851041.297459",
       "reason": "understanding_gate_blocked",
-      "sent_at_epoch": 1780852051.235908,
-      "sent_at": "2026-06-07T17:07:31.235926+00:00"
+      "sent_at_epoch": 1780852374.0507379,
+      "sent_at": "2026-06-07T17:12:54.050745+00:00"
     }
   },
   "private_checks_sent": {
