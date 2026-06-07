@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C3 · 自注意力承担全局依赖建模</h1>
+<p>*C3 主张：Transformer 里的长距离依赖，主要交给自注意力来建模。*<br><br>钩子是：它不是把 RNN 里的 recurrence 换个名字，而是把“位置之间怎么互相取信息”变成模型的核心操作。<br><br>> relying entirely on an attention mechanism to draw global dependencies between input and output</p>
+<hr>
+<p>*关键直觉：距离不再等于计算路径。*<br><br>在 RNN 里，两个很远的 token 要通过很多时间步传递信息；在卷积里，也要靠多层或更大感受野逐步覆盖。自注意力的思路更直接：一个位置可以一次性对整段序列里的位置分配权重。</p>
+<hr>
+<p><em>Scaled dot-product attention 把一个 query 变成对所有 value 的加权汇总；multi-head 让模型在不同子空间、不同位置关系上并行地做这件事。</em></p>
+
+<hr>
+<p>*论文里的机制说得很直接。*<br><br>Encoder 里，每个位置都能看同一序列的所有位置；Decoder 里，每个位置能看已经生成的输出位置；encoder-decoder attention 则让输出位置看输入序列。<br><br>> Each position in the encoder can attend to all positions in the previous layer of the encoder.<br><br>> This allows every position in the decoder to attend over all positions in the input sequence.</p>
+<hr>
+<p>*证据点：论文把“任意两点相连的路径长度”当成核心优势。*<br><br>> In the Transformer this is reduced to a constant number of operations<br><br>表 1 里也把 `Self-Attention` 的 maximum path length 标成 `O(1)`，而 `Recurrent` 是 `O(n)`，卷积是 `O(log_k(n))`。这就是“全局依赖更容易直接建模”的结构性理由。</p>
+<hr>
+<p>*常见误解：自注意力不是自动懂顺序。*<br><br>因为 Transformer 没有 recurrence 和 convolution，它必须额外注入位置信息。<br><br>> Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens in the sequence.</p>
+<hr>
+<p>*收尾：C3 的准确说法不是“注意力解决一切”，而是：*<br><br>Transformer 把跨位置、长距离的信息路由主要交给自注意力；feed-forward 层做逐位置变换，positional encoding 补顺序信息，multi-head attention 缓解单头加权平均带来的表达损失。</p></div></body></html>
