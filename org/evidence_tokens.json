@@ -208,7 +208,73 @@
       "created_by": "seminarbot",
       "created_at": "2026-06-07T16:14:29.615201+00:00",
       "expires_at": "2026-09-05T16:14:29.537209+00:00"
+    },
+    "LCchMDflkHurgEsyueAUImRgAbSqx0dl": {
+      "schema_version": 1,
+      "token": "LCchMDflkHurgEsyueAUImRgAbSqx0dl",
+      "space_id": "slack:T0B8VMZS49J:C0B8Y2KKJ3B",
+      "seminar_id": "S1",
+      "paper_id": "deag018",
+      "paper_title": "deag018",
+      "claim_id": "C1",
+      "page": 1,
+      "label": "p.1 原文",
+      "excerpt": "ovarian stimulation for IVF/ICSI",
+      "bbox": {
+        "x0": 203.51,
+        "y0": 135.51,
+        "x1": 488.02,
+        "y1": 156.45,
+        "unit": "pdf_points"
+      },
+      "created_by": "seminarbot_quote",
+      "created_at": "2026-06-07T21:30:34.514070+00:00",
+      "expires_at": "2026-09-05T21:30:34.427420+00:00"
+    },
+    "Jo5Lqq0neMdG0nhCh74mCBfx2pnpElve": {
+      "schema_version": 1,
+      "token": "Jo5Lqq0neMdG0nhCh74mCBfx2pnpElve",
+      "space_id": "slack:T0B8VMZS49J:C0B8Y2KKJ3B",
+      "seminar_id": "S1",
+      "paper_id": "deag018",
+      "paper_title": "deag018",
+      "claim_id": "C1",
+      "page": 1,
+      "label": "p.1 原文",
+      "excerpt": "provides 121 recommendations",
+      "bbox": {
+        "x0": 388.95,
+        "y0": 484.05,
+        "x1": 513.23,
+        "y1": 494.82,
+        "unit": "pdf_points"
+      },
+      "created_by": "seminarbot_quote",
+      "created_at": "2026-06-07T21:30:34.653156+00:00",
+      "expires_at": "2026-09-05T21:30:34.580021+00:00"
+    },
+    "zUnNWkcH_mTKh_VH7__-BczQlybFmbNJ": {
+      "schema_version": 1,
+      "token": "zUnNWkcH_mTKh_VH7__-BczQlybFmbNJ",
+      "space_id": "slack:T0B8VMZS49J:C0B8Y2KKJ3B",
+      "seminar_id": "S1",
+      "paper_id": "deag018",
+      "paper_title": "deag018",
+      "claim_id": "C1",
+      "page": 1,
+      "label": "p.1 原文",
+      "excerpt": "answering 21 key questions",
+      "bbox": {
+        "x0": 513.73,
+        "y0": 484.05,
+        "x1": 559.75,
+        "y1": 494.82,
+        "unit": "pdf_points"
+      },
+      "created_by": "seminarbot_quote",
+      "created_at": "2026-06-07T21:30:34.783314+00:00",
+      "expires_at": "2026-09-05T21:30:34.715625+00:00"
     }
   },
-  "updated_at": "2026-06-07T16:14:29.624883+00:00"
+  "updated_at": "2026-06-07T21:30:34.792022+00:00"
 }
