@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C5 · 正弦位置编码可表达相对位移</h1>
+<p>*C5 钩子：Transformer 的位置编码不是只告诉模型“这是第几个 token”。*<br><br>它还有一个很漂亮的性质：对固定偏移 `k`，位置 `pos+k` 的编码可以由 `pos` 的编码线性表示。<br><br>也就是说：模型有机会用很简单的线性变换学到“相隔 3 个词”“往前 7 个词”这类相对位置关系。</p>
+<hr>
+<p>*为什么需要这件事？*<br><br>Transformer 没有 RNN 的时间步，也没有卷积窗口；如果不额外注入位置，self-attention 本身看不出 token 顺序。<br><br>> Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens in the sequence.</p>
+<hr>
+<p>*论文怎么做：把位置写成一组不同频率的正弦/余弦。*<br><br>> In this work, we use sine and cosine functions of different frequencies:<br><br>`PE(pos, 2i) = sin(pos / 10000^(2i/d_model))`<br>`PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))`<br><br>每个 `i` 对应一个频率；一对维度就是同一个频率下的 `sin` 和 `cos`。</p>
+<hr>
+<p><em>同一频率下，固定偏移 k 等价于对 sin/cos 二维子空间做一个固定线性变换。</em></p>
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="260" viewBox="0 0 760 260"><rect width="760" height="260" fill="#ffffff"/><text x="40" y="44" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="#111827">One sinusoid pair</text><g transform="translate(48,82)"><rect x="0" y="0" width="210" height="92" rx="6" fill="#f8fafc" stroke="#94a3b8"/><text x="22" y="36" font-family="Arial, sans-serif" font-size="18" fill="#111827">[ sin(pos / λ) ]</text><text x="22" y="66" font-family="Arial, sans-serif" font-size="18" fill="#111827">[ cos(pos / λ) ]</text></g><g transform="translate(320,70)"><rect x="0" y="0" width="120" height="116" rx="6" fill="#eef2ff" stroke="#6366f1"/><text x="26" y="35" font-family="Arial, sans-serif" font-size="18" fill="#111827">linear</text><text x="18" y="66" font-family="Arial, sans-serif" font-size="18" fill="#111827">matrix</text><text x="31" y="96" font-family="Arial, sans-serif" font-size="16" fill="#4f46e5">depends on k</text></g><path d="M270 128 L312 128" stroke="#111827" stroke-width="2" marker-end="url(#arrow)"/><path d="M450 128 L492 128" stroke="#111827" stroke-width="2" marker-end="url(#arrow)"/><g transform="translate(510,82)"><rect x="0" y="0" width="230" height="92" rx="6" fill="#f8fafc" stroke="#94a3b8"/><text x="22" y="36" font-family="Arial, sans-serif" font-size="18" fill="#111827">[ sin((pos+k) / λ) ]</text><text x="22" y="66" font-family="Arial, sans-serif" font-size="18" fill="#111827">[ cos((pos+k) / λ) ]</text></g><text x="95" y="220" font-family="Arial, sans-serif" font-size="16" fill="#475569">current position encoding</text><text x="536" y="220" font-family="Arial, sans-serif" font-size="16" fill="#475569">offset position encoding</text><defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#111827"/></marker></defs></svg>
+<hr>
+<p>*关键机制：三角恒等式把“平移”变成“线性”。*<br><br>对某个频率 `λ`：<br>`sin((pos+k)/λ) = sin(pos/λ)cos(k/λ) + cos(pos/λ)sin(k/λ)`<br>`cos((pos+k)/λ) = cos(pos/λ)cos(k/λ) - sin(pos/λ)sin(k/λ)`<br><br>注意：`k` 固定时，`cos(k/λ)` 和 `sin(k/λ)` 都是常数。所以 `PE(pos+k)` 可以由 `PE(pos)` 线性算出来。</p>
+<hr>
+<p>*常见误解：这不等于模型“自动懂语法距离”。*<br><br>正弦位置编码只是把相对位移做成一种容易被线性层/注意力层利用的表示；真正是否学会“向前看 1 个词”“隔几个 token 对齐”，还要靠训练数据和 attention/FFN 参数去学。<br><br>它提供的是一种 inductive bias，不是硬编码规则。</p>
+<hr>
+<p>*收尾：C5 的核心一句话。*<br><br>Transformer 用不同频率的 `sin/cos` 给每个位置编码；因为固定偏移在每个 `sin/cos` 二维子空间里都是线性变换，所以模型不只拿到了绝对位置，也拿到了更容易学习相对位置关系的坐标系。</p></div></body></html>
