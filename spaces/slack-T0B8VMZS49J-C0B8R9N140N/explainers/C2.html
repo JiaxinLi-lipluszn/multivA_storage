@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C2 · 无需卷积结构</h1>
+<p>*C2: Transformer 的激进点不是“注意力很好用”，而是：序列转导可以不靠卷积。*<br><br>在当时，强模型通常是 RNN / CNN 做主体，再外挂 attention。Transformer 把主体换掉：直接用 attention 组织序列信息。</p>
+<hr>
+<p>关键直觉：卷积把远距离 token 连起来，需要一层层“传话”；self-attention 让任意两个位置在同一层里直接相看。<br><br>所以它不是用更大的卷积核替代旧卷积，而是把“局部窗口逐步扩散”的建模方式改成“全局关系一次可见”。</p>
+<hr>
+<p><em>Figure 1 展示了 Transformer 主体由 self-attention、encoder-decoder attention 和 position-wise FFN 组成，而不是卷积堆叠。</em></p>
+
+<hr>
+<p>论文的机制证据很直接：<br><br>> based solely on attention mechanisms, dispensing with recurrence and convolutions entirely.<br><br>编码器层：multi-head self-attention + position-wise feed-forward。解码器层再加 encoder-decoder attention。顺序信息则通过 positional encoding 注入，而不是靠卷积结构天然携带。</p>
+<hr>
+<p>为什么这能成立？论文用复杂度表给了一个核心理由：<br><br>• self-attention 的最大路径长度是 `O(1)`<br>• recurrent 是 `O(n)`<br>• convolutional 是 `O(log_k(n))`<br><br>也就是说，远距离依赖在 Transformer 里不是靠多层卷积慢慢传播，而是通过 attention 在一层内建立连接。</p>
+<hr>
+<p>常见误解：*“没有卷积 = 没有位置信息。”*<br><br>不对。论文明确说，因为模型没有 recurrence 和 convolution，所以必须额外加入 positional encodings。也就是说：Transformer 抛弃的是卷积结构，不是序列顺序本身。</p>
+<hr>
+<p>收尾：C2 的意义是架构层面的。<br><br>Transformer 证明了：序列转导模型的主干可以不是 RNN，也可以不是 CNN；只要有 self-attention、multi-head 分解、positional encoding 和 FFN，模型仍能在机器翻译上达到强结果。</p></div></body></html>
