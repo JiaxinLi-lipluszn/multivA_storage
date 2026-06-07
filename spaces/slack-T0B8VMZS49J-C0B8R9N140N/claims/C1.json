@@ -1,0 +1,17 @@
+{
+  "id": "C1",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "纯注意力可做序列转导",
+  "statement": "Transformer 不依赖循环网络即可完成机器翻译这类序列转导任务。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C10",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "位置编码补足顺序信息",
+  "statement": "在没有循环和卷积的情况下，向词嵌入加入位置编码足以让模型利用序列顺序。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

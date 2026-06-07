@@ -1,0 +1,17 @@
+{
+  "id": "C2",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "无需卷积结构",
+  "statement": "Transformer 不依赖卷积网络也能完成序列转导建模。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

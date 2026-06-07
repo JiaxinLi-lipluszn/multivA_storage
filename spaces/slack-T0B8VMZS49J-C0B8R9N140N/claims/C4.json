@@ -1,0 +1,17 @@
+{
+  "id": "C4",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "编码器堆叠足够有效",
+  "statement": "由多头自注意力子层和逐位置前馈网络子层堆叠而成的编码器能够产生有效的输入序列表示。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

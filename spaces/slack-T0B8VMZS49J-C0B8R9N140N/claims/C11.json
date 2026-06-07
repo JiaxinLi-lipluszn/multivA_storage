@@ -1,0 +1,17 @@
+{
+  "id": "C11",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "正弦位置编码可泛化长度",
+  "statement": "正弦和余弦形式的位置编码可能允许模型外推到训练时未见过的更长序列。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C15",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "英法翻译达到单模型强结果",
+  "statement": "Transformer big 在 WMT 2014 English-to-French 任务上达到论文报告的 41.8 BLEU，构成新的单模型最佳结果。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

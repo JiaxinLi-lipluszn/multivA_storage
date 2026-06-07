@@ -1,0 +1,17 @@
+{
+  "id": "C5",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "解码器遮蔽保持自回归",
+  "statement": "在解码器自注意力中屏蔽未来位置可以保证第 i 个位置的预测只依赖已知的早先输出位置。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

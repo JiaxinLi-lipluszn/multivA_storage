@@ -1,0 +1,17 @@
+{
+  "id": "C18",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "可迁移到句法分析",
+  "statement": "Transformer 在英语成分句法分析任务上也能成功应用，而不只适用于机器翻译。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

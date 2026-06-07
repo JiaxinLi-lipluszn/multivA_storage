@@ -1,0 +1,17 @@
+{
+  "id": "C3",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "自注意力承担全局依赖建模",
+  "statement": "Transformer 中输入和输出位置之间的长距离依赖主要由自注意力机制建模。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

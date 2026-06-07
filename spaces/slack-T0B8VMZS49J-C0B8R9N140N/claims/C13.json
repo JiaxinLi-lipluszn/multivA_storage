@@ -1,0 +1,17 @@
+{
+  "id": "C13",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "自注意力更易并行",
+  "statement": "相比循环层，自注意力层在训练样本内部需要的顺序计算步数更少，因此更适合并行化。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

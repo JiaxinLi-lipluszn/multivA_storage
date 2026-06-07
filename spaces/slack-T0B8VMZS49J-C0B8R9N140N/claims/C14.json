@@ -1,0 +1,17 @@
+{
+  "id": "C14",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "英德翻译优于既有结果",
+  "statement": "Transformer big 在 WMT 2014 English-to-German 任务上达到 28.4 BLEU，超过论文比较的既有最佳结果，包括集成模型。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

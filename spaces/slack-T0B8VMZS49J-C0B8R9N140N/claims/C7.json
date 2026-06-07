@@ -1,0 +1,17 @@
+{
+  "id": "C7",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "缩放点积注意力必要",
+  "statement": "将点积除以 sqrt(dk) 可以缓解大维度键查询点积导致 softmax 梯度过小的问题。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

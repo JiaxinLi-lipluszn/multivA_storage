@@ -1,0 +1,17 @@
+{
+  "id": "C12",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "自注意力路径更短",
+  "statement": "自注意力层中任意两个序列位置之间的信息路径长度是常数级，而不是随序列长度增长。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

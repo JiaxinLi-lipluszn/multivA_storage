@@ -1,0 +1,12 @@
+[
+  {
+    "id": "fig1",
+    "caption": "Figure 1: The Transformer - model architecture.",
+    "page": 3
+  },
+  {
+    "id": "fig2",
+    "caption": "Figure 2: (left) Scaled Dot-Product Attention. (right) Multi-Head Attention consists of several attention layers running in parallel.",
+    "page": 4
+  }
+]

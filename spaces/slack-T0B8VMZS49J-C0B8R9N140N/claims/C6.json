@@ -1,0 +1,17 @@
+{
+  "id": "C6",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "编码器-解码器注意力对齐输入输出",
+  "statement": "解码器中的编码器-解码器注意力让每个输出位置能够访问所有输入位置的信息。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

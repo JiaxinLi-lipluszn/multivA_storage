@@ -1,0 +1,17 @@
+{
+  "id": "C16",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "训练成本更低",
+  "statement": "Transformer 在达到上述翻译质量时所需训练计算成本低于论文比较的主要竞争模型。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

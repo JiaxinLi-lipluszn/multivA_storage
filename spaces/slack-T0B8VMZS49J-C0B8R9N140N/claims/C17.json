@@ -1,0 +1,17 @@
+{
+  "id": "C17",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "基础模型已具竞争力",
+  "statement": "Transformer base 在英德翻译上已经超过论文比较的所有此前已发表模型和集成模型。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}
