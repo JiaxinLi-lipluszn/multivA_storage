@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C3 · 解码器可用遮蔽自注意力保持自回归</h1>
+<p>*C3 钩子：Decoder 也能用 self-attention，但必须“戴眼罩”。*<br><br>Transformer 的 decoder 不是 RNN，却仍然要自回归：生成第 `i` 个 token 时，不能偷看 `i` 之后的答案。关键做法就是在 decoder self-attention 里屏蔽未来位置。</p>
+<hr>
+<p>*直觉：attention 本来太自由，所以要加因果约束。*<br><br>普通 self-attention 允许一个位置看同一序列里的所有位置；这对 encoder 没问题，但对 decoder 会泄露未来输出。mask 的作用就是把“可看范围”限制成：当前位置只能看自己和左边的前序 token。</p>
+<hr>
+<p><em>图 1 里的 decoder 底部明确标出 Masked Multi-Head Attention：自注意力仍在，但未来位置被遮蔽。</em></p>
+
+<hr>
+<p>*论文里的机制说得很直接：*<br><br>> We also modify the self-attention sub-layer in the decoder stack to prevent positions from attending to subsequent positions.<br><br>也就是：decoder 的 self-attention 不是全连接地互相看，而是把“看未来”的边删掉。</p>
+<hr>
+<p>*更精确地说，是 mask + shifted output embeddings 一起保证自回归。*<br><br>> This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i.<br><br>所以第 `i` 个预测看到的是 `< i` 的已知输出，而不是答案里的未来 token。</p>
+<hr>
+<p>*常见误解：mask 不是让 decoder 退回 RNN。*<br><br>训练时，所有位置的 attention 分数仍可以用矩阵并行算；只是 softmax 前把非法连接设成 `-∞`，让未来位置的权重变成 0。自回归约束保留了，训练并行性也保留了。</p>
+<hr>
+<p>*收尾：这就是 Transformer decoder 的关键平衡。*<br><br>它用 self-attention 取代循环结构，但通过 causal mask 维持语言生成的时间方向：第 `i` 步只能基于已经生成/已知的前缀来预测下一个输出。</p></div></body></html>
