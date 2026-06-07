@@ -28,18 +28,20 @@
   },
   "channel": "C0B8TG78JNA",
   "team": "T0B8VMZS49J",
-  "last_human_activity_at": 1780851116.452629,
+  "last_human_activity_at": 1780852689.501659,
   "dialogue_seen": [
     "1780849862.546929",
     "1780850521.671529",
     "1780850644.060219",
-    "1780851116.452629"
+    "1780851116.452629",
+    "1780852570.970749",
+    "1780852689.501659"
   ],
   "active_paper": "self-Users-jiaxinli-Library-Application-Support-CoEducation-seminar-b-08f16c3bb6",
   "presented": [
     "C1"
   ],
-  "next_rollout_at": 1780851416.452629,
+  "next_rollout_at": 1780852989.501659,
   "facilitations": [],
   "posts": [
     {
@@ -52,7 +54,7 @@
       "ts": "1780851048.787679",
       "claim_id": "C1",
       "seminar_id": "S1",
-      "last_ts": "1780851116.452629"
+      "last_ts": "1780852689.501659"
     },
     {
       "ts": "1780851050.804199",
@@ -109,11 +111,11 @@
       "user_id": "U0B8Q1X1SF8",
       "copilot_id": "U0B8X5WHULU",
       "coordination_channel": "C0B8RKJHY14",
-      "message_ts": "1780852373.799019",
+      "message_ts": "1780852997.588339",
       "root_ts": "1780851041.297459",
       "reason": "understanding_gate_blocked",
-      "sent_at_epoch": 1780852374.0507379,
-      "sent_at": "2026-06-07T17:12:54.050745+00:00"
+      "sent_at_epoch": 1780852997.8132951,
+      "sent_at": "2026-06-07T17:23:17.813307+00:00"
     }
   },
   "private_checks_sent": {
