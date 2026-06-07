@@ -164,6 +164,48 @@
       "claim_id": "C3",
       "seminar_id": "S1",
       "last_ts": "1780797192.950999"
+    },
+    {
+      "ts": "1780797385.583679",
+      "claim_id": "C4",
+      "seminar_id": "S1",
+      "last_ts": "1780797385.583679"
+    },
+    {
+      "ts": "1780797385.920339",
+      "claim_id": "C4",
+      "seminar_id": "S1",
+      "last_ts": "1780797385.920339"
+    },
+    {
+      "ts": "1780797386.998239",
+      "claim_id": "C4",
+      "seminar_id": "S1",
+      "last_ts": "1780797386.998239"
+    },
+    {
+      "ts": "1780797388.839459",
+      "claim_id": "C4",
+      "seminar_id": "S1",
+      "last_ts": "1780797388.839459"
+    },
+    {
+      "ts": "1780797389.941959",
+      "claim_id": "C4",
+      "seminar_id": "S1",
+      "last_ts": "1780797389.941959"
+    },
+    {
+      "ts": "1780797391.076769",
+      "claim_id": "C4",
+      "seminar_id": "S1",
+      "last_ts": "1780797391.076769"
+    },
+    {
+      "ts": "1780797392.233079",
+      "claim_id": "C4",
+      "seminar_id": "S1",
+      "last_ts": "1780797392.233079"
     }
   ],
   "probe_at": {
@@ -260,6 +302,39 @@
       "question": "你能用一句话说清楚：为什么遮住未来位置后，第 i 个输出不会依赖第 i+1 及之后的 token 吗？",
       "reason": "这是理解 decoder 机制的基础步骤，适合逐个确认大家是否真的跟上。",
       "sent_at": "2026-06-07T01:53:33.120442+00:00"
+    },
+    "S1:C4:U0B8M57E9SP": {
+      "seminar_id": "S1",
+      "claim_id": "C4",
+      "user_id": "U0B8M57E9SP",
+      "dm_channel": "D0B9MQNN2HW",
+      "message_ts": "1780797411.810439",
+      "root_ts": "1780797385.583679",
+      "question": "这条主张说的是：Transformer 没有循环或卷积，所以要把位置信息加进词嵌入里。你们读下来觉得这一步通不通：为什么光靠 self-attention 还不够，哪一步最不清楚？",
+      "reason": "默认向每位成员确认这个 claim 是否跟上。",
+      "sent_at": "2026-06-07T01:56:52.104436+00:00"
+    },
+    "S1:C4:U0B8Q1X1SF8": {
+      "seminar_id": "S1",
+      "claim_id": "C4",
+      "user_id": "U0B8Q1X1SF8",
+      "dm_channel": "D0B9LDRN9QQ",
+      "message_ts": "1780797412.552509",
+      "root_ts": "1780797385.583679",
+      "question": "这条主张说的是：Transformer 没有循环或卷积，所以要把位置信息加进词嵌入里。你们读下来觉得这一步通不通：为什么光靠 self-attention 还不够，哪一步最不清楚？",
+      "reason": "默认向每位成员确认这个 claim 是否跟上。",
+      "sent_at": "2026-06-07T01:56:52.745681+00:00"
+    },
+    "S1:C4:U0B8X18RULU": {
+      "seminar_id": "S1",
+      "claim_id": "C4",
+      "user_id": "U0B8X18RULU",
+      "dm_channel": "D0B8X190DMJ",
+      "message_ts": "1780797413.124419",
+      "root_ts": "1780797385.583679",
+      "question": "这条主张说的是：Transformer 没有循环或卷积，所以要把位置信息加进词嵌入里。你们读下来觉得这一步通不通：为什么光靠 self-attention 还不够，哪一步最不清楚？",
+      "reason": "默认向每位成员确认这个 claim 是否跟上。",
+      "sent_at": "2026-06-07T01:56:53.337100+00:00"
     }
   }
 }
