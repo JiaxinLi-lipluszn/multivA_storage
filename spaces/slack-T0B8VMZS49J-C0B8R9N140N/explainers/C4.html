@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C4 · 编码器堆叠足够有效</h1>
+<p>*C4: encoder stack 真的够用吗？*<br>Transformer 的关键赌注是：不用 RNN/CNN，encoder 也能把输入序列变成有效表示 `z = (z1, ..., zn)`。<br><br>> The encoder maps an input sequence of symbol representations (x1, ..., xn) to a sequence of continuous representations z = (z1, ..., zn).</p>
+<hr>
+<p><em>Figure 1 直接显示：encoder 左半边就是多层 self-attention + feed-forward 子层的堆叠。</em></p>
+
+<hr>
+<p>*关键直觉：每个 token 不再一步步等前文传过来。*<br>在 encoder self-attention 里，每个位置都能直接看见上一层的所有位置，所以长距离依赖不需要沿时间链传播。<br><br>> Each position in the encoder can attend to all positions in the previous layer of the encoder.</p>
+<hr>
+<p>*机制不是“只有 attention”。*<br>每个 encoder layer 有两件事：<br>• `Multi-Head Self-Attention`：混合全句信息<br>• `Position-wise FFN`：对每个位置做同样的非线性变换<br><br>外面还包了 residual connection + layer norm，让 6 层可以稳定堆起来。<br><br>> The encoder is composed of a stack of N = 6 identical layers. Each layer has two sub-layers.</p>
+<hr>
+<p>*为什么 multi-head 很关键？*<br>单个 attention head 会把多个位置的信息加权平均，可能把不同关系糊在一起。多头让模型在不同表示子空间、不同位置关系上同时取信息。<br><br>> Multi-head attention allows the model to jointly attend to information from different representation subspaces at different positions.</p>
+<hr>
+<p>*证据层面要说清楚：这是系统级证据，不是单独 encoder ablation。*<br>论文用完整 Transformer 在机器翻译上证明这套 encoder-decoder 架构有效：<br><br>> Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task<br>> On the WMT 2014 English-to-French translation task, our model establishes a new single-model state-of-the-art BLEU score of 41.8</p>
+<hr>
+<p>*收尾：C4 的合理读法*<br>不是“encoder 天生万能”，而是：在加入 positional encoding、residual/layer norm、multi-head attention、逐位置 FFN 后，堆叠 self-attention encoder 足以产生下游 decoder 可用的输入表示。<br><br>这也是 Transformer 最激进的地方：把序列表示的主引擎，从 recurrence/convolution 换成了可并行的 attention stack。</p></div></body></html>
