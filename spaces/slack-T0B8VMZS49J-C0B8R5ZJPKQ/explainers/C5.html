@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C5 · 自注意力复杂度优势有条件成立</h1>
+<p>*C5 钩子：自注意力不是“无条件更省”。*<br><br>它相对 RNN 的复杂度优势，有一个很具体的条件：`n < d`。<br><br>这里 `n` 是序列长度，`d` 是表示维度。Transformer 论文的说法不是“attention 永远更便宜”，而是：在常见机器翻译表征里，这个条件通常成立。</p>
+<hr>
+<p>*关键直觉：比较的是两种“贵”的方向。*<br><br>• RNN 贵在每个 token 都要做 `d × d` 的状态变换<br>• self-attention 贵在所有 token 两两看一遍，也就是 `n × n`<br><br>所以不是看谁“结构更简单”，而是看 `n` 和 `d` 哪个更大。</p>
+<hr>
+<p>*论文给出的复杂度对比很直接。*<br><br>> Self-Attention  O(n2 · d)<br>> Recurrent  O(n · d2)<br><br>把两者粗略相除：<br>`self-attention / recurrent ≈ n/d`<br><br>所以当 `n < d`，自注意力这一层在计算复杂度上就更有优势。</p>
+<hr>
+<p><em>Scaled dot-product attention 的核心计算是一次 `QK^T`：这正是 `n × n` 依赖矩阵从哪里来的。</em></p>
+
+<hr>
+<p>*为什么论文说这在机器翻译里常见？*<br><br>文中 Transformer 的表示维度是：<br><br>> dmodel = 512<br><br>而机器翻译里的句子/子词序列长度 `n` 通常远小于几百这个量级。于是 `n < d` 不是一个罕见设定，而是当时主流 MT 表征里经常出现的区间。</p>
+<hr>
+<p>*常见误解：把“并行优势”和“复杂度优势”混在一起。*<br><br>论文其实给了两个不同维度：<br><br>> Self-Attention  Sequential Operations O(1)<br>> Recurrent  Sequential Operations O(n)<br><br>并行性上，self-attention 很强；但计算复杂度上，它赢 RNN 还要看 `n < d`。长序列场景下，`n²` 会重新变成问题。</p>
+<hr>
+<p>*收尾：C5 的精确版本。*<br><br>Transformer 的自注意力优势不是一句“attention 比 RNN 便宜”。更准确地说：<br><br>• 每层复杂度：`O(n²d)` vs `O(nd²)`<br>• 条件：当 `n < d` 时，自注意力复杂度更有利<br>• 机器翻译：常见表示维度如 `dmodel=512`，让这个条件经常成立<br><br>所以 C5 的重点是：*优势成立，但有边界条件。*</p></div></body></html>
