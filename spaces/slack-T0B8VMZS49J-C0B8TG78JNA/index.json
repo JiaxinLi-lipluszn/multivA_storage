@@ -16,7 +16,10 @@
       "previous_seminar_id": ""
     }
   ],
-  "messages": {},
+  "messages": {
+    "1780851041.297459": "C1",
+    "1780851041.884689": "C1"
+  },
   "channel": "C0B8TG78JNA",
   "team": "T0B8VMZS49J",
   "last_human_activity_at": 1780850644.060219,
@@ -29,7 +32,14 @@
   "presented": [],
   "next_rollout_at": 1780850944.060219,
   "facilitations": [],
-  "posts": [],
+  "posts": [
+    {
+      "ts": "1780851041.297459",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780851041.297459"
+    }
+  ],
   "probe_at": {},
   "probe_meta": {},
   "papers": [
@@ -45,5 +55,19 @@
         "truncated": true
       }
     }
-  ]
+  ],
+  "copilot_status_requests_sent": {
+    "S1:C1:U0B8Q1X1SF8": {
+      "seminar_id": "S1",
+      "claim_id": "C1",
+      "user_id": "U0B8Q1X1SF8",
+      "copilot_id": "U0B8X5WHULU",
+      "coordination_channel": "C0B8RKJHY14",
+      "message_ts": "1780851043.827219",
+      "root_ts": "1780851041.297459",
+      "reason": "claim_presented",
+      "sent_at_epoch": 1780851043.99719,
+      "sent_at": "2026-06-07T16:50:43.997197+00:00"
+    }
+  }
 }

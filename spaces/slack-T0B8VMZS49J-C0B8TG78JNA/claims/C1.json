@@ -13,5 +13,32 @@
     "ts": ""
   },
   "contributions": [],
-  "depends_on": []
+  "depends_on": [],
+  "concept_checklist": [
+    {
+      "id": "K1",
+      "label": "Slack 入口只是管道: SeminarBot 的核心分工是 app.py 负责 Slack 事件、消息发送和调度管道，真正的判断交给 brain.py，持久事实交给 canon.py",
+      "prompt": "学生能否用自己的话解释: Slack 入口只是管道: SeminarBot 的核心分工是 app.py 负责 Slack 事件、消息发送和调度管道，真正的判断交给 brain.py，持久事实交给 canon.py"
+    },
+    {
+      "id": "K2",
+      "label": "C1 的钩子：别把 SeminarBot 理解成“Slack 机器人里塞了一个大脑”。 更准确地说：Slack 入口只是管道，负责把人的动作接进来、把结果发出去。真正的判断和事实沉淀被拆到别的模块。 app.py Sla…",
+      "prompt": "学生能否用自己的话解释: C1 的钩子：别把 SeminarBot 理解成“Slack 机器人里塞了一个大脑”。 更准确地说：Slack 入口只是管道，负责把人的动作接进来、把结果发出去。真正的判断和事实沉淀被拆到别的模块。 app.py Sla…"
+    },
+    {
+      "id": "K3",
+      "label": "SeminarBot 的核心不是一个大文件全包，而是 Slack 管道、判断大脑、git canon 三段分工",
+      "prompt": "学生能否用自己的话解释: SeminarBot 的核心不是一个大文件全包，而是 Slack 管道、判断大脑、git canon 三段分工"
+    },
+    {
+      "id": "K4",
+      "label": "关键直觉： app.py 做的是“接线员”工作。 它知道 Slack token、Socket Mode、channel、thread、permalink、导入目录、viewer URL、调度参数；这些都是把研讨流程跑起…",
+      "prompt": "学生能否用自己的话解释: 关键直觉： app.py 做的是“接线员”工作。 它知道 Slack token、Socket Mode、channel、thread、permalink、导入目录、viewer URL、调度参数；这些都是把研讨流程跑起…"
+    },
+    {
+      "id": "K5",
+      "label": "判断权不在 Slack 入口里。 成员发来质疑或贡献时，入口只是把消息送去分诊；是否承重、命中哪条 claim、属于什么类型，交给 brain。 @SeminarBot → 大脑分诊(是否承重、打哪条主张、什么类型)→…",
+      "prompt": "学生能否用自己的话解释: 判断权不在 Slack 入口里。 成员发来质疑或贡献时，入口只是把消息送去分诊；是否承重、命中哪条 claim、属于什么类型，交给 brain。 @SeminarBot → 大脑分诊(是否承重、打哪条主张、什么类型)→…"
+    }
+  ]
 }
