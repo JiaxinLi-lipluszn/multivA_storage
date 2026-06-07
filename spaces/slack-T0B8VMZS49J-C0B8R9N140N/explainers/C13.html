@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C13 · 自注意力更易并行</h1>
+<p>*C13 钩子：Transformer 的“快”，不只是算子快，而是少了训练样本内部的时间链。*<br><br>RNN 处理一个序列时，位置 `t` 依赖 `t-1`；self-attention 一层里，各位置可以同时算。这个差别直接决定了并行化空间。</p>
+<hr>
+<p>*关键直觉：RNN 像排队，self-attention 像开会。*<br><br>• RNN：第 5 个 token 的表示，要等前 4 个 hidden state 依次算完<br>• Self-attention：每个 token 同时拿自己的 `query` 去看所有 `key/value`<br><br>所以瓶颈从“时间步串行”变成了“矩阵乘法能不能吃满硬件”。</p>
+<hr>
+<p>*论文把这个说得很直接：循环结构的顺序性会挡住样本内部并行。*<br><br>> This inherently sequential nature precludes parallelization within training examples<br><br>这里的关键词是 *within training examples*：不是 batch 之间不能并行，而是同一个句子内部，RNN 的位置维度天然串起来了。</p>
+<hr>
+<p><em>Figure 2 展示了 attention 可以把一组 queries 打包成矩阵同时计算，并且多头也并行运行。</em></p>
+
+<hr>
+<p>*表 1 给了最硬的对比：最少顺序计算步数。*<br><br>• Self-Attention：`O(1)`<br>• Recurrent：`O(n)`<br>• Convolutional：`O(1)`<br><br>所以 C13 的核心不是“self-attention 总计算量更小”，而是：随着序列长度 `n` 增长，RNN 的顺序深度增长，self-attention 不增长。</p>
+<hr>
+<p>*常见误解：并行性 ≠ 计算复杂度一定更低。*<br><br>Self-attention 每层复杂度是 `O(n^2 · d)`，RNN 是 `O(n · d^2)`。长序列时 attention 的二次项会很贵。<br><br>但它的优势在于这些计算更像大矩阵乘法，能在 GPU/TPU 上并行摊开；RNN 的 `O(n)` 顺序依赖更难摊开。</p>
+<hr>
+<p>*收尾：C13 是 Transformer 论文的工程-建模合流点。*<br><br>去掉 recurrence 不是只为了“更酷的注意力机制”，而是为了把序列内部的计算从时间链改造成并行图。论文后面“更少训练时间”的实验结果，正是这个结构选择的直接收益之一。</p></div></body></html>
