@@ -76,7 +76,117 @@
       "created_by": "U0B8Q1X1SF8",
       "created_at": "2026-06-07T15:33:56.986431+00:00",
       "expires_at": "2026-09-05T15:33:56.909905+00:00"
+    },
+    "LsC1ULYAmmyp0QFPQMsdxKQHaWYYaUW9": {
+      "schema_version": 1,
+      "token": "LsC1ULYAmmyp0QFPQMsdxKQHaWYYaUW9",
+      "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+      "seminar_id": "S1",
+      "paper_id": "1706.03762",
+      "paper_title": "1706.03762",
+      "claim_id": "C3",
+      "page": 3,
+      "label": "p.3 原文",
+      "excerpt": "predictions for position i can depend only on the known outputs at positions less than i.",
+      "bbox": {
+        "x0": 106.0,
+        "y0": 655.36,
+        "x1": 458.65,
+        "y1": 668.55,
+        "unit": "pdf_points"
+      },
+      "created_by": "api-smoke",
+      "created_at": "2026-06-07T15:40:45.547334+00:00",
+      "expires_at": "2026-09-05T15:40:45.458629+00:00"
+    },
+    "fZVBss-HKcHAEcQ3sZYeC0iJOzQ-pzr4": {
+      "schema_version": 1,
+      "token": "fZVBss-HKcHAEcQ3sZYeC0iJOzQ-pzr4",
+      "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+      "seminar_id": "S1",
+      "paper_id": "1706.03762",
+      "paper_title": "1706.03762",
+      "claim_id": "C6",
+      "page": 4,
+      "label": "p.4 原文",
+      "excerpt": "extremely small gradients 4. To counteract this effect, we scale the dot products by",
+      "bbox": {
+        "x0": 106.0,
+        "y0": 602.59,
+        "x1": 439.04,
+        "y1": 616.9,
+        "unit": "pdf_points"
+      },
+      "created_by": "codex_smoke_test",
+      "created_at": "2026-06-07T16:09:40.359621+00:00",
+      "expires_at": "2026-09-05T16:09:40.285725+00:00"
+    },
+    "nbzPv_E78l45VGg1TU7bdkUUTo6LWNUs": {
+      "schema_version": 1,
+      "token": "nbzPv_E78l45VGg1TU7bdkUUTo6LWNUs",
+      "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+      "seminar_id": "S1",
+      "paper_id": "1706.03762",
+      "paper_title": "1706.03762",
+      "claim_id": "C6",
+      "page": 4,
+      "label": "p.4 原文",
+      "excerpt": "Attention(Q, K, V ) = softmax(QKT",
+      "bbox": {
+        "x0": 217.97,
+        "y0": 463.47,
+        "x1": 379.37,
+        "y1": 484.45,
+        "unit": "pdf_points"
+      },
+      "created_by": "seminarbot_quote",
+      "created_at": "2026-06-07T16:14:27.634788+00:00",
+      "expires_at": "2026-09-05T16:14:27.554735+00:00"
+    },
+    "BTHTB24LbMajzmc1GbrUsy2T2Jr8Y_O5": {
+      "schema_version": 1,
+      "token": "BTHTB24LbMajzmc1GbrUsy2T2Jr8Y_O5",
+      "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+      "seminar_id": "S1",
+      "paper_id": "1706.03762",
+      "paper_title": "1706.03762",
+      "claim_id": "C6",
+      "page": 4,
+      "label": "p.4 原文",
+      "excerpt": "dot products grow large in magnitude",
+      "bbox": {
+        "x0": 135.55,
+        "y0": 593.08,
+        "x1": 286.94,
+        "y1": 605.98,
+        "unit": "pdf_points"
+      },
+      "created_by": "seminarbot_quote",
+      "created_at": "2026-06-07T16:14:27.874882+00:00",
+      "expires_at": "2026-09-05T16:14:27.798153+00:00"
+    },
+    "CEYfRtomBVTo7Xd3NZ0mDxN2OVKsbpqx": {
+      "schema_version": 1,
+      "token": "CEYfRtomBVTo7Xd3NZ0mDxN2OVKsbpqx",
+      "space_id": "slack:T0B8VMZS49J:C0B8Q53UKL5",
+      "seminar_id": "S1",
+      "paper_id": "1706.03762",
+      "paper_title": "1706.03762",
+      "claim_id": "C6",
+      "page": 4,
+      "label": "p.4 原文",
+      "excerpt": "extremely small gradients",
+      "bbox": {
+        "x0": 106.0,
+        "y0": 603.94,
+        "x1": 212.78,
+        "y1": 616.9,
+        "unit": "pdf_points"
+      },
+      "created_by": "seminarbot_quote",
+      "created_at": "2026-06-07T16:14:28.104398+00:00",
+      "expires_at": "2026-09-05T16:14:28.033931+00:00"
     }
   },
-  "updated_at": "2026-06-07T15:33:56.996695+00:00"
+  "updated_at": "2026-06-07T16:14:28.113143+00:00"
 }

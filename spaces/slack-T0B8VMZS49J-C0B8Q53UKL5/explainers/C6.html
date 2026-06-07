@@ -13,17 +13,17 @@ body{margin:0;background:#fff}
 .card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
 .card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
 </style></head><body><div class="card"><h1>C6 · 缩放点积注意力稳定训练</h1>
-<p>*C6 钩子：Transformer 里的 `/ sqrt(d_k)` 不是装饰。*<br>它是在回答一个很具体的训练问题：当 `q` 和 `k` 的维度变高，点积会变得很大，softmax 容易被推到“太自信”的区域，梯度就会变小。</p>
+<p>*C6 钩子：为什么点积注意力要除以 `√d_k`？*<br><br>Transformer 不是直接把 `QK^T` 丢进 softmax，而是先缩放：<br>> Attention(Q, K, V) = softmax(QK T / √dk)V <http://192.168.1.116:8765/evidence/nbzPv_E78l45VGg1TU7bdkUUTo6LWNUs|p.4 原文><br><br>这一步的目标很具体：让 attention 的 logits 别因为维度变大而过分极端。</p>
 <hr>
-<p><em>Figure 2 左图直接显示：点积 `QK^T` 会先除以 `sqrt(d_k)`，再进入 softmax。</em></p>
+<p><em>Figure 2 左侧展示了 Scaled Dot-Product Attention：点积结果先除以 √d_k，再进入 softmax。</em></p>
 
 <hr>
-<p>*关键直觉：点积会随维度累积。*<br>如果 `q` 和 `k` 每一维都在贡献一点随机波动，那么 `q · k` 不是固定尺度的数；维度 `d_k` 越大，累积出来的幅度通常越大。</p>
+<p>*关键直觉：维度越高，随机点积越容易变大。*<br><br>如果 `q` 和 `k` 每一维都像均值 0、方差 1 的随机量，那么：<br>• `q · k` 是很多维乘积的和<br>• 维度 `d_k` 越大，这个和的波动越大<br>• 论文脚注给出的结论是：点积的方差会变成 `d_k`</p>
 <hr>
-<p>*论文给出的机制解释很直接：*<br>> To illustrate why the dot products get large, assume that the components of q and k are independent random variables with mean 0 and variance 1. Then their dot product ... has mean 0 and variance dk.<br>所以除以 `sqrt(d_k)` 的作用是把方差尺度从 `d_k` 拉回到约 `1`。</p>
+<p>*机制：大 logits 会把 softmax 推向饱和区。*<br><br>论文的担心是：没缩放时，某些 key 的分数会特别大，softmax 接近 one-hot；这时权重已经“钉死”在少数位置上，梯度就会变小。<br><br>> dot products grow large in magnitude <http://192.168.1.116:8765/evidence/BTHTB24LbMajzmc1GbrUsy2T2Jr8Y_O5|p.4 原文><br>> extremely small gradients <http://192.168.1.116:8765/evidence/CEYfRtomBVTo7Xd3NZ0mDxN2OVKsbpqx|p.4 原文></p>
 <hr>
-<p>*为什么这会影响训练？因为 softmax 有饱和区。*<br>> We suspect that for large values of dk, the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients.<br>也就是：logit 太大 → softmax 太尖 → 很多位置梯度很小 → 注意力权重不容易被细致调整。</p>
+<p>*为什么刚好除以 `√d_k`？*<br><br>因为如果点积的方差大约随 `d_k` 增长，那么除以 `√d_k` 后，方差尺度会被拉回到大约 1。<br><br>所以它不是魔法常数，而是一个方差尺度修正：让不同 head 的 attention logits 更稳定地进入 softmax。</p>
 <hr>
-<p>*一个常见误解：这不是让注意力“平均化”。*<br>`/ sqrt(d_k)` 不是强迫每个 token 权重相近，而是把进入 softmax 的 logit 调到更合适的尺度；模型仍然可以学出很尖锐的注意力，只是训练初期不容易因为数值尺度过大而卡进饱和区。</p>
+<p>*常见误解：这不是在“削弱注意力”。*<br><br>缩放不是让模型少关注某个 token，而是避免 softmax 太早变得过尖。<br><br>更准确地说：<br>• 不缩放：高维点积可能过大，softmax 太极端<br>• 缩放后：logits 尺度更温和，训练信号更容易流动</p>
 <hr>
-<p>*收尾：C6 的核心是尺度控制。*<br>Scaled dot-product attention 保留了点积注意力的矩阵乘法效率，同时用 `1 / sqrt(d_k)` 处理高维点积的尺度问题：快，而且更稳。</p></div></body></html>
+<p>*收尾：C6 的主张可以这样记。*<br><br>Scaled dot-product attention 的 `scale` 不是结构装饰，而是训练稳定性设计：<br><br>`QK^T` 给相关性，`/√d_k` 控制尺度，`softmax` 再把它变成注意力权重。</p></div></body></html>
