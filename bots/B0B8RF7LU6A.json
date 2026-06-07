@@ -4,7 +4,7 @@
   "id": "B0B8RF7LU6A",
   "source": "slack",
   "first_seen_at": "2026-06-07T02:30:15.924376+00:00",
-  "last_seen_at": "2026-06-07T03:50:04.587261+00:00",
+  "last_seen_at": "2026-06-07T03:50:26.968360+00:00",
   "consent": {
     "share_personal_knowledge_to_org": false
   },
@@ -16,9 +16,9 @@
       "last_seen_at": "2026-06-07T02:30:15.924398+00:00"
     },
     "slack:T0B8VMZS49J:C0B8RKJHY14": {
-      "count": 5,
+      "count": 6,
       "first_seen_at": "2026-06-07T03:42:45.747197+00:00",
-      "last_seen_at": "2026-06-07T03:50:04.587289+00:00"
+      "last_seen_at": "2026-06-07T03:50:26.968375+00:00"
     }
   }
 }
