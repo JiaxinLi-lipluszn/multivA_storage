@@ -22,12 +22,64 @@
     "1780792197.129539"
   ],
   "active_paper": "1706.03762",
-  "presented": [],
+  "presented": [
+    "C1"
+  ],
   "next_rollout_at": 0,
   "facilitations": [],
-  "posts": [],
-  "probe_at": {},
-  "probe_meta": {},
+  "posts": [
+    {
+      "ts": "1780792287.239199",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780792287.239199"
+    },
+    {
+      "ts": "1780792287.647279",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780792287.647279"
+    },
+    {
+      "ts": "1780792289.489429",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780792289.489429"
+    },
+    {
+      "ts": "1780792291.319839",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780792291.319839"
+    },
+    {
+      "ts": "1780792292.419799",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780792292.419799"
+    },
+    {
+      "ts": "1780792293.592639",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780792293.592639"
+    },
+    {
+      "ts": "1780792305.531909",
+      "claim_id": "C1",
+      "seminar_id": "S1",
+      "last_ts": "1780792305.531909"
+    }
+  ],
+  "probe_at": {
+    "C1": 1780792906.5097432
+  },
+  "probe_meta": {
+    "C1": {
+      "sig": 0,
+      "count": 1
+    }
+  },
   "papers": [
     {
       "id": "1706.03762",
