@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C10 · 位置编码补足顺序信息</h1>
+<p>*C10 钩子：Transformer 去掉 RNN/CNN 后，顺序从哪里来？*<br><br>论文的回答很直接：不靠递归步，也不靠卷积窗口，而是在词向量里加一个“位置向量”。<br><br>> Since our model contains no recurrence and no convolution, in order for the model to make use of the order of the sequence, we must inject some information about the relative or absolute position of the tokens in the sequence.</p>
+<hr>
+<p><em>图1的关键不是只有 attention，而是 encoder/decoder 底部都先把 token embedding 和 positional encoding 合在一起。</em></p>
+
+<hr>
+<p>*关键直觉：每个 token 进模型时同时带着两件事*<br><br>• token embedding：这个词“是什么”<br>• positional encoding：这个词“在哪里”<br><br>把两者相加后，后面的 self-attention 看到的就不是裸词，而是 `词义 + 位置` 的混合表示。</p>
+<hr>
+<p>*机制：位置编码维度和词嵌入一样，所以可以直接相加*<br><br>> The positional encodings have the same dimension dmodel as the embeddings, so that the two can be summed.<br><br>这意味着位置不是额外开一条模型分支，而是从最底层就进入每个 token 的表示。</p>
+<hr>
+<p>*这篇采用的是固定正弦/余弦位置编码*<br><br>> In this work, we use sine and cosine functions of different frequencies:<br><br>`PE(pos, 2i) = sin(pos / 10000^(2i/dmodel))`<br>`PE(pos, 2i+1) = cos(pos / 10000^(2i/dmodel))`<br><br>直观上：不同维度用不同频率记录位置，让模型能区分绝对位置，也有机会学到相对位移关系。</p>
+<hr>
+<p>*常见误解：position encoding 不是在替代 attention 的计算*<br><br>attention 仍然负责“谁看谁”；position encoding 只是让 attention 的 query/key/value 里含有顺序信息。没有它，纯 self-attention 对 token 顺序的感知会弱很多，因为同一组 token 的排列差异没有被显式注入。</p>
+<hr>
+<p>*收尾：C10 的精确版本*<br><br>Transformer 的主张不是“顺序不重要”，而是：顺序信息不一定要通过 RNN 的时间步或 CNN 的局部窗口来获得。<br><br>只要在输入表示中加入位置编码，纯 attention 架构就能在并行计算的同时利用序列顺序。</p></div></body></html>
