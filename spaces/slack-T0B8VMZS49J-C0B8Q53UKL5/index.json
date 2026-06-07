@@ -10,10 +10,11 @@
     {
       "id": "S1",
       "title": "1706.03762",
-      "status": "active",
+      "status": "paused",
       "started_at": "2026-06-07T01:44:46.059936+00:00",
       "ended_at": "",
-      "previous_seminar_id": ""
+      "previous_seminar_id": "",
+      "paused_at": "2026-06-07T02:10:03.871297+00:00"
     }
   ],
   "messages": {},
@@ -46,7 +47,7 @@
     "C4",
     "C5"
   ],
-  "next_rollout_at": 1780798109.784052,
+  "next_rollout_at": 0,
   "facilitations": [],
   "posts": [
     {
@@ -252,6 +253,48 @@
       "claim_id": "C5",
       "seminar_id": "S1",
       "last_ts": "1780797832.590339"
+    },
+    {
+      "ts": "1780798166.213619",
+      "claim_id": "C6",
+      "seminar_id": "S1",
+      "last_ts": "1780798166.213619"
+    },
+    {
+      "ts": "1780798166.604979",
+      "claim_id": "C6",
+      "seminar_id": "S1",
+      "last_ts": "1780798166.604979"
+    },
+    {
+      "ts": "1780798168.622839",
+      "claim_id": "C6",
+      "seminar_id": "S1",
+      "last_ts": "1780798168.622839"
+    },
+    {
+      "ts": "1780798169.729269",
+      "claim_id": "C6",
+      "seminar_id": "S1",
+      "last_ts": "1780798169.729269"
+    },
+    {
+      "ts": "1780798170.974549",
+      "claim_id": "C6",
+      "seminar_id": "S1",
+      "last_ts": "1780798170.974549"
+    },
+    {
+      "ts": "1780798172.097569",
+      "claim_id": "C6",
+      "seminar_id": "S1",
+      "last_ts": "1780798172.097569"
+    },
+    {
+      "ts": "1780798173.290799",
+      "claim_id": "C6",
+      "seminar_id": "S1",
+      "last_ts": "1780798173.290799"
     }
   ],
   "probe_at": {
@@ -459,5 +502,5 @@
       "sent_at": "2026-06-07T02:04:11.947349+00:00"
     }
   },
-  "last_human_activity_at": 1780797777.085269
+  "last_human_activity_at": 1780798203.663362
 }
