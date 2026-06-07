@@ -5,16 +5,16 @@
   "display_name": "JiaxinCopilot",
   "source": "slack",
   "first_seen_at": "2026-06-07T03:42:47.129351+00:00",
-  "last_seen_at": "2026-06-07T04:04:16.097497+00:00",
+  "last_seen_at": "2026-06-07T16:23:05.027936+00:00",
   "consent": {
     "share_personal_knowledge_to_org": false
   },
   "shared_knowledge": [],
   "observed_in_spaces": {
     "slack:T0B8VMZS49J:C0B8Q53UKL5": {
-      "count": 5,
+      "count": 6,
       "first_seen_at": "2026-06-07T03:42:47.129372+00:00",
-      "last_seen_at": "2026-06-07T04:04:16.097514+00:00"
+      "last_seen_at": "2026-06-07T16:23:05.027968+00:00"
     }
   },
   "metadata": {
