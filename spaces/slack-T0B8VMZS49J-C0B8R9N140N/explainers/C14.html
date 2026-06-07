@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C14 · 英德翻译优于既有结果</h1>
+<p>*C14 钩子：这不是“差不多追平 SOTA”，而是直接超过。*<br><br>论文在摘要里把 WMT 2014 English-to-German 当作核心战绩之一：<br>> Our model achieves 28.4 BLEU on the WMT 2014 English-to-German translation task</p>
+<hr>
+<p>*关键直觉：赢的不只是一个分数，而是一种架构押注。*<br><br>当时强模型多靠 RNN/CNN encoder-decoder，再加 attention。Transformer 的赌注是：把 recurrence 和 convolution 都拿掉，只靠 attention 建模序列依赖。</p>
+<hr>
+<p><em>Transformer 的核心结构：encoder-decoder 仍在，但内部主要由 self-attention、encoder-decoder attention 和前馈层堆叠起来。</em></p>
+
+<hr>
+<p>*证据点：28.4 BLEU 的强度在于它超过了“既有最佳”，而且包括 ensemble。*<br><br>> improving over the existing best results, including ensembles, by over 2 BLEU<br><br>所以这里的比较对象不是弱 baseline；论文强调的是：单个新架构路线，超过了当时文献里包含集成模型的最好结果。</p>
+<hr>
+<p>*常见误解：不要把这条主张理解成“attention 小技巧让 BLEU 涨了 2 分”。*<br><br>更准确地说，它是在证明：一个完全去掉 recurrence/convolution 的 transduction model，也能在大规模机器翻译上做到更高质量。分数是结果，架构替换才是主张的锋利处。</p>
+<hr>
+<p>*收尾：C14 的作用是给 Transformer 的论文定位。*<br><br>28.4 BLEU 不是孤立数字，而是在说：Transformer big 在 WMT14 En→De 上不仅可行，而且超过了当时论文比较的最佳系统，包括 ensembles。这让“Attention Is All You Need”从架构想法变成了实证胜利。</p></div></body></html>
