@@ -1,0 +1,17 @@
+{
+  "id": "C15",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "COCP 预处理",
+  "statement": "在 GnRH 拮抗剂方案加单独 FSH 刺激中，COCP 预处理因降低疗效而不被推荐。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

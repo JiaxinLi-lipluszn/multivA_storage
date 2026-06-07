@@ -1,0 +1,17 @@
+{
+  "id": "C18",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "正常反应者剂量",
+  "statement": "预测为正常反应者时，低于或高于常规剂量的促性腺激素方案都不被推荐优于 150 至 225 IU 等效常规剂量。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C1",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "指南目标",
+  "statement": "这份 ESHRE 2025 更新指南的核心任务，是给出 IVF/ICSI 中卵巢刺激管理的推荐，而不是讨论所有促排卵场景。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

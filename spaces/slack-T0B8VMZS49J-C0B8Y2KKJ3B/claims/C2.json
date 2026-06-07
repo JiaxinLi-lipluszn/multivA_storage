@@ -1,0 +1,17 @@
+{
+  "id": "C2",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "推荐规模",
+  "statement": "指南用 121 条推荐回答 21 个关键问题，构成其主要知识结构。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

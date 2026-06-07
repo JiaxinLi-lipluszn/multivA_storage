@@ -1,0 +1,17 @@
+{
+  "id": "C12",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "年龄与 BMI",
+  "statement": "女性年龄和 BMI 被视为妊娠和活产的预测因素。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

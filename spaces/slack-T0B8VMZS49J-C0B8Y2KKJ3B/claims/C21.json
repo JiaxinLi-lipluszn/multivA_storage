@@ -1,0 +1,17 @@
+{
+  "id": "C21",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "临床判断边界",
+  "statement": "指南明确不保证特定结局，也不替代个体化临床判断、地区差异和机构条件下的实践调整。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

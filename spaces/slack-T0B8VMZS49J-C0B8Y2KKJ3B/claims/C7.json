@@ -1,0 +1,17 @@
+{
+  "id": "C7",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "推荐强度框架",
+  "statement": "每条证据型推荐被标记为强推荐或条件推荐，强推荐默认适用于多数情境，条件推荐需要根据具体风险收益判断。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

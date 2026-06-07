@@ -1,0 +1,17 @@
+{
+  "id": "C9",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "反应预测指标",
+  "statement": "AFC 或 AMH 被推荐用于预测卵巢刺激中的高反应或低反应。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

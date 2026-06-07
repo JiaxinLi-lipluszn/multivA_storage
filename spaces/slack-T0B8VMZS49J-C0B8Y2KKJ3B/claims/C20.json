@@ -1,0 +1,17 @@
+{
+  "id": "C20",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "低反应者异质性",
+  "statement": "指南承认低反应者是异质群体，因此极低卵巢储备者可由临床医生选择改良自然周期。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

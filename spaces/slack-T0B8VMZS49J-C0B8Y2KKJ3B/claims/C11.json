@@ -1,0 +1,17 @@
+{
+  "id": "C11",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "活产预测边界",
+  "statement": "AFC、AMH 及多项基础激素指标不被推荐用于预测妊娠或活产。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

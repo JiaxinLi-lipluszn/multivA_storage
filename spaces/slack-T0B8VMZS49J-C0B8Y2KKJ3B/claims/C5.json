@@ -1,0 +1,17 @@
+{
+  "id": "C5",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "核心结局",
+  "statement": "指南把每启动周期累计活产率或每启动周期活产率作为主要疗效结局。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

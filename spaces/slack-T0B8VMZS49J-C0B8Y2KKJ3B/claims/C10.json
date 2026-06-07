@@ -1,0 +1,17 @@
+{
+  "id": "C10",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "非反应预测指标",
+  "statement": "年龄、BMI、基础 FSH、抑制素 B、基础雌二醇、基础孕酮和基础 LH 不被推荐用于预测卵巢反应。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

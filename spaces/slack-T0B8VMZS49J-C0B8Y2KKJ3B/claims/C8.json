@@ -1,0 +1,17 @@
+{
+  "id": "C8",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "证据质量偏低",
+  "statement": "指南中的证据型推荐没有任何一条由高质量证据支持，大多数依赖低质量或极低质量证据。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

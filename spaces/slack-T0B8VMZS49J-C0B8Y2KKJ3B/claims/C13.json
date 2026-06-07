@@ -1,0 +1,17 @@
+{
+  "id": "C13",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "术语选择",
+  "statement": "指南将 poor response 改称 low response，以避免该分类暗示预后或安全性判断。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

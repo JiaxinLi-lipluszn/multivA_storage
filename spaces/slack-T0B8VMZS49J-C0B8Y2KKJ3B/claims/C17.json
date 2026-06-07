@@ -1,0 +1,17 @@
+{
+  "id": "C17",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "高反应者剂量",
+  "statement": "预测为高反应者时，较低促性腺激素剂量 100 至小于 150 IU 可能被推荐用于降低 OHSS 风险。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

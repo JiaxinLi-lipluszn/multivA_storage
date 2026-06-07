@@ -1,0 +1,17 @@
+{
+  "id": "C3",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "更新来源",
+  "statement": "2025 更新是在 2019 版指南基础上修订关键问题、拆分生育力保存问题，并加入若干新干预措施后形成的。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

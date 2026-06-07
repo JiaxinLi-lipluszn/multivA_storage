@@ -1,0 +1,17 @@
+{
+  "id": "C6",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "核心安全结局",
+  "statement": "指南把中重度卵巢过度刺激综合征发生率作为主要安全结局。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

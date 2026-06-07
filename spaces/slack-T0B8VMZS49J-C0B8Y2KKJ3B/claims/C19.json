@@ -1,0 +1,17 @@
+{
+  "id": "C19",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "低反应者高剂量边界",
+  "statement": "预测为低反应者时，不推荐使用高于 300 IU 的促性腺激素剂量。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

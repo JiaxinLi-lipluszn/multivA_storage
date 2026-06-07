@@ -1,0 +1,17 @@
+{
+  "id": "C4",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "证据检索窗口",
+  "statement": "指南纳入的是 2018 年 10 月 31 日至 2025 年 2 月 2 日之间发表的英文文献。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

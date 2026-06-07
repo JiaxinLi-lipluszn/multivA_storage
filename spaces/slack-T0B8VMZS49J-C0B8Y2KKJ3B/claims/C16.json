@@ -1,0 +1,17 @@
+{
+  "id": "C16",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "高反应者方案",
+  "statement": "预测为高反应者时，GnRH 拮抗剂方案被推荐作为刺激方案。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

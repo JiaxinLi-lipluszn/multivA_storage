@@ -1,0 +1,17 @@
+{
+  "id": "C14",
+  "seminar_id": "S1",
+  "paper": "deag018",
+  "title": "雌激素预处理",
+  "statement": "在 GnRH 拮抗剂方案前使用雌激素预处理不被推荐用于提高疗效。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "file",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}
