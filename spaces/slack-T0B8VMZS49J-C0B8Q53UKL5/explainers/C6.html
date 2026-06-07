@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C6 · 缩放点积注意力稳定训练</h1>
+<p>*C6 钩子：Transformer 里的 `/ sqrt(d_k)` 不是装饰。*<br>它是在回答一个很具体的训练问题：当 `q` 和 `k` 的维度变高，点积会变得很大，softmax 容易被推到“太自信”的区域，梯度就会变小。</p>
+<hr>
+<p><em>Figure 2 左图直接显示：点积 `QK^T` 会先除以 `sqrt(d_k)`，再进入 softmax。</em></p>
+
+<hr>
+<p>*关键直觉：点积会随维度累积。*<br>如果 `q` 和 `k` 每一维都在贡献一点随机波动，那么 `q · k` 不是固定尺度的数；维度 `d_k` 越大，累积出来的幅度通常越大。</p>
+<hr>
+<p>*论文给出的机制解释很直接：*<br>> To illustrate why the dot products get large, assume that the components of q and k are independent random variables with mean 0 and variance 1. Then their dot product ... has mean 0 and variance dk.<br>所以除以 `sqrt(d_k)` 的作用是把方差尺度从 `d_k` 拉回到约 `1`。</p>
+<hr>
+<p>*为什么这会影响训练？因为 softmax 有饱和区。*<br>> We suspect that for large values of dk, the dot products grow large in magnitude, pushing the softmax function into regions where it has extremely small gradients.<br>也就是：logit 太大 → softmax 太尖 → 很多位置梯度很小 → 注意力权重不容易被细致调整。</p>
+<hr>
+<p>*一个常见误解：这不是让注意力“平均化”。*<br>`/ sqrt(d_k)` 不是强迫每个 token 权重相近，而是把进入 softmax 的 logit 调到更合适的尺度；模型仍然可以学出很尖锐的注意力，只是训练初期不容易因为数值尺度过大而卡进饱和区。</p>
+<hr>
+<p>*收尾：C6 的核心是尺度控制。*<br>Scaled dot-product attention 保留了点积注意力的矩阵乘法效率，同时用 `1 / sqrt(d_k)` 处理高维点积的尺度问题：快，而且更稳。</p></div></body></html>
