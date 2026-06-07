@@ -1,0 +1,29 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C5 · 解码器遮蔽保持自回归</h1>
+<p>*C5: Decoder mask 不是装饰,它是在守住自回归边界。*<br><br>Transformer decoder 虽然不用 RNN,但仍然要像语言模型一样预测下一个 token:当前位置不能偷看未来答案。</p>
+<hr>
+<p>关键直觉: self-attention 本来是“全员互看”。<br><br>在 encoder 里这很好:每个输入位置都能看整句。<br><br>但在 decoder 里,如果位置 `i` 能看 `i+1, i+2...`,训练时就会把未来真实输出泄漏进来,自回归预测就不成立了。</p>
+<hr>
+<p><em>Scaled dot-product attention 里可以在 softmax 前加 mask,把非法连接直接排除。</em></p>
+
+<hr>
+<p>论文的机制很具体:不是“提醒模型别看”,而是把未来位置的 attention logit 设成 `-∞`。<br><br>> We implement this inside of scaled dot-product attention by masking out (setting to −∞) all values in the input of the softmax which correspond to illegal connections.<br><br>softmax 后这些位置权重就是 0,信息流被切断。</p>
+<hr>
+<p>再加一个关键细节:decoder 的输出 embedding 是错位输入的。<br><br>> This masking, combined with fact that the output embeddings are offset by one position, ensures that the predictions for position i can depend only on the known outputs at positions less than i.<br><br>所以预测第 `i` 个 token 时,可用的是已知的 `y_<i`,不是 `y_i` 本身或未来 token。</p>
+<hr>
+<p>常见误解:mask 不是让 decoder 在生成时“一次吐完整句”。<br><br>它保证的是*训练时并行计算每个位置的表示,但每个位置的信息边界仍像自回归模型一样合法*。<br><br>推理时仍然按 token 逐步生成,因为下一个输入 token 要等上一步采样/选择出来。</p>
+<hr>
+<p>收尾一句:Transformer decoder 的巧妙处在这里。<br><br>它用矩阵化 self-attention 拿到训练并行性,又用 causal mask 保住因果方向:<br><br>`prediction at i` ← only `known outputs < i`。</p></div></body></html>
