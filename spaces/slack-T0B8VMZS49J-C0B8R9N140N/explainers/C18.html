@@ -1,0 +1,27 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#fff}
+.card{width:700px;padding:34px 38px;font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;color:#16181c}
+.card>*:first-child{margin-top:0}
+.card>*:last-child{margin-bottom:0}
+.card h1{font-size:30px;margin:0 0 14px;line-height:1.25}
+.card h2{font-size:24px;margin:0 0 12px;line-height:1.3}
+.card p{font-size:20px;line-height:1.6;margin:0 0 12px}
+.card li{font-size:19px;line-height:1.55;margin:5px 0}
+.card blockquote{margin:12px 0;padding:8px 16px;border-left:3px solid #cbd5e1;color:#475569;font-size:18px}
+.card svg{max-width:100%;height:auto;display:block;margin:14px 0}
+.card hr{border:0;border-top:1px solid #e5e7eb;margin:22px 0}
+.card .tag{display:inline-block;background:#eef3ff;color:#2b6cb0;border-radius:8px;padding:3px 9px;font-size:15px;margin:2px}
+</style></head><body><div class="card"><h1>C18 · 可迁移到句法分析</h1>
+<p>*C18: Transformer 不是只会翻译。*<br><br>论文在摘要里就把迁移性摆出来了：它们不仅做 WMT 英德/英法机器翻译，还把同一个架构拿去做 *English constituency parsing*。</p>
+<hr>
+<p>关键直觉：成分句法分析本质上也需要把一句话里的远距离依赖组织起来。<br><br>Transformer 的卖点正是：不用 RNN/CNN 的逐步传播，而是让每个位置通过 self-attention 直接看全句。</p>
+<hr>
+<p><em>Figure 1 展示了 Transformer 的核心结构：编码器/解码器都由 stacked self-attention 和前馈层组成，这让它有机会迁移到其他序列结构任务。</em></p>
+
+<hr>
+<p>论文给出的直接证据是这句：<br><br>> We show that the Transformer generalizes well to other tasks by applying it successfully to English constituency parsing both with large and limited training data.<br><br>这里的重点不是“又调了一个 parser”，而是：作者把 parsing 明确作为 *generalizes well to other tasks* 的证据。</p>
+<hr>
+<p>一个常见误解：Transformer 的成功不是因为它专门为翻译任务写死了 inductive bias。<br><br>更准确地说，它是一个通用的 sequence transduction 架构；翻译是主实验，句法分析是迁移性压力测试。</p>
+<hr>
+<p>值得追问的一点：这只能说明 Transformer *可以* 迁移到英语成分句法分析，不能自动推出它在所有 NLP 结构预测任务上都同样强。<br><br>但对 2017 年这篇论文来说，这已经是在说：attention-only 架构的野心不止 MT。</p></div></body></html>
