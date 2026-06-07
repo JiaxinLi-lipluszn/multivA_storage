@@ -1,0 +1,17 @@
+{
+  "id": "C1",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "纯注意力可替代循环与卷积",
+  "statement": "Transformer 在序列转导任务中可以完全去掉循环网络和卷积网络，仅依靠注意力机制完成编码与解码。",
+  "type": "core",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

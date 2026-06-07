@@ -1,0 +1,17 @@
+{
+  "id": "C9",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "自注意力缩短依赖路径",
+  "statement": "自注意力层中任意两个序列位置之间的最大路径长度为常数，这比循环层和普通卷积层更有利于学习长距离依赖。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

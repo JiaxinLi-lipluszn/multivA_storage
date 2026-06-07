@@ -1,0 +1,17 @@
+{
+  "id": "C15",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "架构可迁移到解析任务",
+  "statement": "Transformer 不只适用于机器翻译，还能在英语成分句法分析任务上取得成功，包括大数据和有限数据设置。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C8",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "自注意力提高并行化",
+  "statement": "自注意力层在训练样本内部不需要沿序列位置顺序计算，因此比循环层具有更高的并行化能力。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C4",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "位置编码补偿无序结构",
+  "statement": "由于模型没有循环或卷积，必须向词嵌入加入位置编码，模型才能利用序列顺序信息。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C5",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "正弦位置编码可表达相对位移",
+  "statement": "所采用的正弦/余弦位置编码使固定偏移位置的编码可由当前位置编码的线性函数表示，从而便于模型学习相对位置关系。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

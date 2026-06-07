@@ -1,0 +1,17 @@
+{
+  "id": "C7",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "多头注意力提升表达能力",
+  "statement": "多头注意力允许模型在不同表示子空间和不同位置上并行关注信息，比单头注意力更能避免单一加权平均造成的信息混合。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

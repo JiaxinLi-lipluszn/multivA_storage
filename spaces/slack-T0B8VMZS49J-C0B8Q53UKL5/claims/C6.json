@@ -1,0 +1,17 @@
+{
+  "id": "C6",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "缩放点积注意力稳定训练",
+  "statement": "将查询与键的点积除以 sqrt(d_k) 可以缓解高维点积过大导致 softmax 梯度过小的问题。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

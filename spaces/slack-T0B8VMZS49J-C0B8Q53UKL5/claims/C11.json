@@ -1,0 +1,17 @@
+{
+  "id": "C11",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "英语到德语达到更高 BLEU",
+  "statement": "Transformer big 在 WMT 2014 English-to-German 任务上达到 28.4 BLEU，超过此前报告的最佳模型和集成模型。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

@@ -1,0 +1,17 @@
+{
+  "id": "C10",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "自注意力复杂度适合机器翻译长度",
+  "statement": "当序列长度 n 小于表示维度 d 时，自注意力层的计算复杂度低于循环层，而这是机器翻译中常见的设置。",
+  "type": "concept",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

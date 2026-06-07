@@ -1,0 +1,17 @@
+{
+  "id": "C12",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "英语到法语达到单模型领先结果",
+  "statement": "Transformer big 在 WMT 2014 English-to-French 任务上报告了新的单模型领先 BLEU 结果。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

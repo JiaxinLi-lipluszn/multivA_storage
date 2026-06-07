@@ -1,0 +1,17 @@
+{
+  "id": "C2",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "堆叠自注意力足以建模输入表示",
+  "statement": "编码器中由多头自注意力层和逐位置前馈层组成的堆叠结构足以把输入序列映射为有效的连续表示。",
+  "type": "method",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}

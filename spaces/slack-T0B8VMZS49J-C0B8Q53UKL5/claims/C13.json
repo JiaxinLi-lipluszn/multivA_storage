@@ -1,0 +1,17 @@
+{
+  "id": "C13",
+  "seminar_id": "S1",
+  "paper": "1706.03762",
+  "title": "训练成本显著降低",
+  "statement": "Transformer 在达到上述机器翻译结果时所需训练成本低于此前竞争模型，big 模型在 8 块 P100 GPU 上训练约 3.5 天。",
+  "type": "evidence",
+  "status": "proposed",
+  "source": "paper",
+  "provenance": {
+    "slack_user": "paper",
+    "permalink": "",
+    "ts": ""
+  },
+  "contributions": [],
+  "depends_on": []
+}
