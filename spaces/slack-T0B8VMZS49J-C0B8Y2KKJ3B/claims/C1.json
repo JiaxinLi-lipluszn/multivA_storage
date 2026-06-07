@@ -22,23 +22,23 @@
     },
     {
       "id": "K2",
-      "label": "C1｜先把范围钉住 这份 ESHRE 2025 更新指南，不是在讲“所有促排卵怎么做”。 它的核心任务更窄： IVF/ICSI 里的 ovarian stimulation 管理推荐 。 ovarian stimulat…",
-      "prompt": "学生能否用自己的话解释: C1｜先把范围钉住 这份 ESHRE 2025 更新指南，不是在讲“所有促排卵怎么做”。 它的核心任务更窄： IVF/ICSI 里的 ovarian stimulation 管理推荐 。 ovarian stimulat…"
+      "label": "C1｜先把边界画清楚 这篇不是“所有促排卵怎么做”的总指南。 它的目标更窄：回答 IVF/ICSI 里的卵巢刺激该怎么管理",
+      "prompt": "学生能否用自己的话解释: C1｜先把边界画清楚 这篇不是“所有促排卵怎么做”的总指南。 它的目标更窄：回答 IVF/ICSI 里的卵巢刺激该怎么管理"
     },
     {
       "id": "K3",
-      "label": "这张图把“卵巢刺激”这个大概念和本指南真正覆盖的 IVF/ICSI 范围分开",
-      "prompt": "学生能否用自己的话解释: 这张图把“卵巢刺激”这个大概念和本指南真正覆盖的 IVF/ICSI 范围分开"
+      "label": "关键直觉 ovarian stimulation 本身很宽：可以用于同房/授精，也可以用于辅助生殖取多个卵。 但这份 ESHRE 更新把问题收束到 IVF/ICSI 的临床管理",
+      "prompt": "学生能否用自己的话解释: 关键直觉 ovarian stimulation 本身很宽：可以用于同房/授精，也可以用于辅助生殖取多个卵。 但这份 ESHRE 更新把问题收束到 IVF/ICSI 的临床管理"
     },
     {
       "id": "K4",
-      "label": "关键直觉：标题里的 IVF/ICSI 不是装饰词 ovarian stimulation 本身可以服务很多场景；但这份指南把问题限定在 assisted reproduction 里：为了 IVF/ICSI 取卵而管理刺…",
-      "prompt": "学生能否用自己的话解释: 关键直觉：标题里的 IVF/ICSI 不是装饰词 ovarian stimulation 本身可以服务很多场景；但这份指南把问题限定在 assisted reproduction 里：为了 IVF/ICSI 取卵而管理刺…"
+      "label": "证据：摘要直接给了任务句 ovarian stimulation for IVF/ICSI provides 121 recommendations 也就是说，121 条推荐不是给“所有促排卵场景”的，而是围绕 IVF/…",
+      "prompt": "学生能否用自己的话解释: 证据：摘要直接给了任务句 ovarian stimulation for IVF/ICSI provides 121 recommendations 也就是说，121 条推荐不是给“所有促排卵场景”的，而是围绕 IVF/…"
     },
     {
       "id": "K5",
-      "label": "证据：它的产物就是推荐清单 摘要里把任务说得很直接：回答关键问题，给出推荐。 provides 121 recommendations answering 21 key questions",
-      "prompt": "学生能否用自己的话解释: 证据：它的产物就是推荐清单 摘要里把任务说得很直接：回答关键问题，给出推荐。 provides 121 recommendations answering 21 key questions"
+      "label": "为什么容易误读？ 因为正文一开始会先定义 OS 的大范围： It can be used (i) for timed intercourse or insemination 但这只是术语背景，不等于本指南要覆盖这些场景",
+      "prompt": "学生能否用自己的话解释: 为什么容易误读？ 因为正文一开始会先定义 OS 的大范围： It can be used (i) for timed intercourse or insemination 但这只是术语背景，不等于本指南要覆盖这些场景"
     }
   ]
 }

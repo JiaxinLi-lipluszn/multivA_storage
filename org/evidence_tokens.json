@@ -362,7 +362,29 @@
       "created_by": "seminarbot_quote",
       "created_at": "2026-06-07T21:30:58.796392+00:00",
       "expires_at": "2026-09-05T21:30:58.726551+00:00"
+    },
+    "Ls8HtavWRQxgSp_NthHCcU3xtQqW_0eN": {
+      "schema_version": 1,
+      "token": "Ls8HtavWRQxgSp_NthHCcU3xtQqW_0eN",
+      "space_id": "slack:T0B8VMZS49J:C0B8Y2KKJ3B",
+      "seminar_id": "S1",
+      "paper_id": "deag018",
+      "paper_title": "deag018",
+      "claim_id": "C1",
+      "page": 1,
+      "label": "p.1 原文",
+      "excerpt": "SUMMARY ANSWER: This updated ESHRE guideline on ovarian stimulation for IVF/ICSI provides 121 recommendations, answering",
+      "bbox": {
+        "x0": 49.02,
+        "y0": 484.05,
+        "x1": 559.75,
+        "y1": 494.82,
+        "unit": "pdf_points"
+      },
+      "created_by": "seminarbot",
+      "created_at": "2026-06-07T21:31:00.244387+00:00",
+      "expires_at": "2026-09-05T21:31:00.174728+00:00"
     }
   },
-  "updated_at": "2026-06-07T21:30:58.805165+00:00"
+  "updated_at": "2026-06-07T21:31:00.252805+00:00"
 }
