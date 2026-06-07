@@ -36,16 +36,16 @@
           "status": "uncertain",
           "evidence": "RNN的从左到右的时序建模顺序和CNN的局部组合都被替代了对吗?",
           "confidence": 0.8,
-          "updated_at": "2026-06-07T21:48:17.787385+00:00"
+          "updated_at": "2026-06-07T21:53:30.870785+00:00"
         }
       },
       "source": "copilot_learning_status_request",
       "confidence": 0.8,
-      "evidence": "Answered SeminarBot learning status request 1780868891.483199.",
+      "evidence": "Answered SeminarBot learning status request 1780869205.606169.",
       "reporter_bot_id": "U0B8X5WHULU",
-      "message_ts": "1780868894.649009",
+      "message_ts": "1780869208.350529",
       "channel": "C0B8RKJHY14",
-      "updated_at": "2026-06-07T21:48:17.787385+00:00"
+      "updated_at": "2026-06-07T21:53:30.870785+00:00"
     }
   },
   "member_understanding": {
@@ -56,13 +56,13 @@
       "seminar_id": "S1",
       "signal": "uncertain",
       "reaction": "copilot_report",
-      "message_ts": "1780868894.649009",
+      "message_ts": "1780869208.350529",
       "channel": "C0B8RKJHY14",
       "source": "private_copilot",
       "confidence": 0.8,
-      "evidence": "Answered SeminarBot learning status request 1780868891.483199.",
+      "evidence": "Answered SeminarBot learning status request 1780869205.606169.",
       "reporter_bot_id": "U0B8X5WHULU",
-      "updated_at": "2026-06-07T21:48:17.937564+00:00"
+      "updated_at": "2026-06-07T21:53:31.017926+00:00"
     }
   }
 }
