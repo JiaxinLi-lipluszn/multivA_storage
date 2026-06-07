@@ -5,16 +5,16 @@
   "display_name": "LiGaZn",
   "source": "slack",
   "first_seen_at": "2026-06-06T23:17:36.735460+00:00",
-  "last_seen_at": "2026-06-06T23:23:50.134954+00:00",
+  "last_seen_at": "2026-06-07T00:13:30.753615+00:00",
   "consent": {
     "share_personal_knowledge_to_org": false
   },
   "shared_knowledge": [],
   "observed_in_spaces": {
     "slack:T0B8VMZS49J:C0B8R5ZJPKQ": {
-      "count": 4,
+      "count": 5,
       "first_seen_at": "2026-06-06T23:17:36.735482+00:00",
-      "last_seen_at": "2026-06-06T23:23:50.134980+00:00"
+      "last_seen_at": "2026-06-07T00:13:30.753643+00:00"
     }
   }
 }
