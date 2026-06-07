@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "space_id": "slack:T0B8VMZS49J:C0B8RKJHY14",
+  "space_type": "seminar",
+  "created_at": "2026-06-07T03:00:48.148364+00:00",
+  "counter": 0,
+  "session": "",
+  "active_seminar_id": "",
+  "seminars": [],
+  "messages": {},
+  "channel": "C0B8RKJHY14",
+  "last_human_activity_at": 1780803760.992773,
+  "dialogue_seen": [
+    "1780801264.816559",
+    "1780802873.133569",
+    "1780803750.572689"
+  ],
+  "team": "T0B8VMZS49J"
+}

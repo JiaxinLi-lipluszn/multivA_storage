@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "kind": "bot",
+  "id": "B0B8RF7LU6A",
+  "source": "slack",
+  "first_seen_at": "2026-06-07T02:30:15.924376+00:00",
+  "last_seen_at": "2026-06-07T02:30:15.924392+00:00",
+  "consent": {
+    "share_personal_knowledge_to_org": false
+  },
+  "shared_knowledge": [],
+  "observed_in_spaces": {
+    "slack:T0B8VMZS49J:C0B8Q53UKL5": {
+      "count": 1,
+      "first_seen_at": "2026-06-07T02:30:15.924396+00:00",
+      "last_seen_at": "2026-06-07T02:30:15.924398+00:00"
+    }
+  }
+}

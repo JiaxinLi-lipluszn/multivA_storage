@@ -1,0 +1,16 @@
+{
+  "copilot_coordination_channel": {
+    "channel": "C0B8RKJHY14",
+    "team": "T0B8VMZS49J",
+    "updated_by": "U0B8Q1X1SF8",
+    "updated_at": "2026-06-07T03:27:52.919141+00:00"
+  },
+  "copilot_contact_map": {
+    "U0B8X5WHULU": {
+      "copilot_id": "U0B8X5WHULU",
+      "owner_user_id": "U0B8Q1X1SF8",
+      "updated_by": "U0B8Q1X1SF8",
+      "updated_at": "2026-06-07T03:42:30.360662+00:00"
+    }
+  }
+}
